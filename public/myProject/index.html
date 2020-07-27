@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>/
+<head>
+    <title>船期查询 - 首页</title>
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="plugins/layer/mobile/need/layer.css" rel="stylesheet">
+    <link href="plugins/laydate/theme/default/laydate.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="https://unpkg.com/avalon2@2.2.8/dist/avalon.js"></script>
+    <script type="text/javascript" src="js/util.js">
+
+    </script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/index.js">
+    </script>
+    <script src="plugins/layer/layer.js"></script>
+    <script src="plugins/laydate/laydate.js"></script>
+    <script>
+		var _hmt = _hmt || [];
+		(function() {
+			var hm = document.createElement("script");
+			hm.src = "https://hm.baidu.com/hm.js?31c465cda5ec66376a11ef41ec6a4235";
+			var s = document.getElementsByTagName("script")[0]; 
+			s.parentNode.insertBefore(hm, s);
+		})();
+	</script>
+</head>
+<body ms-controller="indexVm">
+<div class="container m-t">
+    <div class="banner_text text-center">
+        <img src="images/bg_title.png">
+    </div>
+    <div class="search_bg">
+        <form class="containerBox">
+            <div class="form-group ">
+                <ul class="nav nav-pills ">
+                    <li class="dropdown all-camera-dropdown ">
+                        <input id="select_scac_input" class="dropdown-toggle text-center" autocomplete="off" data-toggle="dropdown"
+                               ms-duplex="@company" oninput="scacChange(value)"/>
+                        <b class="caret"></b>
+                        <ul class="dropdown-menu text-center shipping_name">
+                            <li ms-for="el in @list" ms-click="@change_company(el)"><a data-toggle="tab">{{el}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group_key">
+                <ul class="nav nav-pills">
+                    <li class="dropdown all-camera-dropdown">
+                            <input class="dropdown-toggle" data-toggle="dropdown" placeholder="请输入起始港"
+                               oninput="openFlag(value,1)" ms-attr="{value: @st_val}"
+                               style="width:342px">
+                        <ul class="dropdown-menu text-left Port_input" ms-if="@indexLength > 0">
+                            <li data-filter-camera-type="Canada" ms-for="(index,st_port) in @start_port_list"><a
+                                    data-toggle="tab" ms-click="@port_click(st_port,@st_basic_code[index],1)">{{st_port}}
+                                <spans style="float: right">{{@st_port_code[index]}}</spans>
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group_key Portbg">
+                <ul class="nav nav-pills">
+                    <li class="dropdown all-camera-dropdown ">
+                        <input class="dropdown-toggle" data-toggle="dropdown" placeholder="请输入目的港"
+                               oninput="openFlag(value,2)" style="width:342px" ms-attr="{value: @ed_val}">
+                        <ul class="dropdown-menu text-left Port_input" ms-if="@indexLength_ed > 0">
+                            <li data-filter-camera-type="Canada" ms-for="(index,ed_port) in @end_port_list"
+                                style="cursor: pointer"><a data-toggle="tab"
+                                                           ms-click="@port_click(ed_port,@ed_basic_code[index],2)"
+                                                           href="#">{{ed_port}}<span style="float: right">{{@ed_port_code[index]}}</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group_key date-selector" style="width: 141px;"><ul class="nav nav-pills"><li class="dropdown all-camera-dropdown"><input id="date-selector" class="dropdown-toggle" data-toggle="dropdown" placeholder="请选择日期" onchange="" style="width: 90px;" aria-expanded="false" readonly><!--if--></li></ul></div>
+            <a ms-click="@seach_list()" style="text-decoration:none" class="search_all">查 询</a>
+        </form>
+    </div>
+
+</div>
+<div class="footer">
+    <ul>
+        <li><img src="images/icon_b2.png">领先的服务标准 健全的保障体系</li>
+        <li><img src="images/icon_b1.png">具竞争力的价格 无隐形费用</li>
+        <li><img src="images/icon_b.png">一对一专业资深客服服务</li>
+    </ul>
+	<div class="qq_talk_box">
+		<a class="qq_talk" target="_blank" href="https://wpa.qq.com/msgrd?v=3&uin=68381850&site=qq&menu=yes">
+			<span class="icon-qq btn-icon"></span>
+			<br>
+			<span class="btn-text">QQ</span>
+		</a>
+		<a class="qq_talk" target="_blank" href="https://wpa.qq.com/msgrd?v=3&uin=68381850&site=qq&menu=yes">
+			<span class="icon-im btn-icon"></span>
+			<br>
+			<span class="btn-text">咨询</span>
+		</a>
+	</div>
+	
+</div>
+</body>
+</html>

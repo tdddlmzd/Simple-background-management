@@ -1,0 +1,154 @@
+@media  screen and(max-width: 1024px)  {
+    .login-linner{
+        width: 800px !important;
+        height: 290px !important;
+        margin-left: -400px !important;
+        margin-top: -145px !important;
+    }
+    .logLf{
+        width: 520px !important;
+        height: 290px !important;
+    }
+    .parent{
+        .el-input--prefix{
+            .el-input__inner{
+                height: 35px !important;
+            }
+        } 
+        .el-form-item__content{
+            line-height: 35px !important;
+        }
+        .el-form-item{
+            margin-bottom: 15px;
+        }
+    }
+    .login-form{
+        height: 220px !important;
+        width: 220px !important;
+    }
+
+}
+@media screen and(min-width: 1024px) and (max-width: 1365px) {
+    .login-linner{
+        width: 800px !important;
+        height: 290px !important;
+        margin-left: -400px !important;
+        margin-top: -145px !important;
+    }
+    .logLf{
+        width: 520px !important;
+        height: 290px !important;
+    }
+    .parent{
+        .el-input--prefix{
+            .el-input__inner{
+                height: 35px !important;
+            }
+        } 
+        .el-form-item__content{
+            line-height: 35px !important;
+        }
+        .el-form-item{
+            margin-bottom: 15px;
+        }
+    }
+    .login-form{
+        height: 220px !important;
+        width: 220px !important;
+    }
+}
+@media screen and(min-width: 1366px) and (max-width: 1679px) {
+    .login-linner{
+        width: 800px !important;
+        height: 290px !important;
+        margin-left: -400px !important;
+        margin-top: -145px !important;
+    }
+    .logLf{
+        width: 520px !important;
+        height: 290px !important;
+    }
+    .parent{
+        .el-input--prefix{
+            .el-input__inner{
+                height: 35px !important;
+            }
+        } 
+        .el-form-item__content{
+            line-height: 35px !important;
+        }
+        .el-form-item{
+            margin-bottom: 15px;
+        }
+    }
+    .login-form{
+        height: 220px !important;
+        width: 220px !important;
+    }
+}
+@media screen and(min-width: 1680px) and (max-width: 1920px) {
+    .login-linner{
+        width: 1000px !important;
+        height: 370px !important;
+        margin-left: -500px !important;
+        margin-top: -150px !important;
+    }
+    .logLf{
+        width: 640px !important;
+        height: 370px !important;
+    }
+    .backgroundLogo{
+        // width: 240px;
+        // height: 50px;
+        // display: inline-block;
+        // position: absolute;
+        // top: 50%;
+        // left: 50%;
+        // margin-left: -120px;
+        // margin-top: -25px;
+        // img{
+        //     width: 100%;
+        //     height: 100%;
+        // }
+    }
+    .login-form{
+        height: 300px !important;
+        width: 300px !important;
+    }
+    .el-button--primary{
+        margin-top: 40px !important;
+    }
+}
+@media screen and(min-width: 1920px) {
+    .login-linner{
+        width: 1000px !important;
+        height: 370px !important;
+        margin-left: -500px !important;
+        margin-top: -150px !important;
+    }
+    .logLf{
+        width: 640px !important;
+        height: 370px !important;
+    }
+    .backgroundLogo{
+        // width: 240px;
+        // height: 50px;
+        // display: inline-block;
+        // position: absolute;
+        // top: 50%;
+        // left: 50%;
+        // margin-left: -120px;
+        // margin-top: -25px;
+        // img{
+        //     width: 100%;
+        //     height: 100%;
+        // }
+    }
+    .login-form{
+        height: 300px !important;
+        width: 300px !important;
+    }
+    .el-button--primary{
+        margin-top: 40px !important;
+    }
+}

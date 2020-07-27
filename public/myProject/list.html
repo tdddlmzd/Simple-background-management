@@ -1,0 +1,269 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>船期查询 - 查询列表</title>
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="css/page.css" rel="stylesheet">
+    <link href="plugins/layer/mobile/need/layer.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="js/jquery.min.js"></script>
+	<script src="https://unpkg.com/avalon2@2.2.8/dist/avalon.js"></script>
+    <script src="js/jquery.simplePagination.js"></script>
+	<script type="text/javascript" src="js/util.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/list.js"></script>
+    <script src="plugins/layer/layer.js"></script>
+</head>
+<body style="background: none; margin-bottom: 100px;" ms-controller="listVm">
+<div class="container">
+    <h2 class="main_steps">您当前的位置：<a href="index.html">首页</a>&gt; <span>查询列表</span></h2>
+    <h2 class="update_schedules"  ms-if="@isShowUpdateBtn" >数据不准确？点击更新<button class="update_schedule_btn">立即更新</button><span>上次更新时间：{{@lastUpdateTime()}}</span></h2>
+    <div class="criteria">
+        <h1>搜索条件</h1>
+
+        <p><span>来自</span> {{@st_val}}<span>到</span>
+            <span style="margin-right: 10px; color: #42484c">{{@ed_val}}</span>
+            <span>日期为</span>
+            <span style="margin-right: 10px; color: #42484c">{{@y_m_d}}</span>
+            <span>查询时间</span>4周
+            <span>总条数</span>{{@total}}
+        </p>
+
+        <div class="clear"></div>
+    </div>
+    <div class="criteria">
+        <h1>筛选条件</h1>
+
+        <p><span>船名</span> <input class="schedule-filter" value="" placeholder="请输入船名" ms-duplex="@vessel">
+            <span>航次</span> <input class="schedule-filter" value="" placeholder="请输入航次" ms-duplex="@voyage">
+            <span>航线代码</span> <input class="schedule-filter" value="" placeholder="请输入航线代码" ms-duplex="@routeCode">
+            <span>直达/中转</span> <select class="schedule-filter" value="" placeholder="请选择">
+                <option value="">请选择</option>
+				<option value="0">直达</option>
+				<option value="1">中转</option>
+            </select>
+        </p>
+
+        <div class="clear"></div>
+    </div>
+    <!--直达样式-->
+    <div class="list-box"ms-for="el in @data_list">
+        <div>
+            <div class="list_title">
+                <h1><img src="images/shipping_icon.png">{{el.carriercd}}</h1>
+
+                <p>{{el.scac}} <span>│</span> {{el.routeCode}}<span>│</span> {{el.vessel}}<span>│</span>{{el.voyage}}</p>
+
+                <div class="clear"></div>
+            </div>
+            <div class="list_content">
+                <ul>
+                    <li class="name_shipping">
+                        <p>{{el.pol}} <span class="font12 gary_color m-l20">│</span> <span class="font12">{{el.polCode}}</span>
+                            <span class="font12 gary_color">│</span> <span class="font12">{{el.polTerninal}}</span>
+                        </p>
+                        <p class="m-t28">{{el.pod}} <span class="font12 gary_color m-l20">│</span> <span class="font12">{{el.podCode}}</span>
+                            <span class="font12 gary_color">│</span> <span class="font12">{{el.podTerninal}}</span>
+                        </p>
+                    </li>
+                    <li class="text-center list_shipping">
+                        <div class="btn-group" style="margin-top: 20px;" ms-if="el.isTransit==0"  >
+                            <button type="button" class="btn" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                <span class="hidden-sm hidden-xs">直达</span>
+                                <i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu Direct_li" role="menu" style="padding: 0 20px 20px 20px !important; width: auto !important; ">
+                                <h1 class="text_Direct">直达信息</h1>
+                                <li>
+                                    <p>imoNumber: {{el.imoNumber}}</p>
+                                    <p>containerCutoff: {{el.containerCutoff}}</p>
+                                    <p>vgmCutoff: {{el.vgmCutoff}}</p>
+                                    <p>manifestCutoff: {{el.manifestCutoff}}</p>
+                                    <p>siCutoff: {{el.siCutoff}}</p>
+                                    <p>cyCutoff: {{el.cyCutoff}}</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="btn-group" style="margin-top: 20px;" ms-if="el.isTransit==1">
+                                <button type="button" class="btn" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                    <span class="hidden-sm hidden-xs">中转 &nbsp;</span>
+                                    <i class="fa fa-angle-down"></i>
+                                </button>
+                            <ul class="dropdown-menu" role="menu" style="padding: 0 20px 20px 20px !important;margin-left:-276px !important;width: 720px !important; ">
+                                <h1 class="text_Direct">中转港口信息</h1>
+                                <div class="row transfer_three">
+                                    <ul>
+                                        <li class="col-lg-4" style="border-right: 1px dashed #dadada;">
+                                            <p><span class="text_mt">中转港口：</span><span ms-attr="{title: el.transitPortEn}">{{el.transitPortEn}}</span></p>
+                                            <p><span class="text_mt">中转航线：</span><span ms-attr="{title:el.transitRouteCode}">{{el.transitRouteCode}}</span></p>
+                                            <p><span class="text_mt">中转船名：</span><span ms-attr="{title:el.vesselAfterTransit}">{{el.vesselAfterTransit}}</span></p>
+                                            <p><span class="text_mt">中转航次：</span><span ms-attr="{title:el.voyageAfterTransit}">{{el.voyageAfterTransit}}</span></p>
+                                        </li>
+                                        <li class="col-lg-4" style="border-right: 1px dashed #dadada;">
+                                            <p><span class="text_mt">二次中转港口：</span><span ms-attr="{title:el.secondTransitPortEn}">{{el.secondTransitPortEn}}</span></p>
+                                            <p><span class="text_mt">二次中转航线：</span><span ms-attr="{title:el.secondTransitRouteCode}">{{el.secondTransitRouteCode}}</span></p>
+                                            <p><span class="text_mt">二次中转船名：</span><span ms-attr="{title:el.secondVesselAfterTransit}">{{el.secondVesselAfterTransit}}</span></p>
+                                            <p><span class="text_mt">二次中转航次：</span><span ms-attr="{title:el.secondVoyageAfterTransit}">{{el.secondVoyageAfterTransit}}</span></p>
+                                        </li>
+                                        <li class="col-lg-4">
+                                            <p><span class="text_mt">三次中转港口：</span><span ms-attr="{title:el.thirdTransitPortEn}">{{el.thirdTransitPortEn}}</span></p>
+                                            <p><span class="text_mt">三次中转航线：</span><span ms-attr="{title:el.thirdTransitRouteCode}">{{el.thirdTransitRouteCode}}</span></p>
+                                            <p><span class="text_mt">三次中转船名：</span><span ms-attr="{title:el.thirdVesselAfterTransit}">{{el.thirdVesselAfterTransit}} </span></p>
+                                            <p><span class="text_mt">三次中转航次：</span><span ms-attr="{title:el.thirdVoyageAfterTransit}">{{el.thirdVoyageAfterTransit}}</span></p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="row text-bottom">
+                                    <ul>
+                                        <li class="col-lg-4">IMO：{{el.containerCutoff}} </li>
+                                        <li class="col-lg-4">CONTSINER_CUTOFF：{{el.containerCutoff}}</li>
+                                        <li class="col-lg-4">VGM_CUTOFF：{{el.vgmCutoff}}</li>
+                                        <li class="col-lg-4">MANIFEST_CUTOFF：{{el.manifestCutoff}} </li>
+                                        <li class="col-lg-4">SI_CUTOFF：{{el.siCutoff}}</li>
+                                        <li class="col-lg-4">CY_CUTOFF：{{el.cyCutoff}}</li>
+                                    </ul>
+                                </div>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="text-center list_shipping">
+                        <p class="text_mt" style=" margin-top: 16px !important;">【离港时间】</p>
+
+                        <p>{{el.etd}}</p>
+                    </li>
+                    <li class="text-center list_shipping">
+                        <p class="text_mt" style=" margin-top: 16px !important;">【到港时间】</p>
+
+                        <p>{{el.eta}}</p>
+                    </li>
+                    <li class="text-center list_shipping">
+                        <p class="text_mt" style=" margin-top: 16px !important;">【运输时间】</p>
+
+                        <p>{{el.totalDuration}} DAY</p>
+                    </li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    <div ms-if="@data==0" style="padding-left: 500px;padding-top:300px;font-size: 22px">
+        暂无数据
+    </div>
+    <!--中转样式-->
+    <!--中转3次样式-->
+    <!--<div class="list-box" ms-if="el.isTransit==1" ms-for="el in @data_list">-->
+        <!--<div >-->
+            <!--<div class="list_title">-->
+                <!--<h1><img src="images/shipping_icon.png">{{el.carrierName}}</h1>-->
+
+                <!--<p>{{el.scac}} <span>│</span> {{el.routeCode}}<span>│</span> {{el.vessel}}<span>│</span>{{el.voyage}}</p>-->
+
+                <!--<div class="clear"></div>-->
+            <!--</div>-->
+            <!--<div class="list_content">-->
+                <!--<ul>-->
+                    <!--<li class="name_shipping">-->
+                        <!--<p>{{el.pol}}<span class="font12 gary_color m-l20">│</span> <span class="font12">{{el.polCode}}</span>-->
+                            <!--<span class="font12 gary_color">│</span> <span class="font12">{{el.polTerninal}}</span>-->
+                        <!--</p>-->
+                        <!--<p class="m-t28">{{el.pod}} <span class="font12 gary_color m-l20">│</span> <span class="font12">{{el.podCode}}</span>-->
+                            <!--<span class="font12 gary_color">│</span> <span class="font12">{{el.podTerninal}}</span>-->
+                        <!--</p>-->
+                    <!--</li>-->
+                    <!--<li class="text-center list_shipping">-->
+                        <!--<div class="btn-group" style="margin-top: 20px;">-->
+                            <!--<button type="button" class="btn" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">-->
+                                <!--<span class="hidden-sm hidden-xs">中转 &nbsp;</span>-->
+                                <!--<i class="fa fa-angle-down"></i>-->
+                            <!--</button>-->
+                            <!--<ul class="dropdown-menu" role="menu" style="padding: 0 20px 20px 20px !important;margin-left:-276px !important;width: 720px !important; ">-->
+                                <!--<h1 class="text_Direct">中转港口信息</h1>-->
+                                <!--<div class="row transfer_three">-->
+                                    <!--<ul>-->
+                                        <!--<li class="col-lg-4" style="border-right: 1px dashed #dadada;">-->
+                                            <!--<p><span class="text_mt">中转港口：</span><span ms-attr="{title: el.transitPortEn}">{{el.transitPortEn}}</span></p>-->
+                                            <!--<p><span class="text_mt">中转航线：</span><span ms-attr="{title:el.transitRouteCode}">{{el.transitRouteCode}}</span></p>-->
+                                            <!--<p><span class="text_mt">中转船名：</span><span ms-attr="{title:el.vesselAfterTransit}">{{el.vesselAfterTransit}}</span></p>-->
+                                            <!--<p><span class="text_mt">中转航次：</span><span ms-attr="{title:el.voyageAfterTransit}">{{el.voyageAfterTransit}}</span></p>-->
+                                        <!--</li>-->
+                                        <!--<li class="col-lg-4" style="border-right: 1px dashed #dadada;">-->
+                                            <!--<p><span class="text_mt">二次中转港口：</span><span ms-attr="{title:el.secondTransitPortEn}">{{el.secondTransitPortEn}}</span></p>-->
+                                            <!--<p><span class="text_mt">二次中转航线：</span><span ms-attr="{title:el.secondTransitRouteCode}">{{el.secondTransitRouteCode}}</span></p>-->
+                                            <!--<p><span class="text_mt">二次中转航线：</span><span ms-attr="{title:el.secondVesselAfterTransit}">{{el.secondVesselAfterTransit}}</span></p>-->
+                                            <!--<p><span class="text_mt">二次中转航次：</span><span ms-attr="{title:el.secondVoyageAfterTransit}">{{el.secondVoyageAfterTransit}}</span></p>-->
+                                        <!--</li>-->
+                                        <!--<li class="col-lg-4">-->
+                                            <!--<p><span class="text_mt">三次中转港口：</span><span ms-attr="{title:el.thirdTransitPortEn}">{{el.thirdTransitPortEn}}</span></p>-->
+                                            <!--<p><span class="text_mt">三次中转航线：</span><span ms-attr="{title:el.thirdTransitRouteCode}">{{el.thirdTransitRouteCode}}</span></p>-->
+                                            <!--<p><span class="text_mt">三次中转船名：</span><span ms-attr="{title:el.thirdVesselAfterTransit}">{{el.thirdVesselAfterTransit}} </span></p>-->
+                                            <!--<p><span class="text_mt">三次中转航次：</span><span ms-attr="{title:el.thirdVoyageAfterTransit}">{{el.thirdVoyageAfterTransit}}</span></p>-->
+                                        <!--</li>-->
+                                    <!--</ul>-->
+                                <!--</div>-->
+                                <!--<div class="row text-bottom">-->
+                                    <!--<ul>-->
+                                        <!--<li class="col-lg-4">IMO：{{el.containerCutoff}} </li>-->
+                                        <!--<li class="col-lg-4">CONTSINER_CUTOFF：{{el.containerCutoff}}</li>-->
+                                        <!--<li class="col-lg-4">VGM_CUTOFF：{{el.vgmCutoff}}</li>-->
+                                        <!--<li class="col-lg-4">MANIFEST_CUTOFF：{{el.manifestCutoff}} </li>-->
+                                        <!--<li class="col-lg-4">SI_CUTOFF：{{el.siCutoff}}</li>-->
+                                        <!--<li class="col-lg-4">CY_CUTOFF：{{el.cyCutoff}}</li>-->
+                                    <!--</ul>-->
+                                <!--</div>-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                    <!--</li>-->
+                    <!--<li class="text-center list_shipping">-->
+                        <!--<p class="text_mt" style=" margin-top: 16px !important;">【离港时间】</p>-->
+
+                        <!--<p>{{el.etd}}</p>-->
+                    <!--</li>-->
+                    <!--<li class="text-center list_shipping">-->
+                        <!--<p class="text_mt" style=" margin-top: 16px !important;">【到港时间】</p>-->
+
+                        <!--<p>{{el.eta}}</p>-->
+                    <!--</li>-->
+                    <!--<li class="text-center list_shipping">-->
+                        <!--<p class="text_mt" style=" margin-top: 16px !important;">【运输时间】</p>-->
+                        <!--<p>{{el.totalDuration}} DAY</p>-->
+                    <!--</li>-->
+                    <!--<div class="clear"></div>-->
+                    <!--<div></div>-->
+                <!--</ul>-->
+                <!--<div class="clear"></div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div class="Page">
+
+    </div>
+    <!--<ul class="pagination">-->
+        <!--<li><a href="#">&laquo;</a></li>-->
+        <!--<li><a href="#">1</a></li>-->
+        <!--<li><a href="#">2</a></li>-->
+        <!--<li><a href="#">3</a></li>-->
+        <!--<li><a href="#">4</a></li>-->
+        <!--<li><a href="#">5</a></li>-->
+        <!--<li><a href="#">&raquo;</a></li>-->
+    <!--</ul>-->
+</div>
+<div class="footer">
+	<div class="qq_talk_box">
+		<a class="qq_talk" target="_blank" href="https://wpa.qq.com/msgrd?v=3&uin=68381850&site=qq&menu=yes">
+			<span class="icon-qq btn-icon"></span>
+			<br>
+			<span class="btn-text">QQ</span>
+		</a>
+		<a class="qq_talk" target="_blank" href="https://wpa.qq.com/msgrd?v=3&uin=68381850&site=qq&menu=yes">
+			<span class="icon-im btn-icon"></span>
+			<br>
+			<span class="btn-text">咨询</span>
+		</a>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,447 @@
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: url("../images/bg.jpg") center fixed no-repeat;
+    background-size: cover;
+}
+li{
+    list-style: none;
+}
+.clear {
+    clear: both;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height:10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 8px;
+    height:10px;
+    border-radius: 5px;
+    background-color: #d3dde7;
+}
+.banner_text{
+    margin: 5% auto;
+}
+.m-t{
+    margin-top: 8%;
+}
+
+.search_bg{
+    width: 1085px;
+    margin: 0 auto;
+    padding:20px;
+    background-color: rgb(0,0,0,0.5);
+    border-radius: 20px;
+}
+.containerBox {
+    width: 1045px;
+    margin: 0 auto;
+    padding:5px;
+    height: 50px;
+    background-color:#0099ff;
+}
+.form-group {
+    float: left;
+    width: 130px;
+    border-right: 1px solid #c1c1c1;
+    background: #fff;
+    color: #0099ff;
+    font-size: 14px;
+    line-height: 0px;
+}
+
+.containerBox input {
+    border: none;
+    outline: none;
+    width: 110px;
+    height: 40px;
+    color: #0099ff;
+    float: left;
+    background: none;
+}
+.shipping_name {
+    border-radius: 0px !important;
+    min-width: 130px !important;
+    max-height: 142px !important;
+    overflow-y: auto;
+    width: 100%;
+}
+.shipping_name li{
+    margin-bottom: 5px !important;
+}
+.careticon {
+    position: absolute;
+    top: 19px;
+}
+.search {
+    float: right;
+    border: none;
+    outline: none;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    margin-top: -40px;
+    margin-right: 2px;
+    background: url(../images/index_search.png) no-repeat center center;
+}
+
+.form-group_key {
+    float: left;
+    width: 342px;
+    text-align: left !important;
+    background: url("../images/fright_icon.png") 10px center no-repeat  #fff;
+    padding-left: 50px;
+    border-right: 1px solid #c1c1c1;
+}
+.Portbg{
+    background: url("../images/prot_icon.png") 10px center no-repeat #fff !important;
+}
+.date-selector{
+    background: url("../images/LC_icon_date_line_2.png") 10px center no-repeat #fff !important;
+    background-size: 20px !important;
+}
+.Port_input{
+    border-radius: 0px !important;
+    width: 342px !important;
+    margin-left: -50px !important;
+    height: auto !important;
+    overflow-y: auto;
+}
+.Port_input li{
+    margin-bottom: 5px !important;
+    font-size: 12px !important;
+}
+.search_all{
+    background: none;
+    border: none;
+    float: left;
+    width: 80px;
+    font-size: 14px;
+    color: #fff;
+    line-height: 40px;
+    text-align: center;
+    cursor: pointer;
+
+}
+.search_all:hover, .search_all:active, .search_all:visited{
+    font-size: 16px;
+    color: #fff;
+
+}
+.footer{
+    width: 940px;
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    margin-left: -470px;
+}
+.footer ul li{
+    float: left;
+    width: 33.33%;
+    font-size: 16px;
+    color: #fff;
+    line-height: 20px;
+}
+.footer ul li img{
+    margin-right: 10px;
+}
+/*���м*/
+.main_steps {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #42484c;
+    line-height: 18px;
+    font-weight: normal;
+    padding-left: 25px;
+    background: url("../images/mark.png") no-repeat center left;
+    margin-bottom: 20px;
+    float: left;
+}
+.main_steps a {
+    color: #0099ff;
+    margin: 0 8px;
+}
+.main_steps span {
+    color: #42484c;
+    margin: 0 8px;
+}
+.criteria{
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    background: #f7fcff;
+    clear: both;
+}
+.criteria h1{
+    float: left;
+    width: auto;
+    font-size: 18px;
+    color: #42484c;
+    font-weight: 600;
+    margin: 0 !important;
+    line-height: 20px;
+}
+.criteria p{
+    float: right;
+    width: auto;
+    font-size: 14px;
+    color: #42484c;
+    margin: 0 !important;
+}
+.criteria span{
+    color: #999;
+    margin: 0 10px;
+}
+.list-box{
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border: 1px solid #f4f4f4;
+}
+.list_title{
+    background: #f7fcff;
+    padding: 15px 20px;
+}
+.list_title h1{
+    float: left;
+    width: auto;
+    font-size: 18px;
+    font-weight: 500;
+    color: #42484c;
+    margin: 0 !important;
+    line-height: 20px;
+}
+.list_title h1 img{
+    margin-right: 10px;
+    margin-top: -5px;
+}
+.list_title p{
+    float: right;
+    width: auto;
+    font-size: 12px;
+    color: #42484c;
+    margin: 0 !important;
+}
+.list_title span{
+    color: #eee;
+    margin: 0 10px;
+}
+.list_content{
+    width: 100%;
+    padding: 15px 20px;
+}
+.list_content ul{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.list_content .name_shipping{
+    float: left;
+    width: 52%;
+    height: 70px;
+    background: url("../images/ocean.png") no-repeat left center;
+    padding-left: 28px;
+    color: #42484c;
+}
+.list_content .name_shipping p{
+    font-size: 16px !important;
+}
+.m-t28{
+    margin-top: 28px !important;
+}
+.m-l20{
+    margin-left: 20px !important;
+}
+.btn{
+    outline: none;
+    background: none;
+    border: none;
+    color: #42484c !important;
+    font-size: 12px;
+    box-shadow: none !important;
+}
+.btn:active, .btn:visited, .btn:hover{
+    background: none !important;
+    border: none !important;
+}
+.btn:focus{
+    outline: -webkit-focus-ring-color auto 0px !important;
+}
+.dropdown-menu{
+    min-width: auto !important;
+    font-size: 12px !important;
+}
+.dropdown-menu>li>a{
+    cursor: pointer;
+}
+.Direct_li{
+    width: auto !important;
+    padding: 0 20px 20px 20px !important;
+}
+.Direct_li li{
+    width: auto !important;
+    float: left !important;
+    padding-right: 20px;
+}
+.Direct_li p{
+    white-space:nowrap;
+    margin-bottom: 10px !important;
+    font-size: 12px;
+    color: #42484c;
+    line-height: 26px;
+}
+.text_Direct{
+    font-size: 12px;
+    padding-left: 8px;
+    border-left: 2px solid #0099ff;
+    margin-left: -10px;
+}
+.gary_color{
+    color: #bbbbbb !important;
+}
+.font12{
+    font-size: 12px !important;
+}
+.list_shipping{
+    float: left;
+    width: 12%;
+    height: 70px;
+    border-left: 1px dashed #dadada;
+    font-size: 12px;
+    color: #42484c ;
+}
+.list_shipping p{
+    margin:0px !important;
+    padding: 0 !important;
+}
+.text_mt{
+    color: #999999;
+}
+.transfer_three li{
+    float: left !important;
+    padding-right: 20px;
+}
+.transfer_three p{
+    white-space:nowrap;
+    margin-bottom: 0 !important;
+    font-size: 12px;
+    color: #42484c;
+    line-height: 26px;
+}
+.text-bottom{
+    width: auto;
+    margin-top:10px;
+    padding-top: 10px;
+    border-top:1px solid #dadada;
+}
+.text-bottom ul li{
+    float: left;
+    white-space:nowrap;
+    margin-bottom: 0 !important;
+    font-size: 12px;
+    color: #42484c;
+    line-height: 26px;
+}
+.Page{
+    margin-top:20px;
+    width: auto;
+    float: right;
+}
+.Page span{
+    border: 1px solid #dadada;
+    padding: 10px 15px;
+    text-align: center;
+    font-size: 12px;
+    color: #42484c;
+    margin-left: -1px;
+}
+.Page span:hover{
+    text-decoration: none;
+    color: #000000;
+    background: #79c9ff;
+}
+.Page .active{
+    text-decoration: none;
+    color: #fff;
+    background: #ffffff;
+}
+.Ellipsis{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+}
+.transfer_three p{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.update_schedules {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #42484c;
+    line-height: 18px;
+    font-weight: normal;
+    padding-left: 25px;
+    margin-bottom: 20px;
+    float: right;
+}
+.update_schedule_btn {
+    color: #fff;
+    margin: 0 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #0099ff;
+    cursor: pointer;
+    outline: none;
+}
+.update_schedule_btn:hover{
+    background-color: #337ab7;
+}
+.update_schedules span {
+    color: #42484c;
+    margin: 0 8px;
+}
+
+.qq_talk{
+	width: 80px;
+    height: 80px;
+	background:#ff9232;
+	border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+	display:block;
+	text-align: center;
+    position: relative;
+    cursor: pointer;
+	margin-bottom:4px;
+	padding:18px;
+}
+.qq_talk_box{
+	position: fixed;
+    right: 0;
+    top: 70%;
+	color: #fff;
+}
+.qq_talk_box > a{
+	color: #fff !important;
+	text-decoration:none;
+}
+.icon-qq {
+	display: inline-block;
+    width: 22px;
+    height: 26px;
+    background: url(https://bqq.gtimg.com/qidian/src/wpa/dist/4.1.0/images/icon-qq-white-small.png) no-repeat;
+}
+.icon-im {
+	display: inline-block;
+    width: 25px;
+    height: 25px;
+    background: url(https://bqq.gtimg.com/qidian/src/wpa/dist/4.1.0/images/im-bubble-pc-white.png) no-repeat;
+}
+
