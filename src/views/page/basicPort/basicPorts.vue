@@ -46,7 +46,16 @@
                     <el-table-column prop="terminal" label="码头" align="left" :show-overflow-tooltip=true min-width="100" :sortable="sortableState" :filters="[]">
                         
                     </el-table-column>
+                    <el-table-column prop="areaCode" label="大航线" align="left" :show-overflow-tooltip=true min-width="100" :sortable="sortableState" :filters="[]">
+                        
+                    </el-table-column>
                     <el-table-column prop="routeCn" label="航线" align="left" :show-overflow-tooltip=true min-width="70" :sortable="sortableState" :filters="[]">
+                        
+                    </el-table-column>
+                    <el-table-column prop="lon" label="经度" align="left" :show-overflow-tooltip=true min-width="80" :sortable="sortableState" :filters="[]">
+                        
+                    </el-table-column>
+                    <el-table-column prop="lat" label="纬度" align="left" :show-overflow-tooltip=true min-width="80" :sortable="sortableState" :filters="[]">
                         
                     </el-table-column>
                     <el-table-column prop="countryEn" label="国家英文" align="left" :show-overflow-tooltip=true min-width="100" :sortable="sortableState" :filters="[]">
@@ -60,6 +69,11 @@
                     </el-table-column>
                     <el-table-column prop="cityCn" label="城市中文" align="left" :show-overflow-tooltip=true min-width="100" :sortable="sortableState" :filters="[]">
                         
+                    </el-table-column>
+                    <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                        <template slot-scope="scope">
+                            {{scope.row.updateUser ? scope.row.updateUser.toUpperCase() : ''}}
+                        </template>
                     </el-table-column>
                     <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip=true min-width="142" :sortable="sortableState" :filters="[]">
                         
@@ -184,12 +198,9 @@
                 setTimeout(() => {
                     this.isLoading = true;
                     this.$refs.multipleTables.clearSort()
-                    this.$axios.get(this.commonJs.localUrl + `/schedules/port/query?searchStr=${
-                        value
-                    }&pageNumber=${
-                        this.page.pageNo
-                    }&pageSize=${
-                        this.page.pageSize
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/port/query?pageNumber=${this.page.pageNo
+                    }&pageSize=${this.page.pageSize
+                    }&searchStr=${value
                     }`,{
                         headers : {
                             Authorization: `Bearer ${this.getAuthorization()}`,
@@ -198,7 +209,6 @@
                     }).then(res => {
                         if(res.data.status == 1){
                             this.tableData = res.data.content;
-                            // document.querySelector(".loading").style.height = this.$refs.basicPortContent.getBoundingClientRect().height + 150 + 'px';
                             this.$refs.refPagination.page.total = res.data.total;
                             this.$refs.refPagination.changeValue()
                             this.isLoading = false;
@@ -230,12 +240,9 @@
                         this.pageNumber = 1;
                     };
                 }
-                this.$axios.get(this.commonJs.localUrl + `/schedules/port/query?searchStr=${
-                    this.ruleForm.fliterTable
-                }&pageNumber=${
-                    this.page.pageNo
-                }&pageSize=${
-                    this.page.pageSize
+                this.$axios.get(this.commonJs.localUrl + `/schedules/port/query?pageNumber=${this.page.pageNo
+                }&pageSize=${this.page.pageSize
+                }&searchStr=${this.ruleForm.fliterTable
                 }`,{
                     headers : {
                         Authorization: `Bearer ${this.getAuthorization()}`,

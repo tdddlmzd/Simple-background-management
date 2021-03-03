@@ -154,7 +154,7 @@
                     </el-form-item>
                 </li>
                 <li>
-                    <el-form-item prop="etd" label="ETD"
+                    <el-form-item prop="etd" label="ETD" :rules="[{ required: true, message: '请选择ETD', trigger: 'blur'}]"
                     >
                         <el-select
                             v-model="ruleForm.etd"
@@ -172,7 +172,7 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item prop="eta" label="ETA"
+                    <el-form-item prop="eta" label="ETA" :rules="[{ required: true, message: '请选择ETA', trigger: 'blur'}]"
                     >
                         <el-select
                             v-model="ruleForm.eta"
@@ -303,6 +303,10 @@
                         id : 6,
                         label : 'SUN',
                     },
+                    {
+                        id : '未知',
+                        label : '未知',
+                    }
                 ],
                 ETDList : [
                     {
@@ -333,6 +337,10 @@
                         id : 6,
                         label : 'SUN',
                     },
+                    {
+                        id : '未知',
+                        label : '未知',
+                    }
                 ],
             }
         },
@@ -500,7 +508,6 @@
                         if(this.polPort[i].terminalCn == val) {
                             this.ruleForm.polTerminalId = this.polPort[i].id
                         }
-                        
                     }
                 }else {
                     this.ruleForm.polTerminalId = ''

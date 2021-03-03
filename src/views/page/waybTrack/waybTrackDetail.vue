@@ -576,6 +576,7 @@
                     </li>
                 </ul>
                 <div class="save">
+                    <el-button class="saveBtn" style="margin-right: 60px" @click="handleClickImmediate">立即刷新</el-button>
                     <el-button class="saveBtn" @click="handleSaveClick()">保存</el-button>
                 </div>
             </div>
@@ -600,6 +601,7 @@
                 isDisable: false, //是否可修改
                 isLoading: false, //loading
                 referenceno: '', //运单号详情
+                isYundang: false, //是否可以立即更新
                 routeInfo: null,
                 routewayList: [], //船期路径列表
                 weekList: [], //周次
@@ -676,6 +678,7 @@
                 }).then(res =>{
                     if(res.data.status == 1){
                         this.getRouteInfo(res.data.content.mid) //地图接口主键参数获取地图
+                        this.isYundang = res.data.content.isYundang //是否可以立即更新
                         this.ruleForm.mid = res.data.content.mid //地图接口主键id
                         this.ruleForm.keyid = res.data.content.keyid //keyid
                         this.ruleForm.userId = res.data.content.userId //userId
@@ -830,7 +833,7 @@
                         vslname: '', //船名
                     }
                     var glod = {  //封箱
-                        statuscd: "GLOD",
+                        statuscd: "CLOD",
                         statedescription: "封箱",
                         source: '船公司',
                         keyid: '' ,//用来区分用户是否有输入改变
@@ -894,6 +897,19 @@
                         voy: '', //航次
                         vslname: '', //船名
                     }
+                    var prld = { //配载
+                        statuscd: "PRLD",
+                        statedescription: "配载",
+                        source: '码头',
+                        keyid: '' ,//用来区分用户是否有输入改变
+                        fkeyid: '', //改变数据是要往后端存的
+                        isModify: 0, // isModify 0 为未修改数据 1为老数据+新增数据
+                        isest: '', //当前是预计还是实际 Y预计 N 实际
+                        statedescription_en: '', //英文描述的地点
+                        statusplace: '', //中文地点
+                        voy: '', //航次
+                        vslname: '', //船名
+                    }
                     var lobd = { //装船
                         statuscd: "LOBD",
                         statedescription: "装船",
@@ -947,7 +963,7 @@
                         vslname: '', //船名
                     }
                     var tslb = { //中转装船 
-                        statuscd: "TSDP",
+                        statuscd: "TSLB",
                         statedescription: "中转装船",
                         source: '船公司',
                         keyid: '' ,//用来区分用户是否有输入改变
@@ -1025,7 +1041,7 @@
                         vslname: '', //船名
                     }
                     //caroObject 箱子新节点信息
-                    caroObject.newStatus = [stsp,fcgi,cggi,glod,cytc,gitm,pass,tmps,lobd,dlpt,tsba,tsdc,tslb,tsdp,bdar,dsch,stcs,rcve]
+                    caroObject.newStatus = [stsp,fcgi,cggi,glod,cytc,gitm,pass,tmps,prld,lobd,dlpt,tsba,tsdc,tslb,tsdp,bdar,dsch,stcs,rcve]
                     if(caroObject.stateList && caroObject.stateList.length > 0) { //如果箱子的节点信息数组大于0 
                         for (let index = 0; index < caroObject.newStatus.length; index++) {
                             var newStatus = caroObject.newStatus[index]
@@ -1315,6 +1331,42 @@
                     case 6:
                         // console.log('星期六')
                         return 6
+                }
+            },
+            //立即刷新
+            handleClickImmediate(){
+                var immediateList = []
+                immediateList.push({
+                    carriercd: this.ruleForm.carriercd,
+                    referenceno: this.ruleForm.referenceno
+                })
+                if(!this.isYundang){
+                    this.isLoading = true
+                    this.$axios.post(this.commonJs.localUrl +`/schedules/trace/spiderTraceUpdate`,immediateList,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res =>{
+                        if(res.data.status == 1){
+                            this.$message({
+                                type: "success",
+                                message: "已经触发爬虫，请耐心等待。五分钟内请不要重复更新同一提单！"
+                            });
+                        }else{
+                            this.$message({
+                                type: "error",
+                                message: "立即刷新加载失败"
+                            });
+                        }
+                        this.isLoading = false
+                    })
+                }else{
+                    this.$message({
+                        type: "error",
+                        message: this.ruleForm.referenceno + "不支持立即更新"
+                    });
                 }
             },
             //保存

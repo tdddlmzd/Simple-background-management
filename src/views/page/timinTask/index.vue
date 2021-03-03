@@ -3,7 +3,8 @@
         <loading v-show="isLoading"></loading>
         <div class="tablePage">
             <div class="buttonTop">
-                <el-button size="small" class="clickColor normals" @click="execute">执行</el-button>
+                <el-button size="small" class="clickColor normals" @click="execute" v-if="isShowZ">执行</el-button>
+                <el-button size="small" class="clickColor hui_normal" v-if="!isShowZ">{{count}}秒</el-button>
                 <el-button size="small" class="clickColor abnormal" @click="pause">暂停</el-button>
                 <el-button size="small" class="clickColor normals" @click="resume">恢复</el-button>
             </div>
@@ -20,13 +21,13 @@
 
                 </el-table-column>
                 
-                <el-table-column prop="triggerExpress" label="表达式" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="triggerExpress" label="表达式" align="left" :show-overflow-tooltip="true" width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="preDate" label="上次执行时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="preDate" label="上次执行时间" align="left" :show-overflow-tooltip="true" width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="nextDate" label="下次执行时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="nextDate" label="下次执行时间" align="left" :show-overflow-tooltip="true" width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="jobName" label="任务名" align="left" :show-overflow-tooltip="true" min-width="180" :sortable="sortableState" :filters="[]">
@@ -35,7 +36,7 @@
                 <el-table-column prop="jobGroup" label="任务组" align="left" :show-overflow-tooltip="true" min-width="180" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="jobStatus" label="状态" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="jobStatus" label="状态" align="left" :show-overflow-tooltip="true" width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.jobStatus == 'NORMAL' ? '正常' : scope.row.jobStatus == 'ERROR' ? '异常' : scope.row.jobStatus == 'WAITING' ? '等待' : scope.row.jobStatus == 'PAUSED' ? '暂停' :  scope.row.jobStatus == 'BLOCKED' ? '阻塞' : ''}}</span>
                     </template>
@@ -43,7 +44,7 @@
                 <el-table-column prop="jobClass" label="类" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="jobDuring" label="持久化" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="jobDuring" label="持久化" align="left" :show-overflow-tooltip="true" width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.jobDuring == true ? '是' : '否'}}</span>
                     </template>
@@ -55,37 +56,62 @@
 
                 </el-table-column>
             </el-table>
-            
+            <!--分页-->
+            <ThePagination ref="refPagination" :pageNumber="pageNumber" :attribute="paginationAttribute" class="refPagination"></ThePagination>
         </div>
     </div>
 </template>
 <script>
 import qs from "qs";
 import loading from "@/components/Loading/outLoading.vue";
+import ThePagination from "@/components/ThePagination/ThePagination.vue";
 export default {
     data() {
         return{
             matched: "",
             isLoading: true,
             tableData: [],
+            isShowZ: true, //是否显示执行
+            count:6, //倒计时5秒
             multipleSelection: [],
             sortableState: true,
+            pageNo:1,
+            pageSize:10,
+            total:0,
+            // 引用 ThePagination组件
+            refPagination: {},
+            paginationAttribute: {
+                handleChange: this.handleChange
+            },
+            //分页默认状态
+            pageNumber : -1,
+            page: {
+                // 当前页数
+                pageNo: 1,
+                // 每页默认显示条数
+                pageSize: 10,
+                // 总条数
+                total: 0
+            },
         }
     },
     components : {
         loading,
+        ThePagination
     },
     methods:{
         //初始化页面
         searchList(reload) {
             this.isLoading = true
-            this.$axios.get(this.commonJs.localUrl +`/task/jobs`,{
-                headers: {
-                    Authorization: `Bearer ${this.getAuthorization()}`,
-                    AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
-                }
+            this.$axios.get(this.commonJs.localUrl +`/task/jobs?pageNumber=${this.page.pageNo
+            }&pageSize=${this.page.pageSize
+            }`,{
+            headers: {
+                Authorization: `Bearer ${this.getAuthorization()}`,
+                AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+            }
             }).then(res => {
-                this.tableData = res.data
+                this.tableData = res.data.list
                 for (let i = 0; i < this.tableData.length; i++) {
                     var time = this.tableData[i]
 
@@ -105,6 +131,10 @@ export default {
                         this.tableData[i].nextDate = ''
                     }
                 }
+                if(this.$refs.refPagination){
+                    this.$refs.refPagination.page.total = res.data.total ? res.data.total : 0;
+                    this.$refs.refPagination.changeValue()
+                }
                 this.isLoading = false
             })
         },
@@ -117,7 +147,7 @@ export default {
                 });
                 return
             };
-            this.$confirm("<div class = 'line'></div></br><span>执行选中任务？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+            this.$confirm("<div class='tesDiv'><div>执行选中任务？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                 confirmButtonClass:"btnCustomSubmit",
                 customClass:"customClass",
                 dangerouslyUseHTMLString:true,
@@ -141,6 +171,15 @@ export default {
                         that.$message({ type:"success", message: '执行成功'})
                         this.matched = this.$route.matched;
                         this.searchList();
+                        this.isShowZ = false
+                        let clockDow = setInterval(() => {
+                            if(this.count == 1){
+                                this.isShowZ = true
+                                clearInterval(clockDow)
+                            }else{
+                                this.count--
+                            }
+                        },1000)
                     })
                 }
                 
@@ -158,7 +197,7 @@ export default {
                 });
                 return
             };
-            this.$confirm("<div class = 'line'></div></br><span>暂停选中任务？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+            this.$confirm("<div class='tesDiv'><div>暂停选中任务？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                 confirmButtonClass:"btnCustomSubmit",
                 customClass:"customClass",
                 dangerouslyUseHTMLString:true,
@@ -198,7 +237,7 @@ export default {
                 });
                 return
             };
-            this.$confirm("<div class = 'line'></div></br><span>恢复选中任务？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+            this.$confirm("<div class='tesDiv'><div>恢复选中任务？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                 confirmButtonClass:"btnCustomSubmit",
                 customClass:"customClass",
                 dangerouslyUseHTMLString:true,
@@ -232,7 +271,10 @@ export default {
         //给分页传的属性
         handleChange(params) {
             this.isLoading = true;
+            this.page.pageSize = params.pageSize;
+            this.page.pageNo = params.pageNo;
             this.searchList();
+            this.pageNumber = -1;
         },
         //表格的斑马线
         tabRowClassName({row,rowIndex}){
@@ -250,6 +292,14 @@ export default {
     mounted(){
         this.matched = this.$route.matched;
         this.searchList();
+        this.$bus.on('clickMenu', content => {
+            if(Math.ceil(this.tableData.length / this.page.pageSize) < this.page.pageNo){
+                this.page.pageNo = 1;
+                this.pageNumber = 1;
+            };
+            this.$refs.table.clearSort()
+            this.searchList();
+        });
     },
     destroyed(){
         this.$bus.off('clickMenu');
@@ -370,6 +420,10 @@ export default {
             background-color: #fff;
             padding: 9px 27px;
             margin-right: 10px;
+        }
+        .hui_normal{
+            border: 1px solid #c1c1c1;
+            color: #c1c1c1;
         }
         .normals {
             border: 1px solid #3bafda;

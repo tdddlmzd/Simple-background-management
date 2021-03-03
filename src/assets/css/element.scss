@@ -23,6 +23,12 @@
 .el-menu-item.is-active{
     color: #3bafda !important;
 }
+.el-submenu.is-active .el-submenu__title{
+    color: #3bafda !important;
+    .el-submenu__icon-arrow{
+        color: #3bafda !important;
+    }
+}
 .el-submenu__title{
     color: #666 !important;
     font-weight: 600;
@@ -99,31 +105,42 @@
 // }
 .customClass{
     p {
-        text-align: center;
-        font-size: 18px
+        // text-align: center;
+        // font-size: 18px;
     }
-    width: 300px !important;
-    height: 170px !important;
-    .line{
-       width: 100%;
-       height: 1px;
-       border-top: solid #ACC0D8 1px;
-     }
-     .btnCustomSubmit {
-         float: left !important ; 
-         width: 86px !important;
-         height: 34px !important;
-         margin-top: 10px !important;
-         margin-left: 21px !important;
-         background-color: #fb8818 !important;
-         border-color:#fb8818 !important
-      }
-      .btnCustomCencel {
-         width: 86px !important;
-         height: 34px!important;
-         margin-top: 10px !important;
-         margin-left: 21px !important;
-      }
+    width: 350px !important;
+    height: 175px !important;
+    .tesDiv{
+        text-align: center;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 80px;
+        font-size: 16px;
+        // font-weight: 600;
+    }
+    .el-message-box__content{
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+    }
+    .btnCustomSubmit {
+        float: left !important ; 
+        width: 98px !important;
+        height: 32px !important;
+        margin-top: 10px !important;
+        margin-left: 49px !important;
+        background-color: #3bafda !important;
+        border-color:#3bafda !important
+    }
+    .btnCustomCencel {
+        float: right !important ; 
+        width: 98px !important;
+        height: 32px!important;
+        margin-top: 10px !important;
+        margin-right: 49px !important;
+    }
 }
 .el-table td{
     padding: 0 !important;
@@ -148,12 +165,6 @@
 }
 .el-submenu__title i{
     transform: rotateZ(180deg) !important;
-}
-.el-submenu.is-active .el-submenu__title{
-    color: #3bafda !important;
-    .el-submenu__icon-arrow{
-        color: #3bafda !important;
-    }
 }
 .el-breadcrumb{
     padding-bottom: 10px;
@@ -240,7 +251,7 @@
 .el-popover {
     border: 0 !important;
     padding: 0 !important;
-    max-width: 600px;
+    max-width: 800px;
     max-height: 200px;
     overflow-y: auto;
     overflow-x: hidden;

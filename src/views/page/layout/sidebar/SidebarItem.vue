@@ -84,6 +84,7 @@ export default {
         },
     },
     watch:{
+        //此处针对的是导航栏缩小，点击每个一级目录下二级目录的样式（二级目录除第一个其他样式不生效）
         $route(to,from){
             if(to){
                 for(var i = 0; i < this.routes.length;i++){
@@ -103,6 +104,7 @@ export default {
     },
     mounted() {
         let route = this.$route
+        //此处针对的是导航栏缩小，点击每个一级目录下二级目录的样式（二级目录除第一个其他样式不生效）
         for(var i = 0; i < this.routes.length;i++){
             if(this.routes[i].children && this.routes[i].meta.class){
                 for(var j = 0; j < this.routes[i].children.length;j++){

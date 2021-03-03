@@ -59,7 +59,7 @@
                 </el-table-column>
             </el-table>
             <!--分页-->
-            <!-- <ThePagination ref="refPagination"  :pageNumber="pageNumber" :attribute="paginationAttribute" class="refPagination"></ThePagination>   -->
+            <ThePagination ref="refPagination" :pageNumber="pageNumber" :attribute="paginationAttribute" class="refPagination"></ThePagination>
         </div>
     </div>
 </template>
@@ -104,7 +104,9 @@ export default {
         //初始化页面
         searchList() {
             this.isLoading = true
-            this.$axios.get(this.commonJs.localUrl + `/schedules/crawling/getCrawlingList`,{                        
+            this.$axios.get(this.commonJs.localUrl + `/schedules/crawling/getCrawlingList?pageNumber=${this.page.pageNo
+                }&pageSize=${this.page.pageSize
+                }`,{                        
                 headers: {
                     Authorization: `Bearer ${this.getAuthorization()}`,
                     AccessToken: this.getCookie("token")
@@ -124,10 +126,10 @@ export default {
                             res.data.content[i].pathCoverageNumber = ''
                         }
                     }
-                    // if(this.$refs.refPagination){
-                    //     this.$refs.refPagination.page.total = res.data.content.total;
-                    //     this.$refs.refPagination.changeValue()
-                    // }
+                    if(this.$refs.refPagination){
+                        this.$refs.refPagination.page.total = res.data.total ? res.data.total : 0;
+                        this.$refs.refPagination.changeValue()
+                    }
                     this.isLoading = false;
                 } else if (res.data.status == 0) {
                     this.$message({

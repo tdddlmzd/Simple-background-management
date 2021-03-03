@@ -125,24 +125,10 @@
                         </el-select>
                     </el-form-item>
                 </li>
-                <li style="marginTop:0px">
-                    <div @click.prevent="protAdd" style="cursor: pointer;marginLeft:100px;width:80px;">
-                        <i class="el-icon-plus" style="color:#3bafda"></i>
-                        <span style="marginLeft:5px;color:#3bafda">添加码头</span>
-                    </div>
-                </li>
-                <li class="proteAddLi">
-                    <div class="protClass" v-for="(item,index) in terminal" :key="index">
-                        <el-form-item prop="terminalCn" label="码头中文名">
-                            <el-input v-model="item.terminalCn" placeholder="请输入" clearable></el-input>
-                        </el-form-item>
-                        <el-form-item prop="terminal" label="码头英文名">
-                            <el-input v-model="item.terminal" placeholder="请输入" clearable></el-input>
-                        </el-form-item>
-                        <i class="el-icon-circle-close delenowAdd" @click="protDelect(index)"></i>
-                    </div>
-                    <!-- <el-link type="primary" :underline="false" @click="protAdd" class="portadddelect">添加</el-link>
-                    <el-link type="danger" :underline="false" @click="protDelect">删除</el-link> -->
+                <li>
+                    <el-form-item prop="areaCn" label="大航线">
+                        <el-input v-model="ruleForm.areaCn" readOnly></el-input>
+                    </el-form-item>
                 </li>
                 <!-- <li v-if="addOrEdit == '编辑'" class="proteAddDelec">
                     <div class="protClass" v-for="(item,index) in terminal" :key="index">
@@ -175,6 +161,35 @@
                     <!-- <span class="routeCode">码头名未找到？</span>
                     <span class="nowAdd" @click="routeAddLink">立即添加</span> -->
                 <!-- </li> -->
+                <li>
+                    <el-form-item label="经度">
+                        <el-input v-model="ruleForm.lon" @change="longitude" clearable></el-input>
+                        <!-- <el-input v-model="ruleForm.lon" @input="ruleForm.lon = ruleForm.lon.match(/^\d*(\.?\d*)/g)[0] || null"></el-input> -->
+                    </el-form-item>
+                    <el-form-item label="纬度">
+                        <el-input v-model="ruleForm.lat" @change="latitude" clearable></el-input>
+                        <!-- <el-input v-model="ruleForm.lat" @input="ruleForm.lat = ruleForm.lat.match(/^\d*(\.?\d*)/g)[0] || null"></el-input> -->
+                    </el-form-item>
+                </li>
+                <li style="marginTop:0px">
+                    <div @click.prevent="protAdd" style="cursor: pointer;marginLeft:100px;width:80px;">
+                        <i class="el-icon-plus" style="color:#3bafda"></i>
+                        <span style="marginLeft:5px;color:#3bafda">添加码头</span>
+                    </div>
+                </li>
+                <li class="proteAddLi">
+                    <div class="protClass" v-for="(item,index) in terminal" :key="index">
+                        <el-form-item prop="terminalCn" label="码头中文名">
+                            <el-input v-model="item.terminalCn" placeholder="请输入" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item prop="terminal" label="码头英文名">
+                            <el-input v-model="item.terminal" placeholder="请输入" clearable></el-input>
+                        </el-form-item>
+                        <i class="el-icon-circle-close delenowAdd" @click="protDelect(index)"></i>
+                    </div>
+                    <!-- <el-link type="primary" :underline="false" @click="protAdd" class="portadddelect">添加</el-link>
+                    <el-link type="danger" :underline="false" @click="protDelect">删除</el-link> -->
+                </li>
                 <li style="text-align: center;">
                     <el-button size="small" class="clicksColor" @click="handleSaveClick('ruleForm')">保存</el-button>
                 </li>
@@ -213,7 +228,11 @@ export default {
                 cityCn: "",
                 routeCn: "",
                 routeId: "",
+                areaCn: "",
+                areaId: "",
                 terminal: [],
+                lon: '',
+                lat: '',
             },
             terminal: [
                 // {
@@ -238,38 +257,38 @@ export default {
             try {
                 let valid = await this.$refs[ruleForm].validate();
                 if (!valid) return;
-                    var newArry = []
-                    for (let i = 0; i < this.terminal.length; i++) {
-                        if(this.terminal[i].terminalCn !== '' && this.terminal[i].terminal == '') {
+                var newArry = []
+                for (let i = 0; i < this.terminal.length; i++) {
+                    if(this.terminal[i].terminalCn !== '' && this.terminal[i].terminal == '') {
+                        this.$message({
+                            type: "error",
+                            message: "码头中文名不为空 则码头英文名也不能为空"
+                        });
+                        return
+                    }else if(this.terminal[i].terminalCn === '' && this.terminal[i].terminal !== '') {
+                        this.$message({
+                            type: "error",
+                            message: "码头英文名不为空 则码头中文名也不能为空"
+                        });
+                        return
+                    }else if(this.terminal[i].terminalCn !== '' && this.terminal[i].terminal !== '') {
+                        newArry.push('' + this.terminal[i].terminalCn + '-' + this.terminal[i].terminal)
+                    }
+                }
+                if(newArry.length >0){
+                    var newArry = newArry.sort()
+                    for (let i = 0; i < newArry.length; i++) {
+                        if(newArry[i] == newArry[i + 1]) {
                             this.$message({
                                 type: "error",
-                                message: "码头中文名不为空 则码头英文名也不能为空"
+                                message: "码头有重复数据"
                             });
                             return
-                        }else if(this.terminal[i].terminalCn === '' && this.terminal[i].terminal !== '') {
-                            this.$message({
-                                type: "error",
-                                message: "码头英文名不为空 则码头中文名也不能为空"
-                            });
-                            return
-                        }else if(this.terminal[i].terminalCn !== '' && this.terminal[i].terminal !== '') {
-                            newArry.push('' + this.terminal[i].terminalCn + '-' + this.terminal[i].terminal)
                         }
                     }
-                    if(newArry.length >0){
-                        var newArry = newArry.sort()
-                        for (let i = 0; i < newArry.length; i++) {
-                            if(newArry[i] == newArry[i + 1]) {
-                                this.$message({
-                                    type: "error",
-                                    message: "码头有重复数据"
-                                });
-                                return
-                            }
-                        }
-                    }
+                }
                 if (this.dialogStatus === "新增") {
-                    this.$confirm("<div class = 'line'></div></br><span>确认保存吗?</span>","提示",
+                    this.$confirm(this.commonJs.confirm_save,"",
                         {
                             cancelButtonClass: "btnCustomCencel",
                             confirmButtonClass: "btnCustomSubmit",
@@ -316,7 +335,7 @@ export default {
                         });
                     }).catch(_ => {});
                 } else if (this.dialogStatus === "编辑") {
-                    this.$confirm("<div class = 'line'></div></br><span>确认保存吗?</span>","提示",
+                    this.$confirm(this.commonJs.confirm_save,"",
                         {
                             cancelButtonClass: "btnCustomCencel",
                             confirmButtonClass: "btnCustomSubmit",
@@ -369,14 +388,14 @@ export default {
                             }
                         }
                     ).then(res => {
-                        // if(res.data.status === 1){
-                        //     this.$emit("handleStatus", res.data);
-                        //     this.$message({
-                        //         type: "success",
-                        //         message: res.data.message
-                        //     });
-                        //     this.isLoading = false;
-                        // }else 
+                        if(res.data.status === 1){
+                            // this.$emit("handleStatus", res.data);
+                            // this.$message({
+                            //     type: "success",
+                            //     message: res.data.message
+                            // });
+                            // this.isLoading = false;
+                        }
                         if (res.data.status === 2) {
                             this.$message({
                                 type: "error",
@@ -503,10 +522,14 @@ export default {
         if (obj) {
             this.ruleForm.routeCn = obj.routeCn;
             this.ruleForm.routeId = obj.id;
+            this.ruleForm.areaCn = obj.areaCn;
+            this.ruleForm.areaId = obj.areaId;
         }
         if (this.ruleForm.routeCn === "") {
             this.ruleForm.routeCn = "";
             this.ruleForm.routeId = "";
+            this.ruleForm.areaCn = "";
+            this.ruleForm.areaId = "";
         }
     },
     //航线搜索
@@ -580,6 +603,32 @@ export default {
     //         this.terminalList = res.data.content;
     //     });
     // },
+    //经度改变
+    longitude(val){
+        if(val){
+            var p = /^(\-|\+)?(((\d|[1-9]\d|1[0-7]\d|0{1,3})\.\d{0,6})|(\d|[1-9]\d|1[0-7]\d|0{1,3})|180\.0{0,6}|180)$/
+            if(!p.test(val)){
+                this.$message({
+                    type: "error",
+                    message: "经度范围：-180~180(只支持保留小数点后六位)"
+                })
+                this.ruleForm.lon = ''
+            }
+        }
+    },
+    //纬度
+    latitude(val){
+        if(val){
+            var p = /^(\-|\+)?([0-8]?\d{1}\.\d{0,6}|90\.0{0,6}|[0-8]?\d{1}|90)$/
+            if(!p.test(val)){
+                this.$message({
+                    type: "error",
+                    message: "纬度范围：-90~90(只支持保留小数点后六位)"
+                })
+                this.ruleForm.lat = ''
+            }
+        }
+    },
     //关闭事件
     handleCloseClick() {
         this.$emit("handleClose");
@@ -598,7 +647,7 @@ export default {
             } else {
                 this.countryDisabled = true;
             }
-            if(res.data.content.terminalList.length > 0){
+            if(res.data.content.terminalList && res.data.content.terminalList.length > 0){
                 this.terminal = res.data.content.terminalList
             }
         })

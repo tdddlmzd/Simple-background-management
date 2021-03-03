@@ -85,6 +85,7 @@
                     <el-form-item
                         prop="eta"
                         label="ETA"
+                        :rules="[{ required: true, message: '请选择ETA', trigger: 'blur'}]"
                     >
                         <el-select
                             v-model="ruleForm.eta"
@@ -108,6 +109,7 @@
                     <el-form-item
                         prop="etd"
                         label="ETD"
+                        :rules="[{ required: true, message: '请选择ETD', trigger: 'blur'}]"
                     >
                         <el-select
                             v-model="ruleForm.etd"
@@ -265,6 +267,10 @@
                         id : 6,
                         label : 'SUN',
                     },
+                    {
+                        id : '未知',
+                        label : '未知',
+                    }
                 ],
                 ETDList : [
                     {
@@ -295,6 +301,10 @@
                         id : 6,
                         label : 'SUN',
                     },
+                    {
+                        id : '未知',
+                        label : '未知',
+                    }
                 ],
                 directionList : [
                     {

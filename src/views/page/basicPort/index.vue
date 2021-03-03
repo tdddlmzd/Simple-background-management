@@ -8,14 +8,22 @@
             <el-tab-pane label="船公司港口" name="key2">
                 <shippingCompanyPorts ref="isRouteShow"></shippingCompanyPorts>
             </el-tab-pane>
+            <el-tab-pane label="跟踪港口" name="key3">
+                <trackPort ref="isTrackShow"></trackPort>
+            </el-tab-pane>
+            <el-tab-pane label="AIS港口" name="key4">
+                <aisPort ref="isAsiShow"></aisPort>
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script>
-    import basicPorts from "./basicPorts.vue";
-    import shippingCompanyPorts from "./shippingCompanyPorts.vue";
-    import Breadcrumb from "@/components/Breadcrumb/Breadcrumb.vue";
+    import Breadcrumb from "@/components/Breadcrumb/Breadcrumb.vue"
+    import basicPorts from "./basicPorts.vue"
+    import shippingCompanyPorts from "./shippingCompanyPorts.vue"
+    import trackPort from "./trackPort.vue"
+    import aisPort from "./aisPort.vue"
     export default {
         inject:['reload'],
         data() {
@@ -25,15 +33,17 @@
             }
         },
         components: {
+            Breadcrumb,
             basicPorts,
             shippingCompanyPorts,
-            Breadcrumb
+            trackPort,
+            aisPort,
         },
         methods: {
             handleClick(tab, event) {
                 if(tab.label == '船公司港口'){
+                    //船公司港口
                     this.$refs.isRouteShow.isRouteShow = true
-                    this.$refs.isGangShow.isGangShow = false
                     this.$refs.isRouteShow.ruleForm.baseCode = ''
                     this.$refs.isRouteShow.ruleForm.state = ''
                     this.$refs.isRouteShow.ruleForm.scac = ''
@@ -43,20 +53,47 @@
                     this.$refs.isRouteShow.page.pageNo = 1
                     this.$refs.isRouteShow.tableData = []
                     this.$refs.isRouteShow.handeleGetList()
+
+                    //其他分页false
+                    this.$refs.isGangShow.isGangShow = false
+                    this.$refs.isTrackShow.isTrackShow = false
+                    this.$refs.isAsiShow.isAsiShow = false
                 }else if(tab.label == '基础港口'){
+                    //基础港口
                     this.$refs.isGangShow.isGangShow = true
-                    this.$refs.isRouteShow.isRouteShow = false
                     this.$refs.isGangShow.ruleForm.fliterTable = ''
                     this.$refs.isGangShow.page.pageSize = 10
                     this.$refs.isGangShow.page.pageNo = 1
-                    this.$refs.isRouteShow.tableData = []
                     this.$refs.isGangShow.handeleSearchList()
+
+                    //其他分页false
+                    this.$refs.isRouteShow.tableData = []
+                    this.$refs.isRouteShow.isRouteShow = false
+                    this.$refs.isTrackShow.isTrackShow = false
+                    this.$refs.isAsiShow.isAsiShow = false
+                }else if(tab.label == '跟踪港口'){
+                    this.$refs.isTrackShow.ruleForm.searchStr = ''
+                    this.$refs.isTrackShow.isTrackShow = true
+                    this.$refs.isTrackShow.trackSearch()
+
+                    //其他分页false
+                    this.$refs.isRouteShow.tableData = []
+                    this.$refs.isRouteShow.isRouteShow = false
+                    this.$refs.isGangShow.isGangShow = false
+                    this.$refs.isAsiShow.isAsiShow = false
+                }else if(tab.label == 'AIS港口'){
+                    this.$refs.isAsiShow.ruleForm.searchStr = ''
+                    this.$refs.isAsiShow.isAsiShow = true
+                    this.$refs.isAsiShow.aisSearch()
+
+                    //其他分页false
+                    this.$refs.isRouteShow.tableData = []
+                    this.$refs.isRouteShow.isRouteShow = false
+                    this.$refs.isGangShow.isGangShow = false
+                    this.$refs.isTrackShow.isTrackShow = false
                 }
                 this.$store.commit("handleNowAdd",false);
             },
-            getRout(){
-                this.matched = this.$route.matched
-            }
         },
         computed:{
             nowAdd(){
@@ -68,19 +105,22 @@
                 immediate:true,
                 handler(newVal,oldVal){
                     if(newVal === true){
-                        this.activeName = 'key1';
-                        this.$refs.isGangShow.isGangShow = true
-                        this.$refs.isRouteShow.isRouteShow = false
-                        this.$refs.isGangShow.handeleSearchList()
+                        this.activeName = 'key1'
+                        // this.$refs.isGangShow.isGangShow = true
+                        // this.$refs.isGangShow.handeleSearchList()
+
+                        // this.$refs.isGangShow.isGangShow = false
+                        // this.$refs.isTrackShow.isTrackShow = false
+                        // this.$refs.isAsiShow.isAsiShow = false
                     }
                 }
             }
         },
         mounted(){
-            this.reload();
-            this.getRout();
+            this.reload()
+            this.matched = this.$route.matched
             this.$bus.on('handleTurn',content => {
-                this.activeName = 'key2';
+                this.activeName = 'key2'
                 // this.$refs.isRouteShow.isRouteShow = true
                 // this.$refs.isGangShow.isGangShow = false
                 // this.$refs.isRouteShow.handeleSearchList()
@@ -97,7 +137,6 @@
         padding: 20px 20px 0px 20px;
         .el-tabs{
             background-color: #fff;
-            // padding: 10px 20px 20px 20px;
             padding: 10px 0px 20px 0px;
         }
         /deep/.el-tabs__item.is-active{

@@ -1,7 +1,7 @@
  <template>
     <div id="loading">
         <div class="loading" ref="loading">
-            <div class="loadingIcon" ref="loadingIcon" :class="isShowLeft">
+            <div class="loadingIcon" ref="loadingIcon" :class="isShowLeft" :style="{top: isTopDate ? '67px' : '90px'}">
                 <div class="loaddd">
                     <i class="el-icon-loading"></i>
                     <span>正在处理</span>
@@ -13,6 +13,9 @@
 
 <script>
     export default {
+        props: [
+            "isTopDate",
+            ],
         data() {
             return {
                 isShowLeft: 'largebarLeft'
@@ -37,7 +40,7 @@
                 }else{
                     this.isShowLeft = 'smallbarLeft'
                 }
-            }
+            },
         },
     }
 </script>

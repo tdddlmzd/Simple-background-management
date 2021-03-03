@@ -104,20 +104,32 @@ function getToken() {
         }
       },
       error: function () {
-		  console.log("服务器异常")
+		    console.log("服务器异常")
       }
     });
   }
   return authorization;
 }
 
-var environment = "prd"
+var environment = "test"
 function getUrl(){
-	if(environment == "dev"){
+  debugger
+  var url = window.location.href
+  if(environment == "prd"){
 		return "http://localhost:9000/"
-	}else if(environment == "prd"){
+	}else if(url.indexOf('admin.ijingzhun.com') !== -1){//正式一键更新
 		return "https://api.ijingzhun.com/"
-	}else if(environment == "test"){
-		return "http://101.37.80.200:9000/"
-	}
+	}else if(url.indexOf('admin.test.ijingzhun.com') !== -1){//测试一键更新
+		return "http://gateway.test.ijingzhun.com/"
+	}else{
+    return "https://api.ijingzhun.com/"
+  }
+
+	// if(environment == "prd"){
+	// 	return "http://localhost:9000/"
+	// }else if(environment == "dev"){//正式一键更新
+	// 	return "https://api.ijingzhun.com/"
+	// }else if(environment == "test"){//测试一键更新
+	// 	return "http://gateway.test.ijingzhun.com/"
+	// }
 }

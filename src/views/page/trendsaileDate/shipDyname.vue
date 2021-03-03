@@ -137,7 +137,8 @@
                         </el-date-picker>
                     </el-form-item>
                 </li>
-                <li>
+                <li v-if="pathNumber == 1" class="emptyH"></li>
+                <!-- <li v-if="pathNumber == 1">
                     <el-form-item prop="vgmCutoff" label="截VGM"
                     >
                         <el-date-picker
@@ -194,24 +195,7 @@
                         >
                         </el-date-picker>
                     </el-form-item>
-                    <!-- <el-form-item prop="warning" label="ETD预警"
-                    >
-                        <el-select
-                            v-model="firstleg.warning"
-                            style="width:100%;"
-                            placeholder="请选择"
-                            default-first-option
-                        >
-                            <el-option
-                                v-for="item in alertDrop"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.label"
-                            >
-                            </el-option>
-                        </el-select>
-                    </el-form-item> -->
-                </li>
+                </li> -->
             </ul>
             <ul class="tableFormUl" v-if="pathNumber > 1">
                 <li class="title_head">二程</li>
@@ -312,18 +296,19 @@
                         </el-date-picker>
                     </el-form-item>
                 </li>
-                <li>
+                <li  v-if="pathNumber == 2" class="emptyH"></li>
+                <!-- <li v-if="pathNumber == 2">
                     <el-form-item prop="vgmCutoff" label="截VGM"
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="senleg.vgmCutoff"
+                            v-model="firstleg.vgmCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="senleg.vgmCutoffvgm"
-                            @focus="focusDate(senleg.vgmCutoff,senleg,'vgmCutoff','vgm')"
-                            @change="changeDate(senleg.vgmCutoff,senleg,'vgmCutoff','vgm')"
-                            @blur="changeDate(senleg.vgmCutoff,senleg,'vgmCutoff','vgm')"
+                            :format="firstleg.vgmCutoffvgm"
+                            @focus="focusDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @change="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @blur="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -331,13 +316,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="senleg.cyCutOff"
+                            v-model="firstleg.cyCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="senleg.cyCutOffcycu"
-                            @focus="focusDate(senleg.cyCutOff,senleg,'cyCutOff','cycu')"
-                            @change="changeDate(senleg.cyCutOff,senleg,'cyCutOff','cycu')"
-                            @blur="changeDate(senleg.cyCutOff,senleg,'cyCutOff','cycu')"
+                            :format="firstleg.cyCutOffcycu"
+                            @focus="focusDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @change="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @blur="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -345,13 +330,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="senleg.manIfEstCutoff"
+                            v-model="firstleg.manIfEstCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="senleg.manIfEstCutoffman"
-                            @focus="focusDate(senleg.manIfEstCutoff,senleg,'manIfEstCutoff','man')"
-                            @change="changeDate(senleg.manIfEstCutoff,senleg,'manIfEstCutoff','man')"
-                            @blur="changeDate(senleg.manIfEstCutoff,senleg,'manIfEstCutoff','man')"
+                            :format="firstleg.manIfEstCutoffman"
+                            @focus="focusDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @change="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @blur="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -359,34 +344,17 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="senleg.siCutOff"
+                            v-model="firstleg.siCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="senleg.siCutOffsicu"
-                            @focus="focusDate(senleg.siCutOff,senleg,'siCutOff','sicu')"
-                            @change="changeDate(senleg.siCutOff,senleg,'siCutOff','sicu')"
-                            @blur="changeDate(senleg.siCutOff,senleg,'siCutOff','sicu')"
+                            :format="firstleg.siCutOffsicu"
+                            @focus="focusDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @change="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @blur="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
                         >
                         </el-date-picker>
                     </el-form-item>
-                    <!-- <el-form-item prop="warning" label="ETD预警"
-                    >
-                        <el-select
-                            v-model="senleg.warning"
-                            style="width:100%;"
-                            placeholder="请选择"
-                            default-first-option
-                        >
-                            <el-option
-                                v-for="item in alertDrop"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.label"
-                            >
-                            </el-option>
-                        </el-select>
-                    </el-form-item> -->
-                </li>
+                </li> -->
             </ul>
             <ul class="tableFormUl" v-if="pathNumber > 2">
                 <li class="title_head">三程</li>
@@ -487,18 +455,19 @@
                         </el-date-picker>
                     </el-form-item>
                 </li>
-                <li>
+                <li v-if="pathNumber == 3" class="emptyH"></li>
+                <!-- <li v-if="pathNumber == 3">
                     <el-form-item prop="vgmCutoff" label="截VGM"
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="tritleg.vgmCutoff"
+                            v-model="firstleg.vgmCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="tritleg.vgmCutoffvgm"
-                            @focus="focusDate(tritleg.vgmCutoff,tritleg,'vgmCutoff','vgm')"
-                            @change="changeDate(tritleg.vgmCutoff,tritleg,'vgmCutoff','vgm')"
-                            @blur="changeDate(tritleg.vgmCutoff,tritleg,'vgmCutoff','vgm')"
+                            :format="firstleg.vgmCutoffvgm"
+                            @focus="focusDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @change="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @blur="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -506,13 +475,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="tritleg.cyCutOff"
+                            v-model="firstleg.cyCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="tritleg.cyCutOffcycu"
-                            @focus="focusDate(tritleg.cyCutOff,tritleg,'cyCutOff','cycu')"
-                            @change="changeDate(tritleg.cyCutOff,tritleg,'cyCutOff','cycu')"
-                            @blur="changeDate(tritleg.cyCutOff,tritleg,'cyCutOff','cycu')"
+                            :format="firstleg.cyCutOffcycu"
+                            @focus="focusDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @change="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @blur="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -520,13 +489,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="tritleg.manIfEstCutoff"
+                            v-model="firstleg.manIfEstCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="tritleg.manIfEstCutoffman"
-                            @focus="focusDate(tritleg.manIfEstCutoff,tritleg,'manIfEstCutoff','man')"
-                            @change="changeDate(tritleg.manIfEstCutoff,tritleg,'manIfEstCutoff','man')"
-                            @blur="changeDate(tritleg.manIfEstCutoff,tritleg,'manIfEstCutoff','man')"
+                            :format="firstleg.manIfEstCutoffman"
+                            @focus="focusDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @change="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @blur="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -534,34 +503,17 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="tritleg.siCutOff"
+                            v-model="firstleg.siCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="tritleg.siCutOffsicu"
-                            @focus="focusDate(tritleg.siCutOff,tritleg,'siCutOff','sicu')"
-                            @change="changeDate(tritleg.siCutOff,tritleg,'siCutOff','sicu')"
-                            @blur="changeDate(tritleg.siCutOff,tritleg,'siCutOff','sicu')"
+                            :format="firstleg.siCutOffsicu"
+                            @focus="focusDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @change="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @blur="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
                         >
                         </el-date-picker>
                     </el-form-item>
-                    <!-- <el-form-item prop="warning" label="ETD预警"
-                    >
-                        <el-select
-                            v-model="tritleg.warning"
-                            style="width:100%;"
-                            placeholder="请选择"
-                            default-first-option
-                        >
-                            <el-option
-                                v-for="item in alertDrop"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.label"
-                            >
-                            </el-option>
-                        </el-select>
-                    </el-form-item> -->
-                </li>
+                </li> -->
             </ul>
             <ul class="tableFormUl" v-if="pathNumber > 3">
                 <li class="title_head">四程</li>
@@ -662,18 +614,19 @@
                         </el-date-picker>
                     </el-form-item>
                 </li>
-                <li>
+                <li v-if="pathNumber == 4" class="emptyH"></li>
+                <!-- <li v-if="pathNumber == 4">
                     <el-form-item prop="vgmCutoff" label="截VGM"
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="fourleg.vgmCutoff"
+                            v-model="firstleg.vgmCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="fourleg.vgmCutoffvgm"
-                            @focus="focusDate(fourleg.vgmCutoff,fourleg,'vgmCutoff','vgm')"
-                            @change="changeDate(fourleg.vgmCutoff,fourleg,'vgmCutoff','vgm')"
-                            @blur="changeDate(fourleg.vgmCutoff,fourleg,'vgmCutoff','vgm')"
+                            :format="firstleg.vgmCutoffvgm"
+                            @focus="focusDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @change="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
+                            @blur="changeDate(firstleg.vgmCutoff,firstleg,'vgmCutoff','vgm')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -681,13 +634,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="fourleg.cyCutOff"
+                            v-model="firstleg.cyCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="fourleg.cyCutOffcycu"
-                            @focus="focusDate(fourleg.cyCutOff,fourleg,'cyCutOff','cycu')"
-                            @change="changeDate(fourleg.cyCutOff,fourleg,'cyCutOff','cycu')"
-                            @blur="changeDate(fourleg.cyCutOff,fourleg,'cyCutOff','cycu')"
+                            :format="firstleg.cyCutOffcycu"
+                            @focus="focusDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @change="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
+                            @blur="changeDate(firstleg.cyCutOff,firstleg,'cyCutOff','cycu')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -695,13 +648,13 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="fourleg.manIfEstCutoff"
+                            v-model="firstleg.manIfEstCutoff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="fourleg.manIfEstCutoffman"
-                            @focus="focusDate(fourleg.manIfEstCutoff,fourleg,'manIfEstCutoff','man')"
-                            @change="changeDate(fourleg.manIfEstCutoff,fourleg,'manIfEstCutoff','man')"
-                            @blur="changeDate(fourleg.manIfEstCutoff,fourleg,'manIfEstCutoff','man')"
+                            :format="firstleg.manIfEstCutoffman"
+                            @focus="focusDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @change="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
+                            @blur="changeDate(firstleg.manIfEstCutoff,firstleg,'manIfEstCutoff','man')"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -709,34 +662,17 @@
                     >
                         <el-date-picker
                             style="width:100%"
-                            v-model="fourleg.siCutOff"
+                            v-model="firstleg.siCutOff"
                             type="datetime"
                             placeholder="选择时间日期"
-                            :format="fourleg.siCutOffsicu"
-                            @focus="focusDate(fourleg.siCutOff,fourleg,'siCutOff','sicu')"
-                            @change="changeDate(fourleg.siCutOff,fourleg,'siCutOff','sicu')"
-                            @blur="changeDate(fourleg.siCutOff,fourleg,'siCutOff','sicu')"
+                            :format="firstleg.siCutOffsicu"
+                            @focus="focusDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @change="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
+                            @blur="changeDate(firstleg.siCutOff,firstleg,'siCutOff','sicu')"
                         >
                         </el-date-picker>
                     </el-form-item>
-                    <!-- <el-form-item prop="warning" label="ETD预警"
-                    >
-                        <el-select
-                            v-model="fourleg.warning"
-                            style="width:100%;"
-                            placeholder="请选择"
-                            default-first-option
-                        >
-                            <el-option
-                                v-for="item in alertDrop"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.label"
-                            >
-                            </el-option>
-                        </el-select>
-                    </el-form-item> -->
-                </li>
+                </li> -->
             </ul>
             <ul class="tableFormUl">
                 <li style="text-align: center;">
@@ -935,7 +871,6 @@
             },
             //改变日期
             changeDate(val,attri,name,att){
-                console.log(val,attri,name,att)
                 var name = name //当前点击列表的属性
                 var att = att //当前点击列表显示的属性
                 var attri = attri
@@ -996,13 +931,25 @@
             },
             getDeflueTime(week,zhou){
                 var isZhou = (7 - zhou) * 24 * 60 * 60 * 1000 //多余时间的毫秒数
+
+                //算出来当前年-1-1号周几
                 var d1 = new Date()
                 var currentday = d1.getFullYear() + '-' + '01' + '-' + '01'
-                var firtDay = new Date(currentday).getDay()  // 的出来2020-1-1号周几
+                var firtDay = new Date(currentday).getDay()
+
+                //算出当前年毫秒数
                 var currentH = currentday + ' ' + '00:00:00'
                 var currentSort = new Date(currentday).getTime()
+
+                //算出第一周毫秒数
                 var firstSort = (7-firtDay) * 24 * 60 * 60 * 1000
-                var timeSort = ((week - 1) * 7) * 24 * 60 * 60 * 1000 - isZhou //除了第一周  第二周开始到目标日期的毫秒数
+
+                //除了第一周  第二周开始到目标日期的毫秒数
+                if(zhou == 0){ //代表是周天 取正常日期下周的周天
+                    var timeSort = ((week) * 7) * 24 * 60 * 60 * 1000 - isZhou
+                }else{
+                    var timeSort = ((week - 1) * 7) * 24 * 60 * 60 * 1000 - isZhou
+                }
 
                 var allSort = currentSort + firstSort + timeSort
                 var desTime = this.getProcessTime("YY-mm-dd",new Date(allSort)) //格式化时间
@@ -1044,9 +991,13 @@
                 let vaildDays = currentYearDays - beforeDays - afterDays
                 this.weeks = (vaildDays / 7) + 1 //加的这一 若是这周是从星期三开始的 我减去了前面的天数
                 for (let i = 1; i <= this.weeks; i++) {
+                    // this.weekList.push({
+                    //     value : i,
+                    //     label : Y + '-' + i,
+                    // })
                     this.weekList.push({
                         value : i,
-                        label : Y + '-' + i,
+                        label : i,
                     })
                 }
             },
@@ -1231,6 +1182,10 @@
         li.title_head{
             padding-left: 20px;
             font-weight: 600;
+        }
+        li.emptyH{
+            width: 100%;
+            height: 20px;
         }
     }
     

@@ -69,7 +69,7 @@
         },
         mounted() {
             this.reload();
-            this.matched = this.$route.matched;
+            this.matched = this.$route.matched
         },
     };
 </script>

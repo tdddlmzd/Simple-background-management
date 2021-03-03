@@ -4,12 +4,12 @@ var vm = avalon.define({
         "SINO", "ZIM", "OOCL", "MSK", "NDS", "ESL", "MSC",
         "GOTO", "SML", "SAF", "FESCO", "STX", "KKC", "JJ",
         "KMTC", "SNK", "SITC", "EMC", "HPL", "HBS", "WHL",
-        "PIL", "MCC", "RCL", "DJS", "EAS", "DYS", "NAMSUNG","MATSON","HEUNG-A"],
+        "PIL", "MCC", "RCL", "DJS", "EAS", "DYS", "NAMSUNG","MATSON","HEUNG-A","TSL","IAL"],
     list: ["APL", "COSCO", "CMA", "HMM", "ONE", "YML", "CNC", "ANL",
         "SINO", "ZIM", "OOCL", "MSK", "NDS", "ESL", "MSC",
         "GOTO", "SML", "SAF", "FESCO", "STX", "KKC", "JJ",
         "KMTC", "SNK", "SITC", "EMC", "HPL", "HBS", "WHL",
-        "PIL", "MCC", "RCL", "DJS", "EAS", "DYS", "NAMSUNG","MATSON","HEUNG-A"],
+        "PIL", "MCC", "RCL", "DJS", "EAS", "DYS", "NAMSUNG","MATSON","HEUNG-A","TSL","IAL"],
     start_port_list: [],
     end_port_list: [],
     st_val: "",
@@ -237,6 +237,10 @@ function get_scac(company) {
         return "MATS"
     }else if (company == "HEUNG-A") {
         return "HEUN"
+    }else if (company == "TSL") {
+        return "TSQD"
+    }else if (company == "IAL") {
+        return "IALU"
     }
 
 }

@@ -366,156 +366,6 @@
                             </el-table-column>
                         </el-table>
                     </li>
-                    <!-- <li class="routeLi">
-                            <div class="title">
-                                <span>中转航线</span>
-                            </div>
-                            <el-table
-                                :data="tableTransitRouteData"
-                                style="width: 100%;"
-                                :header-cell-style="{background:'#3bafda',color:'#ffffff'}"
-                                :row-class-name="tabRowClassName"
-                                tooltip-effect="dark"
-                                ref="table"
-                            >
-                                <el-table-column prop="portCode" label="序号" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                                <el-table-column prop="portCode" label="中转港" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                                <el-table-column prop="portCode" label="中转航线" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                            </el-table>
-                    </li>-->
-                    <li class="routeLi" v-if="this.dialogStatus !== '复制' && this.isDongT !== 'true'">
-                        <div class="title">
-                            <span>动态船舶</span>
-                        </div>
-                        <el-table
-                            :data="tableDynamicShipData"
-                            style="width: 100%;"
-                            :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
-                            :row-class-name="tabRowClassName"
-                            tooltip-effect="dark"
-                            ref="table"
-                        >
-                            <el-table-column
-                                prop="index"
-                                label="序号"
-                                align="left"
-                                width="50"
-                                :show-overflow-tooltip="true"
-                            >
-                                <template slot-scope="scope">
-                                    <span>{{scope.row.index+1}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                prop="vessel"
-                                label="船名"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="carrierName"
-                                label="运营方"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="imoNumber"
-                                label="IMO"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <!-- <el-table-column prop="imoNumber" label="箱量" align="left" :show-overflow-tooltip=true>
-                                                
-                            </el-table-column>-->
-                            <el-table-column prop="voyage" label="航次" align="left" width="300">
-                                <template slot-scope="scope">
-                                    <span
-                                        class="voyageClass"
-                                        v-for="item in (scope.row.voyage)"
-                                        :key="item"
-                                        @click="tableShipChange(item,scope.row.vessel)"
-                                    >
-                                        {{item}}
-                                    </span>
-                                </template>
-                                <!-- <el-link type="primary">主要链接</el-link> -->
-                            </el-table-column>
-                        </el-table>
-                    </li>
-                    <li class="routeLi" v-if="this.dialogStatus !== '复制' && this.isDongT !== 'true'">
-                        <div>
-                            <div class="title">
-                                <span>航线预警</span>
-                            </div>
-                            <span class="voyageOrVessel">{{"船名航次：" + voyageOrVessel}}</span>
-                        </div>
-
-                        <el-table
-                            :data="tableRouteWarningData"
-                            style="width: 100%;"
-                            :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
-                            :row-class-name="tabRowClassName"
-                            tooltip-effect="dark"
-                            ref="table"
-                        >
-                            <el-table-column
-                                prop="id"
-                                label="序号"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="50"
-                            >
-                                <template slot-scope="scope">{{scope.$index +1}}</template>
-                            </el-table-column>
-                            <el-table-column
-                                prop="port"
-                                label="挂靠港"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="static"
-                                label="固定ETD/ETA"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="dynamic"
-                                label="动态ETD/ETA"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="warning"
-                                label="预警信息"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                                <template slot-scope="scope">
-                                    <span :class="scope.row.warning === '准点'?'':'redclass'">{{scope.row.warning}}</span>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </li>
                 </ul>
                 <div class="save">
                     <el-button class="saveBtn" @click="handleSaveClick('ruleForm')">保存</el-button>
@@ -608,7 +458,7 @@
                     }).then(res => {
                         if (res.data.status == 1) {
                             // this.dockingArray = res.data.content.dockingPort;
-                            this.tableDynamicShipData = res.data.content.dynamicVessel;
+                            this.tableDynamicShipData = res.data.content.dynamicVessel ? res.data.content.dynamicVessel : []
                             this.ruleForm.companyName = res.data.content.routeInfo.carrier;
                             this.ruleForm.scac = res.data.content.routeInfo.scac;
                             this.ruleForm.route = res.data.content.routeInfo.routeParent;
@@ -650,7 +500,7 @@
                 try {
                     let valid = await this.$refs[ruleForm].validate();
                     if (!valid) return;
-                    this.$confirm("<div class = 'line'></div></br><span>确认保存吗?</span>","提示",
+                    this.$confirm(this.commonJs.confirm_save,"",
                     {
                         cancelButtonClass: "btnCustomCencel",
                         confirmButtonClass: "btnCustomSubmit",
@@ -776,7 +626,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -829,7 +679,7 @@
                     }
                 }
                 if(temporary.length == val.length) { //说明都是isSnap == 1 现在要取消
-                    this.$confirm("<div class = 'line'></div></br><span>是否取消临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否取消临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -844,7 +694,7 @@
                         this.$refs.multipleTable.clearSelection();
                 }).catch(_ => {});
                 }else if(notempor.length == val.length){ // 说明都是isSnap == 0 现在也是要保存
-                    this.$confirm("<div class = 'line'></div></br><span>是否设置临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否设置临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -859,7 +709,7 @@
                         this.$refs.multipleTable.clearSelection();
                 }).catch(_ => {});
                 }else{ // 说明有的为isSnap == 0 有的为isSnap == 1  现在要取消
-                    this.$confirm("<div class = 'line'></div></br><span>是否取消临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否取消临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -1235,11 +1085,6 @@
     .lr {
         float: right;
     }
-    .clicksColor {
-        color: #fff;
-        background-color: #3bafda;
-        float: right;
-    }
     .headerContent {
         border-bottom: 1px solid #797979;
         border-bottom: 1px solid #797979;
@@ -1255,30 +1100,6 @@
         font-size: 16px;
         cursor: pointer;
     }
-    .tableFormUl {
-        padding-top: 20px;
-        li:nth-of-type(1) {
-            margin-top: 0px;
-        }
-        li {
-            margin-top: 20px;
-            .el-form-item {
-                display: inline-block;
-                width: 300px;
-                margin-right: 20px;
-            }
-        }
-    }
-    // .el_formContent{
-    //     width: 300px;
-    //     display: inline-block;
-    //     // margin-right: 20px;
-    //     vertical-align: top;
-    // }
-    // .el_formContent:nth-last-of-type(1){
-    //     width: 620px;
-    //     vertical-align: top;
-    // }
     .scrollDiv{
         overflow-y: auto;
     }
@@ -1289,11 +1110,7 @@
         }
     }
     .title {
-        // width: 85px;
-        // height: 35px;
-        // line-height: 35px;
         text-align: center;
-        // background-color: #3bafda;
         margin-bottom: 10px;
         display: inline-block;
         margin-right: 20px;
@@ -1338,7 +1155,6 @@
         display: inline-block;
         color: #3bafda;
         margin-right: 20px;
-        // border-bottom: 1px solid rgba(4, 153, 255, 1);
         text-decoration: underline;
         cursor: pointer;
     }
@@ -1365,10 +1181,7 @@
         border-radius: 4px 4px 0px 0px;
         padding: 2px 0px;
         padding-right: 2px;
-        // overflow-y: hidden;
         overflow: hidden;
-        // white-space: nowrap;
-        // text-overflow: ellipsis;
         li {
             display: inline-block;
             width: 90px;
@@ -1379,7 +1192,6 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            // user-select:none;
             span {
                 display: inline-block;
                 width: 90px;
@@ -1409,7 +1221,6 @@
         display: flex;
         flex-wrap: wrap;
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-        // justify-content: space-around;
         li {
             display: inline-block;
             width: 90px;
@@ -1422,7 +1233,6 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             background: #dcdfe6;
-            // user-select:none;
             span {
                 display: inline-block;
                 width: 90px;
@@ -1439,7 +1249,6 @@
         display: inline-block;
         width: 30px;
         height: 30px;
-        // margin-left: 40px;
         text-align: center;
         line-height: 30px;
     }
@@ -1497,19 +1306,6 @@
         top: 50%;
         transform: translateY(-50%);
     }
-    // ::-webkit-scrollbar { /*滚动条整体样式*/
-        
-    // }
-    // ::-webkit-scrollbar-thumb { /*滚动条里面小方块*/
-    //     // border-radius: 10px;
-    //     // box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-    //     background: #EDEDED;
-    // }
-    // ::-webkit-scrollbar-track { /*滚动条里面轨道*/
-    //     // box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-    //     // border-radius: 10px;
-    //     background: #ffffff;
-    // }
     /deep/th.columnPadding{
         padding-left: 10px !important;
     }

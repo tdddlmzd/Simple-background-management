@@ -29,11 +29,6 @@
                 @row-dblclick="handleCurrentChange"
                 @selection-change="handleSelectionChange"
             >
-                <!-- <el-table-column
-                    type="selection"
-                    width="45"
-                >
-                </el-table-column> -->
                 <el-table-column prop="id" label="序号" align="left" :show-overflow-tooltip="true" min-width="50px">
                     <template slot-scope="scope">
                         {{scope.$index +1}}
@@ -44,6 +39,14 @@
                 </el-table-column>
                 <el-table-column prop="routeEn" label="航线英文名" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="110">
                 
+                </el-table-column>
+                <el-table-column prop="areaCn" label="所属大航线" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="110">
+                
+                </el-table-column>
+                <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="100">
+                    <template slot-scope="scope">
+                        {{scope.row.updateUser ? scope.row.updateUser.toUpperCase() : ''}}
+                    </template>
                 </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="142">
                 
@@ -131,9 +134,9 @@
                   setTimeout(() => {
                     this.isLoading = true;
                     this.$refs.table.clearSort()
-                    this.$axios.get(this.commonJs.localUrl + `/schedules/dicRoute/query?searchStr=${value
-                        }&pageNumber=${this.page.pageNo
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/dicRoute/query?pageNumber=${this.page.pageNo
                         }&pageSize=${this.page.pageSize
+                        }&searchStr=${value
                         }`,{
                             headers: {
                                 Authorization: `Bearer ${this.getAuthorization()}`,
@@ -165,9 +168,9 @@
                         this.pageNumber = 1;
                     }
                 }
-                this.$axios.get(this.commonJs.localUrl + `/schedules/dicRoute/query?searchStr=${this.ruleForm.searchStr
-                    }&pageNumber=${this.page.pageNo
+                this.$axios.get(this.commonJs.localUrl + `/schedules/dicRoute/query?pageNumber=${this.page.pageNo
                     }&pageSize=${this.page.pageSize
+                    }&searchStr=${this.ruleForm.searchStr
                     }`,{
                         headers: {
                             Authorization: `Bearer ${this.getAuthorization()}`,
@@ -234,7 +237,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,

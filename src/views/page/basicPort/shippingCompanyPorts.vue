@@ -124,6 +124,11 @@
                             </span>
                         </template>
                     </el-table-column>
+                    <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                        <template slot-scope="scope">
+                            {{scope.row.updateUser ? scope.row.updateUser.toUpperCase() : ''}}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip=true min-width="142" :sortable="sortableState" :filters="[]">
                         
                     </el-table-column>
@@ -239,7 +244,6 @@
                 }
                 this.isLoading = true;
                 this.$refs.multipleTable.clearSort()
-                // document.querySelector(".loading").style.height = this.$refs.basicPort.getBoundingClientRect().height + 150 + 'px';
                 this.pageNumber = 1;
                 if(Math.ceil(this.tableData.length / this.page.pageSize) < this.page.pageNo){
                     this.page.pageNo = 1;
@@ -253,7 +257,6 @@
                 }).then(res => {
                     if(res.data.status == 1){
                         this.tableData = res.data.content;
-                        // document.querySelector(".loading").style.height = this.$refs.basicPort.getBoundingClientRect().height + 150 + 'px';
                         if(this.$refs.refPagination){
                             this.$refs.refPagination.page.total = res.data.total;
                             this.$refs.refPagination.changeValue()

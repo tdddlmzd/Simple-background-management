@@ -3,7 +3,7 @@
         <loading v-show="isLoading"></loading>
         <el-form
         label-position="right"
-        label-width="100px"
+        label-width="120px"
         :model="ruleForm"
         ref="ruleForm"
         size="mini"
@@ -13,7 +13,7 @@
             <label class="headeraddOrEdit">{{addOrEdit}}</label>
             <i class="headeraddOrEditClose el-icon-close lr" @click="handleCloseClick"></i>
         </div>
-            <div :style="{height: innerHeight}"  class="scrollDiv">
+            <div :style="{maxHeight: innerHeight}"  class="scrollDiv">
                 <ul class="routeUl">
                     <!-- <li class="routeLi">
                         <div class="shipData">      
@@ -80,13 +80,48 @@
                                 </el-form-item>
                             </el-col>
                             <el-col style="width:22%">
-                                <el-form-item prop="transitTime" label="航程:" class="el_formContent">
-                                    <span class='colSpan' :title="this.ruleForm.transitTime ? this.ruleForm.transitTime + '天' : ''">{{this.ruleForm.transitTime ? this.ruleForm.transitTime + '天' : '-'}}</span>
+                                <el-form-item prop="transitTime" label="动态总航程:" class="el_formContent">
+                                    <span class='colSpan'>{{ruleForm.transitTime ? ruleForm.transitTime : '-'}}</span>
                                 </el-form-item>
                             </el-col>
                             <el-col style="width:22%">
                                 <el-form-item prop="companyName" label="路径数:" class="el_formContent">
                                     <span class='colSpan'>{{this.ruleForm.transitCount == 1 ? '直达' : this.ruleForm.transitCount == 2 ? '2程' : this.ruleForm.transitCount == 3 ? '3程' : this.ruleForm.transitCount == 4 ? '4程' : '-'}}</span>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col style="width:22%">
+                                <el-form-item prop="state" label="状态:" class="el_formContent" :rules="[{ required: true, message: '请选择状态', trigger: 'blur'}]">
+                                    <el-select
+                                        v-model="ruleForm.state"
+                                        style="width:100%;"
+                                        placeholder="请选择"
+                                        default-first-option
+                                    >
+                                        <el-option
+                                            v-for="item in stateList"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item prop="type" label="类型:" class="el_formContent">
+                                    <span class='colSpan'>爬虫</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item prop="editTransitTime" label="人工总航程:" class="el_formContent">
+                                    <el-input v-model="ruleForm.editTransitTime" placeholder="请输入" clearable @input="ruleForm.editTransitTime = ruleForm.editTransitTime.replace(/[^\d]/g,'')"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item prop="lineCount" label="LINE程:" class="el_formContent">
+                                    <span class='colSpan'>{{this.ruleForm.lineCount}}</span>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -103,10 +138,6 @@
                             tooltip-effect="dark"
                             ref="table"
                         >
-                            <!-- <el-table-column prop="index" label="序号" align="left" width="50" :show-overflow-tooltip="true"
-                            >
-                                <template slot-scope="scope"> {{scope.row.index+1}}</template>
-                            </el-table-column> -->
                             <el-table-column prop="pathOrder" label="顺序" align="left" :show-overflow-tooltip="true" min-width="50">
 
                             </el-table-column>
@@ -134,27 +165,6 @@
                             <el-table-column prop="pol" label="起运港" align="left" :show-overflow-tooltip="true" min-width="170">
                                 <template slot-scope="scope">
                                     <div class="sel-el" v-if="scope.row.isView !== 0 && scope.row.index == 0">
-                                        <!-- <el-select
-                                            remote
-                                            filterable
-                                            clearable
-                                            v-model="scope.row.pol"
-                                            placeholder="请输入并选择"
-                                            :remote-method="portStartRemote"
-                                            :disabled="true"
-                                            @focus="portStartFocus"
-                                            @change="portStartChange($event,scope.row.index)"
-                                            style="width:100%"
-                                        >
-                                            <el-option
-                                                v-for="(item,index) in portStartList"
-                                                :key="index"
-                                                :label="item.portEn"
-                                                :value="item.portEn"
-                                                :title="item.portEn"
-                                            >
-                                            </el-option>
-                                        </el-select> -->
                                         <el-input v-model="scope.row.pol" readOnly></el-input>
                                     </div>
                                     <div class="sel-el" v-else-if="scope.row.isView !== 0 && scope.row.index !== 0">
@@ -201,7 +211,7 @@
                                                 :label="item.terminalCn"
                                                 :value="item.terminalCn"
                                             >
-                                                <span>{{item.portEn+"("+ item.portCode+")" }}</span>
+                                                <!-- <span>{{item.portEn+"("+ item.portCode+")" }}</span> -->
                                             </el-option>
                                         </el-select>
                                     </div>
@@ -265,7 +275,7 @@
                             </el-table-column>
                             <el-table-column prop="routeCode" label="航线代码(显示)" align="left" :show-overflow-tooltip="true" min-width="120">
                                 <template slot-scope="scope">
-                                    <span :class= "scope.row.routeCode &&  scope.row.routeCode !== 'UNDEFINED' && scope.row.isView === 0? 'voyageClass' : ''" @click="appearRout(scope.row)">{{scope.row.routeCode &&  scope.row.routeCode !== "UNDEFINED" ? scope.row.routeCode : '-'}}</span>
+                                    <span :class= "scope.row.routeCode && scope.row.routeCode !== 'UNDEFINED' && scope.row.isView === 0 ? 'voyageClass' : ''" @click="appearRout(scope.row)">{{scope.row.displayName &&  scope.row.displayName !== "UNDEFINED" ? scope.row.displayName : '-'}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="etd" label="ETD" align="left" :show-overflow-tooltip="true" min-width="90">
@@ -322,12 +332,12 @@
                                 </template> 
                             </el-table-column>
                             <!--  查看差 v-if="isViewShow" -->
-                            <el-table-column prop="isView" label="操作" align="left" :show-overflow-tooltip="true" min-width="50" v-if="isViewShow"> 
+                            <!-- <el-table-column prop="isView" label="操作" align="left" :show-overflow-tooltip="true" min-width="50" v-if="isViewShow"> 
                                 <template slot-scope="scope"> 
                                     <span v-if="scope.row.isView == 0" class="look" @click="lookVesselList(scope.row,ruleForm.carrier)">查看</span>
                                     <span v-if="scope.row.isView == 1">查看</span>
                                 </template>
-                            </el-table-column>
+                            </el-table-column> -->
                             <template slot="empty">
                                 <div class="dataPage" :style="{width: dataWidth + 'px'}">
                                     暂无数据
@@ -335,7 +345,7 @@
                             </template>
                         </el-table>
                     </li>
-                    <li class="routeLi">
+                    <li class="routeLi" v-if="isAripty">
                         <div class="title lf">
                             <span>航线共舱信息</span>
                         </div>
@@ -348,7 +358,10 @@
                             ref="table"
                         >
                             <el-table-column prop="type" label="类型" align="left" :show-overflow-tooltip="true" width="200">
-
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.type}}</span>
+                                    <span v-if="scope.row.type == '该路径常规共舱'" class="pathRecover" @click="pathRecover()">恢复</span>
+                                </template>
                             </el-table-column>
                             <el-table-column prop="companyInfor" label="共舱船公司（航线）信息" align="left" min-width="700">
                                 <template slot-scope="scope">
@@ -377,24 +390,20 @@
                             </template>
                         </el-table>
                     </li>
-                    <li class="routeLi">
+                    <li class="routeLi" v-if="isAripty">
                         <div class="title">
                             <span>动态船舶</span>
                         </div>
-                            <span class="voyageOrVessel">{{POL !== '' && POD !== '' ? POL + "/" + POD : ''}}</span>
                         <el-table
-                            :data="tableDynamicShipData"
+                            :data="dynamicList"
                             style="width: 100%;"
                             :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
-                            :row-class-name="tabRowClassName"
+                            :row-class-name="tabColClassName"
                             tooltip-effect="dark"
-                            ref="table"
+                            ref="tableDynamic"
+                            :default-expand-all=false
                         >
-                            <!-- <el-table-column prop="index" label="序号" align="left" width="50" :show-overflow-tooltip="true"
-                            >
-                                <template slot-scope="scope"> {{scope.row.index+1}}</template>
-                            </el-table-column> -->
-                            <el-table-column prop="weekNo" label="周序号" align="left" :show-overflow-tooltip="true" width="110" fixed>
+                            <el-table-column prop="weekNo" label="周序号" align="left" width="80" fixed>
                                 <template slot-scope="scope">
                                     <div class="sel-el">
                                         <el-select
@@ -402,7 +411,7 @@
                                             style="width:100%;"
                                             placeholder="请选择"
                                             default-first-option
-                                            @change="changeIpu(scope.row,scope.row.index)"
+                                            @change="changeWeek(scope.row)"
                                         >
                                             <el-option
                                                 v-for="item in weekList"
@@ -415,24 +424,60 @@
                                     </div>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="vessel" label="船名" align="left" :show-overflow-tooltip="true" min-width="120" fixed>
+                            <el-table-column prop="pathTitle" label="路段" align="left" :show-overflow-tooltip="true" width="50" fixed>
+                                <template>
+                                    <span>头程</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="expandChange" label="" align="left" :show-overflow-tooltip="true" width="50" fixed>
+                                <template slot-scope="scope">
+                                    <span style="color:#3bafda;cursor: pointer;user-select: none" @click.stop="toogleExpand(scope.row)" v-if="pathDetails.length > 1">{{scope.row.expandChange ? '收起' : '展开'}}</span>
+                                    <span v-else></span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="isChange" label="" align="left" :show-overflow-tooltip="true" width="17" fixed>
+                                <template slot-scope="scope">
+                                    <el-popover trigger="hover" placement="right" @show="getChangeShips(scope.row.changeShips)" ref="popover" style="cursor: pointer;" v-if="scope.row.changeShips.length > 0">
+                                        <table border="0" class="shipTable">
+                                            <tr v-for="(item,index) in shipTitle" :key="item.voyage + index">
+                                                <th class="vessel">{{item.vessel}}</th>
+                                                <th class="vessel">{{item.voyage}}</th>
+                                                <th>{{item.dynamicEtd}}</th>
+                                                <th>{{item.dynamicEta}}</th>
+                                                <th>{{item.updateTime}}</th>
+                                            </tr>
+                                            <tr v-for="(item,index) in shiplList" :key="index">
+                                                <td class="vessel">{{item.vessel}}</td>
+                                                <td class="vessel">{{item.voyage}}</td>
+                                                <td>{{item.dynamicEtd}}</td>
+                                                <td>{{item.dynamicEta}}</td>
+                                                <td>{{item.updateTime}}</td>
+                                            </tr>
+                                        </table>
+                                        <div slot="reference" class="name">
+                                            <img src="@/assets/images/route/huan.png" class="huan">
+                                        </div>
+                                    </el-popover>
+                                    <span v-else></span>
+                                </template> 
+                            </el-table-column>
+                            <el-table-column prop="vessel" label="船名" align="left" width="188" fixed>
                                 <template slot-scope="scope">
                                     <div class="sel-el">
-                                        <img src="@/assets/images/route/huan.png" class="huan" v-if="scope.row.isChange === 1">
                                         <el-input
                                             v-model="scope.row.vessel"
-                                            @change="changeIpu(scope.row,scope.row.index)"
+                                            @change="changeIpu(scope.row)"
                                             :readonly="scope.row.isVessel"
                                         />
                                     </div>
                                 </template> 
                             </el-table-column>
-                            <el-table-column prop="voyage" label="航次" align="left" :show-overflow-tooltip="true" min-width="100" fixed>
+                            <el-table-column prop="voyage" label="航次" align="left" width="120" fixed>
                                 <template slot-scope="scope">
                                     <div class="sel-el">
                                         <el-input
                                             v-model="scope.row.voyage"
-                                            @change="changeIpu(scope.row,scope.row.index)"
+                                            @change="changeIpu(scope.row)"
                                             :readonly="scope.row.isVoyage"
                                         />
                                     </div>
@@ -447,7 +492,6 @@
                                                 <th>{{item.routeCode}}</th>
                                             </tr>
                                             <tr v-for="(item,index) in getVesselList" :key="index">
-                                                <!-- <el-badge class="isslotRed" is-dot></el-badge> -->
                                                 <td><span class="routeCode">{{item.carrier}}</span></td>
                                                 <td>{{item.routeCode}}</td>
                                             </tr>
@@ -461,7 +505,7 @@
                             <el-table-column prop="carrier" label="网站显示" align="left" :show-overflow-tooltip="true" width="90">
 
                             </el-table-column>
-                            <el-table-column prop="staticEtd" label="ETD-静态" align="left" :show-overflow-tooltip="true" width="120">
+                            <el-table-column prop="staticEtd" label="ETD-静态" :show-overflow-tooltip="true" align="left" width="120">
                                 <template slot-scope="scope">
                                     <span>
                                         {{
@@ -470,15 +514,15 @@
                                     </span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="dynamicEtd" label="ETD-动态" align="left" :show-overflow-tooltip="true" min-width="180">
+                            <el-table-column prop="dynamicEtd" label="ETD-动态" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.dynamicEtd"
                                             type="datetime"
-                                            @focus="focusDate(scope.row.dynamicEtd,scope.row.index,'dynamicEtd','Etd')"
-                                            @change="changeDate($event,scope.row.index,'dynamicEtd','Etd')"
-                                            @blur="changeDate(scope.row.dynamicEtd,scope.row.index,'dynamicEtd','Etd')"
+                                            @focus="focusDate(scope.row.dynamicEtd,scope.row,'dynamicEtd','Etd')"
+                                            @change="changeDate($event,scope.row,'dynamicEtd','Etd')"
+                                            @blur="changeDate(scope.row.dynamicEtd,scope.row,'dynamicEtd','Etd')"
                                             placeholder="选择时间日期"
                                             :format="scope.row.dynamicEtdEtd"
                                             >
@@ -486,15 +530,15 @@
                                     </div>
                                  </template>
                             </el-table-column>
-                            <el-table-column prop="atd" label="ATD" align="left" min-width="180">
+                            <el-table-column prop="atd" label="ATD" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.atd"
                                             type="datetime"
-                                            @focus="focusDate(scope.row.atd,scope.row.index,'atd','ATD')"
-                                            @change="changeDate($event,scope.row.index,'atd','ATD')"
-                                            @blur="changeDate(scope.row.atd,scope.row.index,'atd','ATD')"
+                                            @focus="focusDate(scope.row.atd,scope.row,'atd','ATD')"
+                                            @change="changeDate($event,scope.row,'atd','ATD')"
+                                            @blur="changeDate(scope.row.atd,scope.row,'atd','ATD')"
                                             placeholder="选择时间日期"
                                             :format="scope.row.atdATD"
                                             >
@@ -502,7 +546,7 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="staticEta" label="ETA-静态" align="left" width="120" :show-overflow-tooltip="true">
+                            <el-table-column prop="staticEta" label="ETA-静态" :show-overflow-tooltip="true" align="left" width="120">
                                 <template slot-scope="scope">
                                     <span>
                                         {{
@@ -511,15 +555,15 @@
                                     </span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="dynamicEta" label="ETA-动态" align="left" min-width="180">
+                            <el-table-column prop="dynamicEta" label="ETA-动态" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.dynamicEta"
                                             type="datetime"
-                                            @focus="focusDate(scope.row.dynamicEta,scope.row.index,'dynamicEta','dEta')"
-                                            @change="changeDate($event,scope.row.index,'dynamicEta','dEta')"
-                                            @blur="changeDate(scope.row.dynamicEta,scope.row.index,'dynamicEta','dEta')"
+                                            @focus="focusDate(scope.row.dynamicEta,scope.row,'dynamicEta','dEta')"
+                                            @change="changeDate($event,scope.row,'dynamicEta','dEta')"
+                                            @blur="changeDate(scope.row.dynamicEta,scope.row,'dynamicEta','dEta')"
                                             placeholder="选择时间日期"
                                             :format="scope.row.dynamicEtadEta"
                                             >
@@ -527,15 +571,15 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="ata" label="ATA" align="left" min-width="180">
+                            <el-table-column prop="ata" label="ATA" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.ata"
                                             type="datetime"
-                                            @focus="focusDate(scope.row.ata,scope.row.index,'ata','ATA')"
-                                            @change="changeDate($event,scope.row.index,'ata','ATA')"
-                                            @blur="changeDate(scope.row.ata,scope.row.index,'ata','ATA')"
+                                            @focus="focusDate(scope.row.ata,scope.row,'ata','ATA')"
+                                            @change="changeDate($event,scope.row,'ata','ATA')"
+                                            @blur="changeDate(scope.row.ata,scope.row,'ata','ATA')"
                                             placeholder="选择时间日期"
                                             :format="scope.row.ataATA"
                                             >
@@ -543,13 +587,13 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="vgm" label="截VGM" align="left" min-width="180">
+                            <!-- <el-table-column prop="vgm" label="截VGM" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.vgm"
                                             type="datetime"
-                                            @change="changeDate($event,scope.row.index,'vgm','VGM')"
+                                            @change="changeDate($event,scope.row,'vgm','VGM')"
                                             placeholder="选择时间日期"
                                             format="yyyy-MM-dd HH:mm:ss"
                                             >
@@ -557,13 +601,13 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="cutoff" label="截关" align="left" min-width="180">
+                            <el-table-column prop="cutoff" label="截关" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.cutoff"
                                             type="datetime"
-                                            @change="changeDate($event,scope.row.index,'cutoff','cuto')"
+                                            @change="changeDate($event,scope.row,'cutoff','cuto')"
                                             placeholder="选择时间日期"
                                             format="yyyy-MM-dd HH:mm:ss"
                                             >
@@ -571,13 +615,13 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="amsEns" label="截AMS/ENS" align="left" min-width="180">
+                            <el-table-column prop="amsEns" label="截AMS/ENS" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.amsEns"
                                             type="datetime"
-                                            @change="changeDate($event,scope.row.index,'amsEns','ams')"
+                                            @change="changeDate($event,scope.row,'amsEns','ams')"
                                             placeholder="选择时间日期"
                                             format="yyyy-MM-dd HH:mm:ss"
                                             >
@@ -585,44 +629,263 @@
                                     </div>
                                  </template> 
                             </el-table-column>
-                            <el-table-column prop="siCutOff " label="截SI" align="left" min-width="180">
+                            <el-table-column prop="siCutOff " label="截SI" align="left" width="180">
                                 <template slot-scope="scope">
                                     <div class="sel-input">
                                         <el-date-picker
                                             v-model="scope.row.siCutOff "
                                             type="datetime"
-                                            @change="changeDate($event,scope.row.index,'siCutOff','siCutOffsicut')"
+                                            @change="changeDate($event,scope.row,'siCutOff','siCutOffsicut')"
                                             placeholder="选择时间日期"
                                             format="yyyy-MM-dd HH:mm:ss"
                                             >
                                         </el-date-picker>
                                     </div>
                                  </template> 
-                            </el-table-column>
+                            </el-table-column> -->
                             <el-table-column prop="updateTime" label="更新时间" align="left" width="142" :show-overflow-tooltip="true">
                             
                             </el-table-column>
-                            <el-table-column prop="warning" label="ETD预警" align="left" min-width="100">
+                            <el-table-column prop="warning" label="ETD预警" align="left" width="70">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.warning}}</span>
-                                    <!-- <div class="sel-el">
-                                        <el-select
-                                            v-model="scope.row.warning"
-                                            style="width:100%;"
-                                            placeholder="请选择"
-                                            default-first-option
-                                            @change="changeIpu(scope.row,scope.row.index)"
-                                        >
-                                            <el-option
-                                                v-for="item in alertDrop"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.label"
-                                            >
-                                            </el-option>
-                                        </el-select>
-                                    </div> -->
                                 </template>
+                            </el-table-column>
+                            <el-table-column type="expand" align="left" v-if="pathDetails.length > 1" width="1">
+                                <template slot-scope="scope">
+                                    <div v-if="scope.row.additLeg.length > 0">
+                                        <el-table :data="scope.row.additLeg" :show-header=false class="tes_table">
+                                            <el-table-column prop="weekNo" label="周序号" align="left" :show-overflow-tooltip="true" width="80">
+                                                <template>
+                                                    <span></span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="f" label="路段" align="left" :show-overflow-tooltip="true" width="50">
+                                                <template slot-scope="scope">
+                                                    <span>{{(scope.$index + 1) == 1 ? '2程' : (scope.$index + 1) == 2 ? '3程' : (scope.$index + 1) == 3 ? '4程' : ''}}</span>
+                                                </template>                                           
+                                            </el-table-column>
+                                            <el-table-column prop="" label="" align="left" :show-overflow-tooltip="true" width="50">
+                                            </el-table-column>
+                                            <el-table-column prop="isChange" label="" align="left" :show-overflow-tooltip="true" width="17">
+                                                <template slot-scope="scope">
+                                                    <el-popover trigger="hover" placement="right" @show="getChangeShips(scope.row.changeShips)" ref="popover" style="cursor: pointer;" v-if="scope.row.changeShips.length > 0">
+                                                        <table border="0" class="shipTable">
+                                                            <tr v-for="(item,index) in shipTitle" :key="item.voyage + index">
+                                                                <th class="vessel">{{item.vessel}}</th>
+                                                                <th class="vessel">{{item.voyage}}</th>
+                                                                <th>{{item.dynamicEtd}}</th>
+                                                                <th>{{item.dynamicEta}}</th>
+                                                                <th>{{item.updateTime}}</th>
+                                                            </tr>
+                                                            <tr v-for="(item,index) in shiplList" :key="index">
+                                                                <td class="vessel">{{item.vessel}}</td>
+                                                                <td class="vessel">{{item.voyage}}</td>
+                                                                <td>{{item.dynamicEtd}}</td>
+                                                                <td>{{item.dynamicEta}}</td>
+                                                                <td>{{item.updateTime}}</td>
+                                                            </tr>
+                                                        </table>
+                                                        <div slot="reference" class="name">
+                                                            <img src="@/assets/images/route/huan.png" class="huan">
+                                                        </div>
+                                                    </el-popover>
+                                                    <span v-else></span>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="vessel" label="船名" align="left" width="188">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-el">
+                                                        <el-input
+                                                            v-model="scope.row.vessel"
+                                                            @change="changeIpu(scope.row)"
+                                                            :readonly="scope.row.isVessel"
+                                                        />
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="voyage" label="航次" align="left" width="120">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-el">
+                                                        <el-input
+                                                            v-model="scope.row.voyage"
+                                                            @change="changeIpu(scope.row)"
+                                                            :readonly="scope.row.isVoyage"
+                                                        />
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="sameRoute" label="共舱" align="left" :show-overflow-tooltip="true" width="60">
+                                                <template slot-scope="scope">
+                                                    <el-popover trigger="hover" placement="right" @show="getVessel(scope.row.sameRoute)" ref="popover" style="cursor: pointer;">
+                                                        <table border="0" class="vesselTable">
+                                                            <tr v-for="item in getVesseTitle" :key="item.routeCode">
+                                                                <th>{{item.carrier}}</th>
+                                                                <th>{{item.routeCode}}</th>
+                                                            </tr>
+                                                            <tr v-for="(item,index) in getVesselList" :key="index">
+                                                                <td><span class="routeCode">{{item.carrier}}</span></td>
+                                                                <td>{{item.routeCode}}</td>
+                                                            </tr>
+                                                        </table>
+                                                        <div slot="reference" class="name">
+                                                            <span>{{ scope.row.sameRoute.length }}</span>
+                                                        </div>
+                                                    </el-popover>
+                                                </template>                
+                                            </el-table-column>
+                                            <el-table-column prop="carrier" label="网站显示" align="left" :show-overflow-tooltip="true" width="90">
+
+                                            </el-table-column>
+                                            <el-table-column prop="staticEtd" label="ETD-静态" align="left" width="120">
+                                                <template slot-scope="scope">
+                                                    <span>
+                                                        {{
+                                                            scope.row.staticEtd ? commonJs.getFaysMounthDay(scope.row.staticEtd.toUpperCase()) : '-'
+                                                        }}
+                                                    </span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="dynamicEtd" label="ETD-动态" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.dynamicEtd"
+                                                            type="datetime"
+                                                            @focus="focusDate(scope.row.dynamicEtd,scope.row,'dynamicEtd','Etd')"
+                                                            @change="changeDate($event,scope.row,'dynamicEtd','Etd')"
+                                                            @blur="changeDate(scope.row.dynamicEtd,scope.row,'dynamicEtd','Etd')"
+                                                            placeholder="选择时间日期"
+                                                            :format="scope.row.dynamicEtdEtd"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="atd" label="ATD" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.atd"
+                                                            type="datetime"
+                                                            @focus="focusDate(scope.row.atd,scope.row,'atd','ATD')"
+                                                            @change="changeDate($event,scope.row,'atd','ATD')"
+                                                            @blur="changeDate(scope.row.atd,scope.row,'atd','ATD')"
+                                                            placeholder="选择时间日期"
+                                                            :format="scope.row.atdATD"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="staticEta" label="ETA-静态" align="left" width="120">
+                                                <template slot-scope="scope">
+                                                    <span>
+                                                        {{
+                                                            scope.row.staticEta ? commonJs.getFaysMounthDay(scope.row.staticEta.toUpperCase()) : '-'
+                                                        }}
+                                                    </span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="dynamicEta" label="ETA-动态" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.dynamicEta"
+                                                            type="datetime"
+                                                            @focus="focusDate(scope.row.dynamicEta,scope.row,'dynamicEta','dEta')"
+                                                            @change="changeDate($event,scope.row,'dynamicEta','dEta')"
+                                                            @blur="changeDate(scope.row.dynamicEta,scope.row,'dynamicEta','dEta')"
+                                                            placeholder="选择时间日期"
+                                                            :format="scope.row.dynamicEtadEta"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="ata" label="ATA" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.ata"
+                                                            type="datetime"
+                                                            @focus="focusDate(scope.row.ata,scope.row,'ata','ATA')"
+                                                            @change="changeDate($event,scope.row,'ata','ATA')"
+                                                            @blur="changeDate(scope.row.ata,scope.row,'ata','ATA')"
+                                                            placeholder="选择时间日期"
+                                                            :format="scope.row.ataATA"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <!-- <el-table-column prop="vgm" label="截VGM" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.vgm"
+                                                            type="datetime"
+                                                            @change="changeDate($event,scope.row,'vgm','VGM')"
+                                                            placeholder="选择时间日期"
+                                                            format="yyyy-MM-dd HH:mm:ss"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="cutoff" label="截关" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.cutoff"
+                                                            type="datetime"
+                                                            @change="changeDate($event,scope.row,'cutoff','cuto')"
+                                                            placeholder="选择时间日期"
+                                                            format="yyyy-MM-dd HH:mm:ss"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="amsEns" label="截AMS/ENS" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.amsEns"
+                                                            type="datetime"
+                                                            @change="changeDate($event,scope.row,'amsEns','ams')"
+                                                            placeholder="选择时间日期"
+                                                            format="yyyy-MM-dd HH:mm:ss"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column>
+                                            <el-table-column prop="siCutOff " label="截SI" align="left" width="180">
+                                                <template slot-scope="scope">
+                                                    <div class="sel-input">
+                                                        <el-date-picker
+                                                            v-model="scope.row.siCutOff "
+                                                            type="datetime"
+                                                            @change="changeDate($event,scope.row,'siCutOff','siCutOffsicut')"
+                                                            placeholder="选择时间日期"
+                                                            format="yyyy-MM-dd HH:mm:ss"
+                                                            >
+                                                        </el-date-picker>
+                                                    </div>
+                                                </template> 
+                                            </el-table-column> -->
+                                            <el-table-column prop="updateTime" label="更新时间" align="left" width="142" :show-overflow-tooltip="true">
+                                            
+                                            </el-table-column>
+                                            <el-table-column prop="warning" label="ETD预警" align="left" width="70">
+                                                <template slot-scope="scope">
+                                                    <span>{{scope.row.warning}}</span>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </div>
+                                </template> 
                             </el-table-column>
                             <template slot="empty">
                                 <div class="dataPage" :style="{width: dataWidth + 'px'}">
@@ -633,7 +896,7 @@
                     </li>
                 </ul>
                 <div class="save">
-                    <el-button class="saveBtn" @click="handleSaveClick()">保存</el-button>
+                    <el-button class="saveBtn" @click="handleSaveClick">保存</el-button>
                 </div>
             </div>
         </el-form>
@@ -673,7 +936,8 @@
         props: [
             "dialogInnerDetail",
             "rowId",
-            "gcId"
+            "gcId",
+            "isAripty"
             ],
         data() {
             return {
@@ -688,12 +952,13 @@
                 routeText: '',//航线挂靠港详情页Text
                 withArry: '',//给挂靠港口带的无五子码的数组
                 code: [],
-                gauRouteA: [], //修改的动态船舶数组
                 ruleForm:{
                     id: '', //ID
                     spiderId: '', // 港口组合id
                     carrier: '', //船公司
-                    transitTime: '', //航程
+                    scac: '', //船公司五子码
+                    transitTime: '', //动态总航程
+                    editTransitTime: '', //人工编辑总航程
                     transitCount: '', //中转次数，0：直达；1： 2程；2：3程 ；3：4程
                     pol: '', //起始港
                     polCode: '', //起始港五字码
@@ -704,11 +969,15 @@
                     onTime: '', //准班率
                     stop: '', //停航
                     etd: '',//周几etd
+                    state: '', //状态
                 },
+                typeL: '', //类型 人工 爬虫
                 POL: '', //起始港
                 POD: '', //目的港
                 getVesselList: [], //共舱列表
                 getVesseTitle: [], //共舱标题
+                shiplList: [], //换船列表
+                shipTitle: [], //换船标题            
                 tableDynamicShipData: [], //动态船舶信息
                 samePathList: [], //航线共舱信息
                 pathDetails: [],//路径详情
@@ -738,10 +1007,6 @@
                 ],
                 ETAList: [
                     {
-                        value : '-',
-                        label : '',
-                    },
-                    {
                         value : 'MON',
                         label : 'MON',
                     },
@@ -769,13 +1034,14 @@
                         value : 'SUN',
                         label : 'SUN',
                     },
+                    {
+                        value : '未知',
+                        label : '未知',
+                    }
+
                 ],
                 ETDList : [
                     {
-                        value : '-',
-                        label : '',
-                    },
-                    {
                         value : 'MON',
                         label : 'MON',
                     },
@@ -803,6 +1069,10 @@
                         value : 'SUN',
                         label : 'SUN',
                     },
+                    {
+                        value : '未知',
+                        label : '未知',
+                    }
                 ],
                 //预警下拉框 准点、提前、延误、停航、跳港、待更新
                 alertDrop:[
@@ -823,13 +1093,33 @@
                         label : '空班',
                     }
                 ],
+                stateList: [
+                    {
+                        value: 0,
+                        label: "常用"
+                    },
+                    {
+                        value: 1,
+                        label: "加班"
+                    },
+                    {
+                        value: 2,
+                        label: "屏蔽中"
+                    },
+                ],
                 weekList: [], //周序号
                 weeks: '', //今年一共有多少周
                 innerHeight: '',
                 screenHeight: '',
                 commonIdsInner: [],//常规共舱
+                isLine : false, //头程是否海运
                 ovtIdsInner: [],//临时共舱
                 currentYear: '',
+                shipArry: [], //动态船舶
+                dynamicList: [], //动态船舶循环的
+                gauRouteA: [], //修改的动态船舶 需要传给后端
+                missionCount: 0, //是否同步 大于零就为同步
+                isTrueUpdate: false, //是否重新渲染的详情页
             };
         },
         components: {
@@ -850,6 +1140,10 @@
                 }).then(res =>{
                     if(res.data.status == 1){
                         this.pathDetails = res.data.content.pathList //取路径详情
+                        //判断路径头程是否是海运
+                        if(this.pathDetails.length > 0){
+                            this.isLine = this.pathDetails[0].transitType && this.pathDetails[0].transitType.toUpperCase() == 'LINE' ? true : false
+                        }
                         for (let h = 0; h < this.pathDetails.length; h++) {
                             if(this.pathDetails[h].etd){
                                 this.pathDetails[h].etd = this.pathDetails[h].etd ? this.commonJs.getMounthDay(this.pathDetails[h].etd.toUpperCase()) : ''
@@ -864,37 +1158,69 @@
                                 this.tableDynamicShipData = []
                                 this.isLoading = false //无路径信息
                             }else{
-                                // if(res.data.content.pathList.length == 1){ //当前路径数为1
-                                //     // this.isViewShow = false
-                                //     this.isViewShow = true
-                                // }else{  // 当前路径详情数大于1
-                                //     this.isViewShow = true
-                                // }
                                 this.isViewShow = false
+                                var id = ""
+                                var ids = []
                                 for (let i = 0; i < this.pathDetails.length; i++) {
+                                    ids.push(this.pathDetails[i].id)
                                     this.storeUpdat.push([])
                                     if(this.pathDetails[i].isView == 0) {
                                         this.isViewShow = true
                                     }
                                 }
+                                id = ids.join('-')
                                 this.InitiaRouer(res.data.content.pathList) //初始化处理 起始港码头ID 目的港码头ID
-                                this.getStartVesselList(res.data.content.pathList,res.data.content.carrier) //初始化动态船舶
+
+                                if(this.isAripty){//调动态船舶
+                                    this.lookVesselList(id,res.data.content.carrier) //获取的动态船舶
+                                }else{
+                                    this.isLoading = false
+                                }
                             }
                         }
                         //基础信息
                         this.ruleForm.spiderId = res.data.content.spiderId
                         this.ruleForm.carrier = res.data.content.carrier //船公司
+                        this.ruleForm.scac = res.data.content.scac //船公司五子码
                         this.ruleForm.transitCount = res.data.content.transitCount //程数
                         this.ruleForm.podTerminal = res.data.content.podTerminal //目的港码头
                         this.ruleForm.pod = res.data.content.pod //目的港
                         this.ruleForm.podCode = res.data.content.podCode //目的港五子码
-                        this.ruleForm.transitTime = res.data.content.transitTime //航程
                         this.ruleForm.pol = res.data.content.pol //起始港
                         this.ruleForm.polTerminal = res.data.content.polTerminal //起始港码头
                         this.ruleForm.polCode = res.data.content.polCode //起始港五子码
                         this.ruleForm.onTime = res.data.content.onTime //准班率
                         this.ruleForm.stop =res.data.content.stop //停航
+                        this.ruleForm.lineCount =res.data.content.lineCount
                         this.ruleForm.etd =res.data.content.etd //周几etd
+                        this.typeL = res.data.content.type
+                        this.missionCount = res.data.content.missionCount
+
+                        if(!this.isTrueUpdate){
+                            this.ruleForm.transitTime = res.data.content.transitTime //航程
+                            this.ruleForm.editTransitTime = res.data.content.editTransitTime //航程
+                            this.ruleForm.state = res.data.content.state //状态
+                            if(res.data.content.state == 3){
+                                this.stateList = [
+                                    {
+                                        value: 0,
+                                        label: "常用"
+                                    },
+                                    {
+                                        value: 1,
+                                        label: "加班"
+                                    },
+                                    {
+                                        value: 2,
+                                        label: "屏蔽中"
+                                    },
+                                    {
+                                        value: 3,
+                                        label: "待定"
+                                    },
+                                ]
+                            }
+                        }
                         // this.isLoading = false
                     }else{
                         this.$message({
@@ -1003,23 +1329,11 @@
                     },
                 ]
             },
-            //获取初始的动态船舶
-            getStartVesselList(val,carrier) {
-                for (let i = 0; i < val.length; i++) {
-                    if(val[i].isView == 0){ //找出第一个isView 为 0 列表
-                        this.lookVesselList(val[i],carrier) //传id获取动态船舶
-                        return
-                    }else{
-                        this.isLoading = false
-                    }
-                }
-            },
             //初始化处理 起始港码头ID 目的港码头ID
             InitiaRouer(val) {
                 for (let i = 0; i < val.length; i++) {
                     //处理起始港码头
                     if(val[i].polTerminal == '') { //起始港码头为空
-                        this.pathDetails[i].polTerminalId = ''
                         val[i].polTerminalId = ''
                     }else{
                         this.$axios.get(this.commonJs.localUrl + `/schedules/route/queryTerminal?portCode=${val[i].polCode}`,
@@ -1060,70 +1374,44 @@
                     }
                 }
             },
-            //点击查看
-            lookVesselList(value,carrier) {
-                var pathOrder = value.pathOrder //给每个箱子都加上对应的  pathOrder
-                this.POL = value.pol //起始港
-                this.POD = value.pod //目的港
-                if(this.storeUpdat[value.index] && this.storeUpdat[value.index].length > 0){ //当前点击的数据在storeUpdat有存储时 直接用 不需要在取
-                    this.tableDynamicShipData = this.storeUpdat[value.index]
-                }else{
-                    this.isLoading = true
-                    var id = value.id //当前点击的路径的id
-                    this.$axios.get(this.commonJs.localUrl + `/schedules/path/getDynamicVessel?id=${id}&carrier=${carrier}`
-                    ,{
-                        headers: {
-                            Authorization: `Bearer ${this.getAuthorization()}`,
-                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
-                        }
-                    }).then(res =>{
-                        if(res.data.status == 1){
-                            this.tableDynamicShipData = res.data.content.dynamicVessel
-                            this.storeUpdat[value.index] = res.data.content.dynamicVessel //当前数据放入storeUpdat里 保存的时候存入后端数据
-                            for (let i = 0; i < this.tableDynamicShipData.length; i++) {
-                                this.tableDynamicShipData[i].pathOrder = pathOrder
-                                if(this.tableDynamicShipData[i].dynamicEtd) { //处理ETD-动态
-                                    this.InitMod(this.tableDynamicShipData[i].dynamicEtd,i,'dynamicEtd','Etd')
-                                    this.tableDynamicShipData[i].dynamicEtdEtd = this.tableDynamicShipData[i].Etd
-                                }
-                                if(this.tableDynamicShipData[i].atd) { //处理ATD
-                                    this.InitMod(this.tableDynamicShipData[i].atd,i,'atd','ATD')
-                                    this.tableDynamicShipData[i].atdATD = this.tableDynamicShipData[i].ATD
-                                }
-                                if(this.tableDynamicShipData[i].dynamicEta) { //处理ETA-动态
-                                    this.InitMod(this.tableDynamicShipData[i].dynamicEta,i,'dynamicEta','dEta')
-                                    this.tableDynamicShipData[i].dynamicEtadEta = this.tableDynamicShipData[i].dEta
-                                }
-                                if(this.tableDynamicShipData[i].ata) { //处理ATA
-                                    this.InitMod(this.tableDynamicShipData[i].ata,i,'ata','ATA')
-                                    this.tableDynamicShipData[i].ataATA = this.tableDynamicShipData[i].ATA
-                                }
-                                // if(this.tableDynamicShipData[i].vgm) { //处理截VGM
-                                //     this.InitMod(this.tableDynamicShipData[i].vgm,i,'vgm','VGM')
-                                // }
-                                // if(this.tableDynamicShipData[i].cutoff) { //处理截关
-                                //     this.InitMod(this.tableDynamicShipData[i].cutoff,i,'cutoff','cuto')
-                                // }
-                                // if(this.tableDynamicShipData[i].amsEns) { //处理截AMS/ENS
-                                //     this.InitMod(this.tableDynamicShipData[i].amsEns,i,'amsEns','ams')
-                                // }
-                                if(this.tableDynamicShipData[i].vessel) { // 如果当前有船名 则船名不可修改
-                                    this.tableDynamicShipData[i].isVessel = true
-                                }
-                                if(this.tableDynamicShipData[i].voyage) { // 如果当前有航次 则船次不可修改
-                                    this.tableDynamicShipData[i].isVoyage = true
-                                }
+            //获取动态船舶
+            lookVesselList(id,carrier) {
+                this.isLoading = true
+                this.$axios.get(this.commonJs.localUrl + `/schedules/path/getDynamicVessel?id=${id}&carrier=${carrier}`
+                ,{
+                    headers: {
+                        Authorization: `Bearer ${this.getAuthorization()}`,
+                        AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                    }
+                }).then(res =>{
+                    if(res.data.status == 1){
+                        var tableDy = res.data.content.dynamicVessel
+                        var dynamicList = []
+                        for (let i = 0; i < tableDy.length; i++) {
+                            var item = tableDy[i]
+                            var firstObject = item[0] //头程的数据
+                            var additLeg = [] //放 2 3 4程数据
+                            for (let j = 1; j < item.length; j++) {  //下面是 2 3 4程数据
+                                additLeg.push(item[j])
                             }
-                            this.comRouteInfor(res.data.content.sameRoute,res.data.content.commonIds,res.data.content.ovtIds)//航线共舱信息
-                            this.isLoading = false
-                        }else{
-                            this.$message({
-                                type: "error",
-                                message: "数据加载失败 请重新加载页面"
-                            });
+                            firstObject["additLeg"] = additLeg
+                            dynamicList.push(firstObject)
                         }
-                    })
-                }
+                        if(dynamicList.length > 0){
+                            this.dynamicList = this.Initialize(dynamicList)
+                        }else{
+                            this.dynamicList = []
+                        }
+                        // this.shipArry = res.data.content.dynamicVessel
+                        this.comRouteInfor(res.data.content.sameRoute,res.data.content.commonIds,res.data.content.ovtIds)//航线共舱信息
+                        this.isLoading = false
+                    }else{
+                        this.$message({
+                            type: "error",
+                            message: "数据加载失败 请重新加载页面"
+                        });
+                    }
+                })
             },
             //修改航线共舱信息 挂靠港
             updaComRout(val,isClick) {
@@ -1134,20 +1422,86 @@
                 }
 
             },
+            //恢复共舱
+            pathRecover(){
+                if(this.pathDetails.length > 0){
+                    var polCode = this.pathDetails[0].polCode
+                    var podCode = this.pathDetails[0].podCode
+                    var staticId = this.pathDetails[0].staticId
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/path/recoverCabin?gcId=${this.gcId}&polCode=${polCode}&podCode=${podCode}&staticId=${staticId}`
+                    ,{
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res =>{
+                        if(res.data.status == 1){
+                            //常规共舱恢复  this.samePathList数组  第一个 和 第二个 参数 companyInfor
+                            // res.data.content.commonIds = res.data.content.commonIds.filter(item => item.staticId !== this.firstStaticId)
+                            if(res.data.content.length > 0){ //说明有共舱
+                                var companyInfor = []
+                                for (let i = 0; i < res.data.content.length; i++) {
+                                    var commonIds = res.data.content[i]
+                                    companyInfor.push({
+                                        routeCode: commonIds.routeCode ? commonIds.routeCode : '-',
+                                        displayName: commonIds.displayName ? commonIds.displayName : '-',
+                                        staticId: commonIds.staticId,
+                                        carrier: commonIds.carrier,
+                                        id:commonIds.id,
+                                        affectWeek: commonIds.affectWeek ? (' ' + this.currentYear + '-' + commonIds.affectWeek) : '',// 开始应用周数
+                                        isNew:commonIds.isNew, //commonIds.isNew
+                                    })                        
+                                }
+        
+                                // //该路径常规共舱
+                                //先判断路径常规共舱有没有 含在接口返回的共舱里
+                                // if(this.samePathList[0].companyInfor.length > 0){
+                                //     for (let j = 0; j < companyInfor.length; j++) {
+                                //         for (let p = 0; p < this.samePathList[0].companyInfor.length; p++) {
+                                //             if(companyInfor[j].staticId == this.samePathList[0].companyInfor[p].staticId){
+                                //                 companyInfor[j].isNew = this.samePathList[0].companyInfor[p].isNew
+                                //             }
+                                //         }
+                                        
+                                //     }
+                                // }else{
+                                //     companyInfor = companyInfor.filter(item => item.isNew = 1)
+                                // }
+                                this.samePathList[0].companyInfor = companyInfor
+                                // //该路径常规共舱（标准）
+                                this.samePathList[1].companyInfor = companyInfor
+        
+                                // //之前放删除常规共舱的数组 放 接口返回的数据
+                                this.commonIdsInner = res.data.content
+                            }else{
+                                this.$message({
+                                    type: "error",
+                                    message: "该路径没有共舱"
+                                });
+                            }
+                        }else{
+                            this.$message({
+                                type: "error",
+                                message: "数据加载失败 请重新加载页面"
+                            });
+                        }
+                    })
+                }
+            },
             //删除共舱
             delRout(companyInfor,val,type){
-                console.log(val,type)
                 if(type == '该路径常规共舱'){
-                    // console.log(this.samePathList[0].companyInfor)
-                    // console.log(this.samePathList[1].companyInfor)
-                    // this.samePathList[0].comRouteInfor.splice(index,1) //删除改路径对应的常规共舱
-                    // this.samePathList[1].comRouteInfor.splice(index,1) //删除改路径对应的常规共舱(标准)
-                    this.commonIdsInner.push({
-                        id: val.id,// id删除必填如果不填就是添加
-                        delFlag: '1', // 是否删除，1是删除，如果不填就是添加，
-                        staticId: val.staticId,// 航线id
-                        week: val.week// 开始应用周数                    
-                    })
+                    //找出删除的这条
+                    if(this.commonIdsInner.length > 0){ //代表用户有删除操作
+                        //循环数组 找出删除的那条共舱
+                        for (let j = 0; j < this.commonIdsInner.length; j++) {
+                            if(val.staticId == this.commonIdsInner[j].staticId){
+                                this.commonIdsInner.splice(j,1)
+                            }
+                        }
+                    }
+                    val.delFlag = '1'
+                    this.commonIdsInner.push(val)
                     for (let i = 0; i < companyInfor.length; i++) {
                         if(val.staticId == companyInfor[i].staticId){
                             companyInfor.splice(i,1)
@@ -1236,6 +1590,23 @@
                 this.routeAtta = false
                 this.winResize()
             },
+            //显示换船
+            getChangeShips(val){
+                this.shiplList = []
+                this.shipTitle = []
+                if(val){
+                    if(val.length >= 1){
+                        this.shiplList = val
+                        this.shipTitle = [{
+                            vessel: '船名',
+                            voyage: '航次',
+                            dynamicEta: "ETA 动态",
+                            dynamicEtd: "ETD 动态",
+                            updateTime: "更新时间"
+                        }]
+                    }
+                }
+            },
             //显示共仓
             getVessel(val) {
                 this.getVesselList = []
@@ -1255,6 +1626,22 @@
                 row.index = rowIndex;
                 let index = rowIndex + 1;
                 if (index % 2 !== 0) {
+                    return "warning-row";
+                }
+            },
+
+            //头程动态船舶的斑马线
+            tabColClassName({ row, rowIndex }){
+                //如果路径是直达的 则一个
+                if(this.pathDetails.length == 1){
+                    row.index = rowIndex;
+                    let index = rowIndex + 1;
+                    if (index % 2 !== 0) {
+                        return "warning-row";
+                    }
+                }else{
+                    row.index = rowIndex;
+                    let index = rowIndex + 1;
                     return "warning-row";
                 }
             },
@@ -1443,7 +1830,7 @@
             },
             //目的港码头focus
             endPortFocus(val){
-                this.startPort = []
+                this.endPort = []
                 if(val){
                     this.$axios.get(this.commonJs.localUrl + `/schedules/route/queryTerminal?portCode=${val}`,
                         {
@@ -1453,7 +1840,7 @@
                             }
                         }
                     ).then(res => {
-                        this.startPort = res.data.content
+                        this.endPort = res.data.content
                     })
                 }else{
                     this.$message({
@@ -1465,7 +1852,7 @@
             //目的港码头change
             endPortChange(val,index){
                 if(val){ //选择了起始港码头
-                    for (let i = 0; i < this.startPort.length; i++) {
+                    for (let i = 0; i < this.endPort.length; i++) {
                         if(this.endPort[i].terminalCn == val) {
                             this.pathDetails[index].podTerminalId = this.endPort[i].id
                         }
@@ -1474,25 +1861,21 @@
                     this.pathDetails[index].podTerminalId = ''
                 }
             },
-            //日期点击
-            clickDate(){ },
             //日期聚焦 
-            focusDate(val,index,name,att) {
+            focusDate(val,value,name,att) {
                 var name = name //当前点击列表的属性
                 var att = att //当前点击列表显示的属性
                 if(val){
-                    var newObj = this.tableDynamicShipData[index]
+                    var newObj = value
                     newObj[name] = new Date(val) //用于数据
-                    // newObj[att] = "yyyy-MM-dd HH:mm:ss" //用于页面显示
                     newObj[name + att] = "yyyy-MM-dd HH:mm:ss"
                 }
             },
             //改变日期
-            changeDate(val,index,name,att){
+            changeDate(val,value,name,att){
                 var name = name //当前点击列表的属性
                 var att = att //当前点击列表显示的属性
-                var newObj = this.tableDynamicShipData[index]
-                newObj.lonIn = this.POL + this.POD + index
+                var newObj = value
                 if(val){
                     //下面是处理时间
                     var d = new Date(val)
@@ -1517,54 +1900,163 @@
                     newObj[att] = '' //用于页面显示
                     newObj[name + att] = newObj[att]
                 }
-                this.pRout(this.tableDynamicShipData[index])
+                this.pRout(value)
             },
             //初始话修改日期时间格式
-            InitMod(val,index,name,att){
+            InitMod(val,value,name,att){
                 var name = name //当前点击列表的属性
                 var att = att //当前点击列表显示的属性
-                var newObj = this.tableDynamicShipData[index]
-                //下面是处理时间
-                var d = new Date(val)
-                var Y = d.getFullYear()
-                var M = d.getMonth() + 1 > 9 ? d.getMonth() + 1 : '0' + (d.getMonth() + 1)
-                var D = d.getDate() > 9 ? d.getDate() : '0' + d.getDate()
-                var resDate = Y + '-' + M + '-' + D
-                var resTime = this.p(d.getHours()) + ':' + this.p(d.getMinutes()) + ':' + this.p(d.getSeconds())
-                //下面是获取周
-                //因为fommat格式解析问题所以另下面的用于解析显示
-                var weekDay = ["'S'UN", "'M'ON", "TUE", "WE'D'", "T'H'U", "FRI", "'S''A''T'"];
-                var W = weekDay[new Date(Date.parse(resDate)).getDay()]; //显示时候需要放的
-                //下面的用于返给后台数据
-                var week = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-                var S = week[new Date(Date.parse(resDate)).getDay()]; //显示时候需要放的
-                //得到想要的日期格式  年-月-日 （周） 进行赋值
-                newObj[name] = resDate + ' ' + resTime//用于数据
-                newObj[att] = resDate + '('+ W + ')' //用于页面显示
-                newObj[name + att] = newObj[att]
-            },
+                var newObj = value
+                if(val){
+                    //下面是处理时间
+                    var d = new Date(val)
+                    var Y = d.getFullYear()
+                    var M = d.getMonth() + 1 > 9 ? d.getMonth() + 1 : '0' + (d.getMonth() + 1)
+                    var D = d.getDate() > 9 ? d.getDate() : '0' + d.getDate()
+                    var resDate = Y + '-' + M + '-' + D
+                    var resTime = this.p(d.getHours()) + ':' + this.p(d.getMinutes()) + ':' + this.p(d.getSeconds())
+                    //下面是获取周
+                    //因为fommat格式解析问题所以另下面的用于解析显示
+                    var weekDay = ["'S'UN", "'M'ON", "TUE", "WE'D'", "T'H'U", "FRI", "'S''A''T'"];
+                    var W = weekDay[new Date(Date.parse(resDate)).getDay()]; //显示时候需要放的
+                    //下面的用于返给后台数据
+                    var week = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+                    var S = week[new Date(Date.parse(resDate)).getDay()]; //显示时候需要放的
+                    //得到想要的日期格式  年-月-日 （周） 进行赋值
+                    newObj[name] = resDate + ' ' + resTime//用于数据
+                    newObj[att] = resDate + '('+ W + ')' //用于页面显示
+                    newObj[name + att] = newObj[att]
+                }else{
+                    newObj[name] = '' //用于数据
+                    newObj[att] = '' //用于页面显示
+                    newObj[name + att] = newObj[att]
+                }
+            },            
             p(s) {
                 return s < 10 ? '0' + s : s
             },
+            //初始化处理动态船舶
+            Initialize(value){
+                for (let i = 0; i < value.length; i++) {
+                    var firstIn = value[i] //当前为头程 处理头程
+                    firstIn.expandChange = false
+                    firstIn.getUuid = this.commonJs.getUuid() + i
+                    if(firstIn.dynamicEtd) { //处理ETD-动态
+                        this.InitMod(firstIn.dynamicEtd,firstIn,'dynamicEtd','Etd')
+                        firstIn.dynamicEtdEtd = firstIn.Etd
+                    }
+                    if(firstIn.atd) { //处理ATD
+                        this.InitMod(firstIn.atd,firstIn,'atd','ATD')
+                        firstIn.atdATD = firstIn.ATD
+                    }
+                    if(firstIn.dynamicEta) { //处理ETA-动态
+                        this.InitMod(firstIn.dynamicEta,firstIn,'dynamicEta','dEta')
+                        firstIn.dynamicEtadEta = firstIn.dEta
+                    }
+                    if(firstIn.ata) { //处理ATA
+                        this.InitMod(firstIn.ata,firstIn,'ata','ATA')
+                        firstIn.ataATA = firstIn.ATA
+                    }
+                    if(firstIn.vessel) { // 如果当前有船名 则船名不可修改
+                        firstIn.isVessel = true
+                    }
+                    if(firstIn.voyage) { // 如果当前有航次 则船次不可修改
+                        firstIn.isVoyage = true
+                    }
+                    //处理周次
+                    var weekNo = ''
+                    if(firstIn.weekNo) {
+                        weekNo = firstIn.weekNo.split('-')
+                    }
+                    firstIn.weekNo = weekNo[weekNo.length - 1]
+                    for (let j = 0; j < firstIn.additLeg.length; j++) {
+                        var otherIn = firstIn.additLeg[j]
+                        otherIn.expandChange = false
+                        otherIn.getUuid = this.commonJs.getUuid() + i + j
+                        if(otherIn.dynamicEtd) { //处理ETD-动态
+                            this.InitMod(otherIn.dynamicEtd,otherIn,'dynamicEtd','Etd')
+                            otherIn.dynamicEtdEtd = otherIn.Etd
+                        }
+                        if(otherIn.atd) { //处理ATD
+                            this.InitMod(otherIn.atd,otherIn,'atd','ATD')
+                            otherIn.atdATD = otherIn.ATD
+                        }
+                        if(otherIn.dynamicEta) { //处理ETA-动态
+                            this.InitMod(otherIn.dynamicEta,otherIn,'dynamicEta','dEta')
+                            otherIn.dynamicEtadEta = otherIn.dEta
+                        }
+                        if(otherIn.ata) { //处理ATA
+                            this.InitMod(otherIn.ata,otherIn,'ata','ATA')
+                            otherIn.ataATA = otherIn.ATA
+                        }
+                        if(otherIn.vessel) { // 如果当前有船名 则船名不可修改
+                            otherIn.isVessel = true
+                        }
+                        if(otherIn.voyage) { // 如果当前有航次 则船次不可修改
+                            otherIn.isVoyage = true
+                        }
+                        //处理周次
+                        var weekNo = ''
+                        if(otherIn.weekNo) {
+                            weekNo = otherIn.weekNo.split('-')
+                        }
+                        otherIn.weekNo = weekNo[weekNo.length - 1]
+                    }
+                }
+                return value
+            },
             //监控船名和航次的修改
-            changeIpu(val,index){
-                val.lonIn = this.POL + this.POD + index
+            changeIpu(val){
                 this.pRout(val)
+            },
+            //监听周序号的修改
+            changeWeek(val){
+                this.pRout(val)
+                if(val.additLeg.length > 0){ //说明有二程 三程或者 四程
+                    for (let i = 0; i < val.additLeg.length; i++) {
+                        val.additLeg[i].weekNo = val.weekNo
+                        this.pRout(val.additLeg[i])
+                    }
+                }
             },
             //检查是否有重复提交的动态船舶
             pRout(list){
                 if(this.gauRouteA.length > 0) {
                     for (let i = 0; i < this.gauRouteA.length; i++) {//如果存储用户修改的数组里有值 根据id比较一下
-                        if(list.lonIn && list.lonIn == this.gauRouteA[i].lonIn){ //找出当前修改的是否有重复的id 有覆盖添加
+                        // if(list.id){ //说明是非空班数据  此时用id比较
+                        //     if(list.id == this.gauRouteA[i].id){ //找出当前修改的是否有重复的id 有覆盖添加
+                        //         this.gauRouteA.splice(i,1,list)
+                        //         return
+                        //     }
+                        // }else{ //当前是空班数据
+                        //     if(list.pathOrder == this.gauRouteA[i].pathOrder && list.weekNo == this.gauRouteA[i].weekNo){ //找出当前修改的是否有重复的id 有覆盖添加
+                        //         this.gauRouteA.splice(i,1,list)
+                        //         return
+                        //     }
+                        // }
+                        if(list.getUuid && list.getUuid == this.gauRouteA[i].getUuid){ //找出当前修改的是否有重复的id 有覆盖添加
                             this.gauRouteA.splice(i,1,list)
-                            return 
+                            return
                         }
                     }
                     this.gauRouteA.push(list)
                 }else{
                     this.gauRouteA.push(list)
                 }
-            },   
+            },
+            //点击展开
+            toogleExpand(row){
+                let $table = this.$refs.tableDynamic;
+                this.dynamicList.map((item,index) => {
+                    if (row.index != index) {
+                        item.expandChange = false
+                        $table.toggleRowExpansion(item, false)
+                    }else{
+                        item.expandChange = !item.expandChange
+                    }
+                })
+                $table.toggleRowExpansion(row)            
+            },
             //获取航线信息
             getRouteInfo (id) {
                 // debugger
@@ -1591,22 +2083,26 @@
                 this.isLoading = true
                 // newPathList 新的路径详情 整理出需要的统一放在newPathList数组里
                 var newPathList = []
+                console.log(this.pathDetails)
                 for (let q = 0; q < this.pathDetails.length; q++) {
-                    if(this.pathDetails[q].polCode == '') {
-                        this.isLoading = false
-                        this.$message({
-                            type: "error",
-                            message: '第' + `${this.pathDetails[q].pathOrder}` + '条起始港五字码为空,请选择起始港'
-                        });
-                        return
-                    }
-                    if(this.pathDetails[q].podCode == '') {
-                        this.isLoading = false
-                        this.$message({
-                            type: "error",
-                            message: '第' + `${this.pathDetails[q].pathOrder}` + '条目的港五字码为空，请选择目的港'
-                        });
-                        return
+
+                    if(this.ruleForm.state !== 2){
+                        if(this.pathDetails[q].polCode == '') {
+                            this.isLoading = false
+                            this.$message({
+                                type: "error",
+                                message: '第' + `${this.pathDetails[q].pathOrder}` + '条起始港五字码为空,请选择起始港'
+                            });
+                            return
+                        }
+                        if(this.pathDetails[q].podCode == '') {
+                            this.isLoading = false
+                            this.$message({
+                                type: "error",
+                                message: '第' + `${this.pathDetails[q].pathOrder}` + '条目的港五字码为空，请选择目的港'
+                            });
+                            return
+                        }
                     }
                     // if(this.pathDetails[q].isView == 1){
                         var id = this.pathDetails[q].id // 港到港路径id
@@ -1620,6 +2116,7 @@
                         var polTerminalId = this.pathDetails[q].polTerminalId // 起始港码头Id
                         var podTerminalId = this.pathDetails[q].podTerminalId // 目的港码头Id
                         var routeCode = this.pathDetails[q].routeCode // 航线代码
+                        var displayName = this.pathDetails[q].displayName // 航线代码
                         var transitType = this.pathDetails[q].transitType // 运输类型
                         var etd = this.pathDetails[q].etd // etd
                         var eta = this.pathDetails[q].eta // eta
@@ -1634,7 +2131,9 @@
                             polCode:polCode,
                             podCode:podCode,
                             polTerminalId:polTerminalId,
+                            podTerminalId:podTerminalId,
                             routeCode:routeCode,
+                            displayName:displayName,
                             transitType:transitType,
                             etd:etd,
                             eta:eta,
@@ -1642,89 +2141,90 @@
                         })                  
                     // }
                 }
-                var dynamic = this.gauRouteA
-                // for (let i = 0; i < this.storeUpdat.length; i++) {
-                //     if(this.storeUpdat[i].length > 0) {
-                //         for (let j = 0; j < this.storeUpdat[i].length; j++) {
-                //             dynamic.push((this.storeUpdat[i])[j])
-                //         }
-                //     }
-                // }
-                var newAddArry = [] //存到后端的动态船舶数据数据
-                for (let p = 0; p < dynamic.length; p++) {
-                    if(dynamic[p].id == '') { //当前数据没有船名航次
-                        if(dynamic[p].vessel == ''){ //说明用户没有输入船名
-                            this.isLoading = false
-                            this.$message({
-                                type: "error",
-                                message: '请输入船名'
-                            });
-                            return
-                        }
-                        if(dynamic[p].voyage == ''){ //说明用户没有输入航次
-                            this.isLoading = false
-                            this.$message({
-                                type: "error",
-                                message: '请输入航次'
-                            });
-                            return
-                        }
-                    }
-                    var weekNo = dynamic[p].weekNo //周序号
-                    if(weekNo.indexOf('-') !== -1){ //如果当前周序号是 '2020-2'则截取后面的 2 转为数字
-                        let noWeek = weekNo
-                        weekNo = Number(noWeek.slice(noWeek.indexOf('-')+1)) //周序号
-                    }
-                    var id = dynamic[p].id //航次id
-                    var pathOrder = dynamic[p].pathOrder
-                    var p2pPathId = dynamic[p].p2pPathId // 港到港路径id
-                    var part = dynamic[p].part // part
-                    var dynamicId = dynamic[p].dynamicId // 动态时间id
-                    var vesselId = dynamic[p].vesselId // 船id
-                    var vessel = dynamic[p].vessel //船名
-                    var voyage = dynamic[p].voyage //航次
-                    var dynamicEtd = dynamic[p].dynamicEtd ? dynamic[p].dynamicEtd : '' //动态etd
-                    var atd = dynamic[p].atd ? dynamic[p].atd : '' //实际atd
-                    var dynamicEta = dynamic[p].dynamicEta ? dynamic[p].dynamicEta : '' //动态eta
-                    var ata = dynamic[p].ata ? dynamic[p].ata : '' //实际ata
-                    var vgm = dynamic[p].vgm ? dynamic[p].vgm : '' //截vgm
-                    var cutoff = dynamic[p].cutoff ? dynamic[p].cutoff : '' //截关
-                    var amsEns = dynamic[p].amsEns ? dynamic[p].amsEns : '' //截AMS/ENS
-                    var siCutOff = dynamic[p].siCutOff ? dynamic[p].siCutOff : '' //截AMS/ENS
-                    var updateTime = dynamic[p].updateTime ? dynamic[p].updateTime : '' //当前数据的更新时间
-                    var warning = dynamic[p].warning ? dynamic[p].warning : '' //预警
-                    var carrier = dynamic[p].carrier ? dynamic[p].carrier : '' //网站显示
-                    newAddArry.push({
-                        id:id,
-                        pathOrder: pathOrder,
-                        p2pPathId:p2pPathId,
-                        part:part,
-                        dynamicId:dynamicId,
-                        vesselId:vesselId,
-                        weekNo:weekNo,
-                        vessel:vessel,
-                        voyage:voyage,
-                        dynamicEtd:dynamicEtd,
-                        atd:atd,
-                        dynamicEta:dynamicEta,
-                        ata:ata,
-                        vgm:vgm,
-                        cutoff:cutoff,
-                        amsEns:amsEns,
-                        siCutOff:siCutOff,
-                        updateTime:updateTime,
-                        warning:warning,
-                        carrier:carrier
-                    })
-                }
                 var query = {
+                    state: this.ruleForm.state,
+                    transitTime:this.ruleForm.transitTime,
+                    editTransitTime:this.ruleForm.editTransitTime,
                     id: this.rowId, // 路径id（跟取详情的id一样）
                     gcId: this.gcId, // 共舱id
                     spiderId: this.ruleForm.spiderId, // 港口组合id
                     commonIds:this.commonIdsInner, //常用共舱
                     ovtIds:this.ovtIdsInner, //临时共舱
                     pathList: newPathList,
-                    dynamicList: newAddArry
+                    polCode: this.ruleForm.polCode, //起始港五子码
+                    podCode: this.ruleForm.podCode, //目的港五子码
+                    scac: this.ruleForm.scac, //船公司五子码
+                }
+                if(this.isAripty){ //需要传动态船舶
+                    var dynamic = this.gauRouteA
+                    var newAddArry = [] //存到后端的动态船舶数据数据
+                    for (let p = 0; p < dynamic.length; p++) {
+                        if(dynamic[p].id == '') { //当前数据没有船名航次
+                            if(dynamic[p].vessel == ''){ //说明用户没有输入船名
+                                this.isLoading = false
+                                this.$message({
+                                    type: "error",
+                                    message: '请输入船名'
+                                });
+                                return
+                            }
+                            if(dynamic[p].voyage == ''){ //说明用户没有输入航次
+                                this.isLoading = false
+                                this.$message({
+                                    type: "error",
+                                    message: '请输入航次'
+                                });
+                                return
+                            }
+                        }
+                        var weekNo = dynamic[p].weekNo //周序号
+                        if(weekNo.indexOf('-') !== -1){ //如果当前周序号是 '2020-2'则截取后面的 2 转为数字
+                            let noWeek = weekNo
+                            weekNo = Number(noWeek.slice(noWeek.indexOf('-')+1)) //周序号
+                        }
+                        var id = dynamic[p].id //航次id
+                        var pathOrder = dynamic[p].pathOrder
+                        var p2pPathId = dynamic[p].p2pPathId // 港到港路径id
+                        var part = dynamic[p].part // part
+                        var dynamicId = dynamic[p].dynamicId // 动态时间id
+                        var vesselId = dynamic[p].vesselId // 船id
+                        var vessel = dynamic[p].vessel //船名
+                        var voyage = dynamic[p].voyage //航次
+                        var dynamicEtd = dynamic[p].dynamicEtd ? dynamic[p].dynamicEtd : '' //动态etd
+                        var atd = dynamic[p].atd ? dynamic[p].atd : '' //实际atd
+                        var dynamicEta = dynamic[p].dynamicEta ? dynamic[p].dynamicEta : '' //动态eta
+                        var ata = dynamic[p].ata ? dynamic[p].ata : '' //实际ata
+                        var vgm = dynamic[p].vgm ? dynamic[p].vgm : '' //截vgm
+                        var cutoff = dynamic[p].cutoff ? dynamic[p].cutoff : '' //截关
+                        var amsEns = dynamic[p].amsEns ? dynamic[p].amsEns : '' //截AMS/ENS
+                        var siCutOff = dynamic[p].siCutOff ? dynamic[p].siCutOff : '' //截AMS/ENS
+                        var updateTime = dynamic[p].updateTime ? dynamic[p].updateTime : '' //当前数据的更新时间
+                        var warning = dynamic[p].warning ? dynamic[p].warning : '' //预警
+                        var carrier = dynamic[p].carrier ? dynamic[p].carrier : '' //网站显示
+                        newAddArry.push({
+                            id:id,
+                            pathOrder: pathOrder,
+                            p2pPathId:p2pPathId,
+                            part:part,
+                            dynamicId:dynamicId,
+                            vesselId:vesselId,
+                            weekNo:weekNo,
+                            vessel:vessel,
+                            voyage:voyage,
+                            dynamicEtd:dynamicEtd,
+                            atd:atd,
+                            dynamicEta:dynamicEta,
+                            ata:ata,
+                            vgm:vgm,
+                            cutoff:cutoff,
+                            amsEns:amsEns,
+                            siCutOff:siCutOff,
+                            updateTime:updateTime,
+                            warning:warning,
+                            carrier:carrier
+                        })
+                    }
+                    query['dynamicList'] = newAddArry
                 }
                 this.$axios.post(this.commonJs.localUrl + `/schedules/path/modify`,query,
                     {
@@ -1735,12 +2235,25 @@
                     }
                 ).then(res => {
                     if (res.data.status == 1) {
-                        this.$emit("updatInfor");
                         this.$message({
                             type: "success",
                             message: "保存成功"
                         });
+                        this.$emit("updatInfor");
                         this.handleCloseClick()
+                        this.isLoading = false
+                    }else if (res.data.status == 6) {
+                        this.$message({
+                            type: "error",
+                            message: "该路径的航线或港口组合是无效状态，请将路径设置为屏蔽"
+                        });
+                        this.isLoading = false
+                    }else if (res.data.status == 7) {
+                        this.$message({
+                            type: "error",
+                            message: "存在相同船名航次"
+                        });
+                        this.isLoading = false
                     }else if (res.data.status == 0) {
                         this.$message({
                             type: "error",
@@ -1755,23 +2268,6 @@
                 // newPathList 新的路径详情 整理出需要的统一放在newPathList数组里
                 var newPathList = []
                 for (let q = 0; q < this.pathDetails.length; q++) {
-                    // if(this.pathDetails[q].polCode == '') {
-                    //     this.isLoading = false
-                    //     this.$message({
-                    //         type: "error",
-                    //         message: '第' + `${this.pathDetails[q].pathOrder}` + '条起始港五字码为空,请选择起始港'
-                    //     });
-                    //     return
-                    // }
-                    // if(this.pathDetails[q].podCode == '') {
-                    //     this.isLoading = false
-                    //     this.$message({
-                    //         type: "error",
-                    //         message: '第' + `${this.pathDetails[q].pathOrder}` + '条目的港五字码为空，请选择目的港'
-                    //     });
-                    //     return
-                    // }
-                    // if(this.pathDetails[q].isView == 1){
                         var id = this.pathDetails[q].id // 港到港路径id
                         var staticId = this.pathDetails[q].staticId // 航线id
                         var pathOrder = this.pathDetails[q].pathOrder //返给后端 标明当前数据是第几行
@@ -1783,6 +2279,7 @@
                         var polTerminalId = this.pathDetails[q].polTerminalId // 起始港码头Id
                         var podTerminalId = this.pathDetails[q].podTerminalId // 目的港码头Id
                         var routeCode = this.pathDetails[q].routeCode // 航线代码
+                        var displayName = this.pathDetails[q].displayName // 航线代码
                         var transitType = this.pathDetails[q].transitType // 运输类型
                         var etd = this.pathDetails[q].etd // etd
                         var eta = this.pathDetails[q].eta // eta
@@ -1797,7 +2294,8 @@
                             polCode:polCode,
                             podCode:podCode,
                             polTerminalId:polTerminalId,
-                            routeCode:routeCode,
+                            podTerminalId:podTerminalId,
+                            displayName:displayName,
                             transitType:transitType,
                             etd:etd,
                             eta:eta,
@@ -1805,87 +2303,89 @@
                         })                  
                     // }
                 }
-                var dynamic = this.gauRouteA
-                // for (let i = 0; i < this.storeUpdat.length; i++) {
-                //     if(this.storeUpdat[i].length > 0) {
-                //         for (let j = 0; j < this.storeUpdat[i].length; j++) {
-                //             dynamic.push((this.storeUpdat[i])[j])
-                //         }
-                //     }
-                // }
-                var newAddArry = [] //存到后端的动态船舶数据数据
-                for (let p = 0; p < dynamic.length; p++) {
-                    if(dynamic[p].id == '') { //当前数据没有船名航次
-                        if(dynamic[p].vessel == ''){ //说明用户没有输入船名
-                            this.isLoading = false
-                            this.$message({
-                                type: "error",
-                                message: '请输入船名'
-                            });
-                            return
-                        }
-                        if(dynamic[p].voyage == ''){ //说明用户没有输入航次
-                            this.isLoading = false
-                            this.$message({
-                                type: "error",
-                                message: '请输入航次'
-                            });
-                            return
-                        }
-                    }
-                    var weekNo = dynamic[p].weekNo //周序号
-                    if(weekNo.indexOf('-') !== -1){ //如果当前周序号是 '2020-2'则截取后面的 2 转为数字
-                        let noWeek = weekNo
-                        weekNo = Number(noWeek.slice(noWeek.indexOf('-')+1)) //周序号
-                    }
-                    var id = dynamic[p].id //航次id
-                    var p2pPathId = dynamic[p].p2pPathId // 港到港路径id
-                    var part = dynamic[p].part // part
-                    var dynamicId = dynamic[p].dynamicId // 动态时间id
-                    var vesselId = dynamic[p].vesselId // 船id
-                    var vessel = dynamic[p].vessel //船名
-                    var voyage = dynamic[p].voyage //航次
-                    var dynamicEtd = dynamic[p].dynamicEtd ? dynamic[p].dynamicEtd : '' //动态etd
-                    var atd = dynamic[p].atd ? dynamic[p].atd : '' //实际atd
-                    var dynamicEta = dynamic[p].dynamicEta ? dynamic[p].dynamicEta : '' //动态eta
-                    var ata = dynamic[p].ata ? dynamic[p].ata : '' //实际ata
-                    var vgm = dynamic[p].vgm ? dynamic[p].vgm : '' //截vgm
-                    var cutoff = dynamic[p].cutoff ? dynamic[p].cutoff : '' //截关
-                    var amsEns = dynamic[p].amsEns ? dynamic[p].amsEns : '' //截AMS/ENS
-                    var siCutOff = dynamic[p].siCutOff ? dynamic[p].siCutOff : '' //截AMS/ENS
-                    var updateTime = dynamic[p].updateTime ? dynamic[p].updateTime : '' //当前数据的更新时间
-                    var warning = dynamic[p].warning ? dynamic[p].warning : '' //预警
-                    var carrier = dynamic[p].carrier ? dynamic[p].carrier : '' //网站显示
-                    newAddArry.push({
-                        id:id,
-                        p2pPathId:p2pPathId,
-                        part:part,
-                        dynamicId:dynamicId,
-                        vesselId:vesselId,
-                        weekNo:weekNo,
-                        vessel:vessel,
-                        voyage:voyage,
-                        dynamicEtd:dynamicEtd,
-                        atd:atd,
-                        dynamicEta:dynamicEta,
-                        ata:ata,
-                        vgm:vgm,
-                        cutoff:cutoff,
-                        amsEns:amsEns,
-                        siCutOff:siCutOff,
-                        updateTime:updateTime,
-                        warning:warning,
-                        carrier:carrier
-                    })
-                }
                 var query = {
+                    state: this.ruleForm.state,
+                    transitTime:this.ruleForm.transitTime,
+                    editTransitTime:this.ruleForm.editTransitTime,
                     id: this.rowId, // 路径id（跟取详情的id一样）
                     spiderId: this.ruleForm.spiderId, // 港口组合id
                     gcId: this.gcId, // 共舱id
                     commonIds:this.commonIdsInner, //常用共舱
                     ovtIds:this.ovtIdsInner, //临时共舱
                     pathList: newPathList,
-                    dynamicList: newAddArry
+                    polCode: this.ruleForm.polCode, //起始港五子码
+                    podCode: this.ruleForm.podCode, //目的港五子码
+                    scac: this.ruleForm.scac, //船公司五子码
+                }
+
+                if(this.isAripty){ //需要传动态船舶
+                    var dynamic = this.gauRouteA
+                    var newAddArry = [] //存到后端的动态船舶数据数据
+                    for (let p = 0; p < dynamic.length; p++) {
+                        if(dynamic[p].id == '') { //当前数据没有船名航次
+                            if(dynamic[p].vessel == ''){ //说明用户没有输入船名
+                                this.isLoading = false
+                                this.$message({
+                                    type: "error",
+                                    message: '请输入船名'
+                                });
+                                return
+                            }
+                            if(dynamic[p].voyage == ''){ //说明用户没有输入航次
+                                this.isLoading = false
+                                this.$message({
+                                    type: "error",
+                                    message: '请输入航次'
+                                });
+                                return
+                            }
+                        }
+                        var weekNo = dynamic[p].weekNo //周序号
+                        if(weekNo.indexOf('-') !== -1){ //如果当前周序号是 '2020-2'则截取后面的 2 转为数字
+                            let noWeek = weekNo
+                            weekNo = Number(noWeek.slice(noWeek.indexOf('-')+1)) //周序号
+                        }
+                        var id = dynamic[p].id //航次id
+                        var p2pPathId = dynamic[p].p2pPathId // 港到港路径id
+                        var part = dynamic[p].part // part
+                        var dynamicId = dynamic[p].dynamicId // 动态时间id
+                        var vesselId = dynamic[p].vesselId // 船id
+                        var vessel = dynamic[p].vessel //船名
+                        var voyage = dynamic[p].voyage //航次
+                        var dynamicEtd = dynamic[p].dynamicEtd ? dynamic[p].dynamicEtd : '' //动态etd
+                        var atd = dynamic[p].atd ? dynamic[p].atd : '' //实际atd
+                        var dynamicEta = dynamic[p].dynamicEta ? dynamic[p].dynamicEta : '' //动态eta
+                        var ata = dynamic[p].ata ? dynamic[p].ata : '' //实际ata
+                        var vgm = dynamic[p].vgm ? dynamic[p].vgm : '' //截vgm
+                        var cutoff = dynamic[p].cutoff ? dynamic[p].cutoff : '' //截关
+                        var amsEns = dynamic[p].amsEns ? dynamic[p].amsEns : '' //截AMS/ENS
+                        var siCutOff = dynamic[p].siCutOff ? dynamic[p].siCutOff : '' //截AMS/ENS
+                        var updateTime = dynamic[p].updateTime ? dynamic[p].updateTime : '' //当前数据的更新时间
+                        var warning = dynamic[p].warning ? dynamic[p].warning : '' //预警
+                        var carrier = dynamic[p].carrier ? dynamic[p].carrier : '' //网站显示
+                        newAddArry.push({
+                            id:id,
+                            p2pPathId:p2pPathId,
+                            part:part,
+                            dynamicId:dynamicId,
+                            vesselId:vesselId,
+                            weekNo:weekNo,
+                            vessel:vessel,
+                            voyage:voyage,
+                            dynamicEtd:dynamicEtd,
+                            atd:atd,
+                            dynamicEta:dynamicEta,
+                            ata:ata,
+                            vgm:vgm,
+                            cutoff:cutoff,
+                            amsEns:amsEns,
+                            siCutOff:siCutOff,
+                            updateTime:updateTime,
+                            warning:warning,
+                            carrier:carrier
+                        })
+                    }
+                    query['dynamicList'] = newAddArry
                 }
                 this.$axios.post(this.commonJs.localUrl + `/schedules/path/modify`,query,
                     {
@@ -1904,22 +2404,19 @@
             },
             // 子组件新增 或者 修改数据 成功  父组件重新渲染页面
             manageUpdat(val) {
-                console.log(val,'val')
+                this.isTrueUpdate = true
                 if(val.length > 0) { //说明挂靠港有往路径详情里带数据
-                console.log('1111')
                     for (let i = 0; i < val.length; i++) {
                         var index = val[i].index
                         if(val[i].isRoute == 1){ //说明是起始港
                             this.pathDetails[index].polCode = val[i].portCode
                         }
                         if(val[i].isRoute == 2){ //说明是目的港
-                            // this.pathDetails[index].podCode = val.portCode
                             this.pathDetails[index].podCode = val[i].portCode
                         }
                     }
                     this.fiveCode()
                 }else{
-                    console.log('22222')
                     this.pathDetail()
                 }
             },
@@ -1966,8 +2463,8 @@
                 this.weeks = (vaildDays / 7) + 1 //加的这一 若是这周是从星期三开始的 我减去了前面的天数
                 for (let i = 0; i <= this.weeks; i++) {
                     this.weekList.push({
-                        value : Y + '-' + i,
-                        label : Y + '-' + i,
+                        value : '' + i,
+                        label : '' + i,
                     })
                 }
             },
@@ -2035,18 +2532,32 @@
             screenHeight (val) {
                var height = val - 80
                this.innerHeight = height  + 'px'
-            }    
-        },
-        updated() {
-            var height = document.body.clientHeight - 80
-            if(document.querySelector('.scrollDiv').offsetHeight > height){
-                this.innerHeight = height  + 'px'
-            }
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
+
+    /*这个地方处理的是 table expand 展开隐藏的样式*/
+    /deep/.el-table__expand-icon>.el-icon{
+        display: none;
+    }
+    /deep/.el-table__expand-column{
+        width: 1px !important;
+    }
+    /deep/.el-table__expand-column div.cell{
+        width: 1px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    /deep/.tes_table  .el-table__body-wrapper::-webkit-scrollbar{
+        /*width: 0;宽度为0隐藏*/
+        width: 0px;
+        height: 0px;
+        border: 0px;
+    }
+    /*截止地方*/
     /deep/ .el-table .warning-row {
         background: rgba(241, 245, 247, 1) !important;
     }
@@ -2094,22 +2605,9 @@
         font-size: 16px;
         cursor: pointer;
     }
-    // .tableFormUl {
-    //     padding-top: 20px;
-    //     li:nth-of-type(1) {
-    //         margin-top: 0px;
-    //     }
-    //     li {
-    //         margin-top: 20px;
-    //         .el-form-item {
-    //             display: inline-block;
-    //             width: 300px;
-    //             margin-right: 20px;
-    //         }
-    //     }
-    // }
     .scrollDiv{
         overflow-y: auto;
+        height:'400px'
     }
     .routeUl {
         padding-right: 10px;
@@ -2127,12 +2625,6 @@
             font-weight: 600;
         }
     }
-    .voyageOrVessel {
-        font-size: 12px;
-    }
-    .redclass {
-        color: red;
-    }
     .colSpan{
         width: 100%;
         display: inline-block;
@@ -2143,6 +2635,13 @@
     }
     .look{
         color:#3bafda;
+        cursor: pointer;
+    }
+    .pathRecover{
+        display: inline-block;
+        margin-left: 10px;
+        vertical-align: top;
+        color: red;
         cursor: pointer;
     }
     .save {
@@ -2157,35 +2656,9 @@
             margin-bottom: 10px;
         }
     }
-    .slotRed{
-        position: absolute;
-        right: 10px;
-        top: 2px;
-    }
-    .inputport{
-        width: 100%;
-        background:rgba(241, 245, 247, 1);
-        height: 25px;
-        outline: none;
-        display: inline-block;
-        border: 1px solid #ccc;
-        overflow: hidden;
-        text-align: center;
-    }
-    .inputportColor{
-        width: 100%;
-        height: 25px;
-        outline: none;
-        display: inline-block;
-        border: 1px solid #ccc;
-        overflow: hidden;
-        text-align: center;
-        // background:rgba(241, 245, 247, 1)
-    }
     .comRoutUl{
         width: 100%;
         overflow: hidden;
-        // display: flex;
         .comRoutLi{
             display: inline-block;
             .routP{
@@ -2267,11 +2740,40 @@
             color: #fff !important;
         }
     }
+    .shipTable{
+        overflow-y: hidden;
+        overflow-x: auto;
+        tr th{
+            padding: 5px;
+            box-sizing:content-box;
+            background: black !important;
+            color: #fff !important;
+            &.vessel{
+                background: red;
+                width: 90px;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+            }
+        }
+        tr td{
+            padding: 5px;
+            box-sizing:content-box;
+            background: black !important;
+            color: #fff !important;
+            &.vessel{
+                background: red;
+                width: 90px;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+            }
+        }
+    }
     .voyageClass {
         display: inline-block;
         color: #3bafda;
         margin-right: 20px;
-        // border-bottom: 1px solid rgba(4, 153, 255, 1);
         text-decoration: underline;
         cursor: pointer;
     }
@@ -2280,7 +2782,6 @@
         display: flex;
         flex-wrap: wrap;
         flex: 1;
-        // height: 26px;
         padding: 2px 0px;
         padding-right: 2px;
         overflow: hidden;
@@ -2294,9 +2795,6 @@
             background: #e4e4e4;
             padding: 2px 5px;
             margin-bottom: 2px;
-            // overflow: hidden;
-            // white-space: nowrap;
-            // text-overflow: ellipsis;
             border-radius: 10px;
             span {
                 display: inline-block;
@@ -2324,7 +2822,7 @@
         position: absolute;
         width: 17px;
         height: 15px;
-        left: -8px;
+        left: 0px;
         top: 12px;    
     }
 </style>

@@ -150,8 +150,8 @@
         <!--el-table-->
         <div class="tablePage">
             <div class="buttonTop">
-                <el-button size="small" class="clickColor butn" @click="handleAddClick">新增</el-button>
-                <el-button size="small" class="clickColor dered" @click="delectDate">删除</el-button>
+                <!-- <el-button size="small" class="clickColor butn" @click="handleAddClick">新增</el-button>
+                <el-button size="small" class="clickColor dered" @click="delectDate">删除</el-button> -->
                 <el-button size="small" class="clickColor normals" @click="effective">有效</el-button>
                 <el-button size="small" class="clickColor abnormal" @click="invalids">无效</el-button>
             </div>
@@ -197,18 +197,18 @@
                 <el-table-column prop="newest" label="最新位置" align="left" min-width="240"  :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
                 <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>
-                            {{scope.row.updateUser.toUpperCase()}}
+                            {{scope.row.updateUser ? scope.row.updateUser.toUpperCase() : ''}}
                         </span>
                     </template>
+                </el-table-column>
+                <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" width="142" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" width="142" :sortable="sortableState" :filters="[]">
+
                 </el-table-column>
                 <template slot="empty">
                     <noData></noData>
@@ -226,7 +226,7 @@
                 :visible.sync="shipTraDetail"
                 v-if="shipTraDetail"
                 ref="dialogDetailVisible"
-                width="80%"
+                width="1100px"
                 top="0"
                 append-to-body
                 :close-on-click-modal="false"
@@ -236,6 +236,7 @@
                 <shipTrajeDetail
                     :shipText = shipText
                     :rowId = rowId
+                    :shipId = shipId
                     @closeDetail="closeDetail"
                     @UpdatParent="UpdatParent"
                     ref="trendsaileDetail"
@@ -263,6 +264,7 @@
                 shipTraDetail: false, //新增 删除页是否打开
                 shipText: '', //详情页传的字段
                 rowId: '', // 修改表格时传的行ID
+                shipId: '',// 修改表格时传的行ID
                 multipleSelection: [], // 选择
                 companyNameList: [], //船公司
                 ruleForm: {
@@ -389,8 +391,6 @@
                                         this.$refs.refPagination.page.total = res.data.total;
                                         this.$refs.refPagination.changeValue()
                                     }
-                                    // console.log(this.$route)
-                                    // this.handleAddClick()      
                                 };
                                 if(this.$refs.refPagination){
                                     if(Math.ceil(this.$refs.refPagination.page.total / this.page.pageSize) < this.page.pageNo){
@@ -519,7 +519,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -557,7 +557,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为有效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_effective, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -596,7 +596,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为无效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_invalid, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -630,6 +630,7 @@
                 this.shipTraDetail = true
                 this.shipText = '修改'
                 this.rowId = row.id
+                this.shipId = row.shipId
             },
             //详情页关闭事件
             closeDetail() {

@@ -10,6 +10,10 @@
                 ></Hamburger>
             </span>
             <div class="headerRight">
+                <div class="infor_div" @click="changeHome">
+                    <img src="../../../../assets/images/login/small_tong.png" class="infro_image"/>
+                    <div class="isDot" v-if="numberCount > 0">{{numberCount > 99 ? '99+' : numberCount}}</div>
+                </div>
                 <span class="welcome">欢迎用户</span>
                 <span class="user">{{this.getCookie('userName')}}</span>
                 <el-dropdown
@@ -42,9 +46,14 @@
         components: {
             Hamburger
         },
+        computed:{
+            numberCount(){
+                return this.$store.state.common.numberCount
+            },
+        },
         methods : {
             logout() {
-                this.$confirm("<div class = 'line'></div></br><span>确认退出吗?</span>", "提示", {
+                this.$confirm("<div class='tesDiv'><div>确认退出吗</div></div>", "", {
                   cancelButtonClass: "btnCustomCencel", 
                   confirmButtonClass:"btnCustomSubmit",
                   customClass:"customClass",
@@ -55,8 +64,18 @@
             },
             toggleSideBar() {
                 this.$store.dispatch("ToggleSideBar");
-            }
-        }
+            },
+            changeHome(){
+                if(this.$route.path !== "/Home"){
+                    this.$router.push({ path: "/Home" })
+                }
+            },
+        },
+        watch: {
+            numberCount(newVal){
+                console.log(newVal,'newVal')
+            },        
+        },
     }
 </script>
 
@@ -93,6 +112,33 @@
         position: absolute;
         right: 40px;
         color: #fff;
+        display: flex;
+        align-items: center;
+        .infor_div{
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+        .infro_image{
+            width: 17px;
+            height: 17px;
+            margin-right: 30px;
+            margin-top: -2px;
+        }
+        .isDot{
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff4848;
+            border-radius: 50%;     
+            line-height: 20px;
+            text-align: center;
+            left: 10px;
+            top: -7px;            
+            color: #fff;
+            font-size: 11px;
+        }
         .welcome{
             margin-right: 30px;
         }

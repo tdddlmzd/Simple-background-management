@@ -48,6 +48,11 @@
                 <el-table-column prop="basePort" label="所属港口(五字码)" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="140">
                 
                 </el-table-column>
+                <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="100">
+                    <template slot-scope="scope">
+                        {{scope.row.updateUser ? scope.row.updateUser.toUpperCase() : ''}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" min-width="142">
                 
                 </el-table-column>
@@ -134,9 +139,9 @@
                   setTimeout(() => {
                     this.isLoading = true;
                     this.$refs.table.clearSort()
-                    this.$axios.get(this.commonJs.localUrl + `/schedules/terminal/query?searchStr=${value
-                        }&pageNumber=${this.page.pageNo
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/terminal/query?pageNumber=${this.page.pageNo
                         }&pageSize=${this.page.pageSize
+                        }&searchStr=${value
                         }`,{
                             headers: {
                                 Authorization: `Bearer ${this.getAuthorization()}`,
@@ -168,9 +173,9 @@
                         this.pageNumber = 1;
                     }
                 }
-                this.$axios.get(this.commonJs.localUrl + `/schedules/terminal/query?searchStr=${this.ruleForm.searchStr
-                    }&pageNumber=${this.page.pageNo
+                this.$axios.get(this.commonJs.localUrl + `/schedules/terminal/query?pageNumber=${this.page.pageNo
                     }&pageSize=${this.page.pageSize
+                    }&searchStr=${this.ruleForm.searchStr
                     }`,{
                         headers: {
                             Authorization: `Bearer ${this.getAuthorization()}`,
@@ -237,7 +242,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,

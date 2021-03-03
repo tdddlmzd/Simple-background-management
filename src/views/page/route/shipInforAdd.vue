@@ -22,17 +22,18 @@
                         :rules="[{ required: true, message: '请输入周次', trigger: 'blur'}]"
                     >
                         <el-select
-                            v-model="ruleForm.week"
+                            v-model="ruleForm.yearWeek"
                             style="width:100%;"
                             placeholder="请选择"
                             default-first-option
                             :disabled="isMatchType == 0"
+                            @change="changeWeek"
                         >
                             <el-option
                                 v-for="item in weekList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
+                                :key="item.yearWeek"
+                                :label="item.yearWeek"
+                                :value="item.yearWeek"
                             >
                             </el-option>
                         </el-select>
@@ -100,10 +101,10 @@
                 </li>
                 <li class="teshu">
                     <el-form-item
-                        prop="carrier"
+                        prop="operator"
                         label="母船"
                     >
-                        <el-input v-model="ruleForm.carrier" placeholder="" clearable readonly></el-input>
+                        <el-input v-model="ruleForm.operator" placeholder="" clearable readonly></el-input>
                     </el-form-item>
                 </li>
                 <li>
@@ -125,10 +126,10 @@
             </ul>
         </el-form>
         <el-dialog
-            class="dialogshipInforAdd"
+            class="shipDetail"
             :visible.sync="InforShipDetail"
             v-if="InforShipDetail"
-            width="80%"
+            width="1100px"
             top="50px"
             append-to-body
             :close-on-click-modal="false"
@@ -138,7 +139,7 @@
             <shipDetail
                 ref="shipDetail"
                 :vesselInforName="vesselInforName"
-                :vesselId="vesselId"
+                :shipId="shipId"
                 @closeShipInfor="closeShipInfor"
                 @UpdatShip="UpdatShip"
             >
@@ -162,13 +163,12 @@
                 addOrEdit : '',
                 InforShipDetail: false,
                 vesselInforName: '',
-                vesselId: '',
+                shipId: '',
                 ruleForm : {
                     id: '', //船舶航次表id
                     vessel : '', //船名
                     voyage : '', //航次
-                    week: '',//周次
-                    vesselId: '', //标准船名id
+                    shipId: '', //标准船名id
                     standerVesselName : '', //标准船名
                     mmsi: '',//mmsi
                     imo: '',//imo
@@ -176,7 +176,11 @@
                     operator: '',//运营方
                     createTime: '', //创建时间
                     updateTime: '', //操作时间
+                    week: '',//周次
+                    year: '', //年份
+                    yearWeek: '', //周次加年
                 },
+                currentYear: '',
                 isShowAdd: false,
                 standardList: [], //标准船名
                 weekList: [], //周次
@@ -206,8 +210,7 @@
 
                     //在这里判断是否在其他航线下存在此船名航次
 
-                    console.log(this.ruleForm,'this.ruleForm')
-                    this.$axios.get(this.commonJs.localUrl + `/schedules/route/searchExistVellesVoy?vesselId=${this.ruleForm.vesselId}&voyage=${this.ruleForm.voyage}&scac=${this.shipScac}&id=${this.ruleForm.id}`,
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/route/searchExistVellesVoy?shipId=${this.ruleForm.shipId}&voyage=${this.ruleForm.voyage}&scac=${this.shipScac}&id=${this.ruleForm.id}&year=${this.ruleForm.year}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${this.getAuthorization()}`,
@@ -242,9 +245,11 @@
             },
             resetFrom(){ //清空所有的选择
                 this.ruleForm.week = ''
+                this.ruleForm.year = ''
+                this.ruleForm.yearWeek = ''
                 this.ruleForm.vessel = ''
                 this.ruleForm.voyage = ''
-                this.ruleForm.vesselId = '' //船名id
+                this.ruleForm.shipId = '' //船名id
                 this.ruleForm.standerVesselName = '' //船名
                 this.ruleForm.mmsi = '' //mmsi
                 this.ruleForm.imo = '' //imo
@@ -256,7 +261,7 @@
             //标准船名清空必要信息
             emptyInfor(){
                 this.standardList = [] //清空标准船名列表
-                this.ruleForm.vesselId = '' //清空标准船名id
+                this.ruleForm.shipId = '' //清空标准船名id
                 this.ruleForm.mmsi = '' //清空mmsi
                 this.ruleForm.imo = '' //清空imo
                 this.ruleForm.carrier = '' //清空母船
@@ -287,7 +292,7 @@
                             }else{ //当前有匹配到标准船名 默认第一个
                                 this.isShowAdd = false
                                 //默认大家都是第一个
-                                this.ruleForm.vesselId = res.data.content[0].id //船名
+                                this.ruleForm.shipId = res.data.content[0].id //船名
                                 this.ruleForm.standerVesselName = res.data.content[0].vessel //船名
                                 this.ruleForm.mmsi = res.data.content[0].mmsi //mmsi
                                 this.ruleForm.imo = res.data.content[0].imo //imo
@@ -301,8 +306,7 @@
             //匹配标准船名vesselRemote
             vesselRemote(value){
                 //说明在远程搜索
-                // this.emptyInfor() //清空标准船名的信息
-                this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/searchStanderVessel?flag=1&officeVessel=${value}`,
+                this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/getStanderVesselByShip?flag=1&officeVessel=${value}`,
                 {
                     headers: {
                         Authorization: `Bearer ${this.getAuthorization()}`,
@@ -316,11 +320,7 @@
             },
             //匹配到的标准船名focus
             vesselFocus(){
-                // if(this.ruleForm.vessel == ''){
-                //     this.$message({type: "error",message: "请输入船名"})
-                //     return
-                // }
-                this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/searchStanderVessel?flag=1`,
+                this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/getStanderVesselByShip?flag=1`,
                 {
                     headers: {
                         Authorization: `Bearer ${this.getAuthorization()}`,
@@ -329,19 +329,6 @@
                 }).then(res => {
                     if (res.data.status == 1) {
                         this.standardList = res.data.content
-                        // if(res.data.content.length <= 0){ //当前没有匹配到标准船名
-                        //     this.isShowAdd = true
-                        //     this.emptyInfor() //清空标准船名的信息
-                        // }else{
-                        //     this.isShowAdd = false
-                        //     //默认大家都是第一个
-                        //     this.ruleForm.vesselId = res.data.content[0].id //船名
-                        //     this.ruleForm.standerVesselName = res.data.content[0].vessel //船名
-                        //     this.ruleForm.mmsi = res.data.content[0].mmsi //mmsi
-                        //     this.ruleForm.imo = res.data.content[0].imo //imo
-                        //     this.ruleForm.carrier = res.data.content[0].carrier //母船
-                        //     this.ruleForm.operator = res.data.content[0].operator //运营方
-                        // }
                     }
                 })
             },
@@ -350,7 +337,7 @@
                 if(val){
                     for (let i = 0; i < this.standardList.length; i++) {
                         if(val == this.standardList[i].vessel){
-                            this.ruleForm.vesselId = this.standardList[i].id //标准船名id
+                            this.ruleForm.shipId = this.standardList[i].id //标准船名id
                             this.ruleForm.mmsi = this.standardList[i].mmsi //mmsi
                             this.ruleForm.imo = this.standardList[i].imo //imo
                             this.ruleForm.carrier = this.standardList[i].carrier //母船
@@ -380,71 +367,35 @@
             },
             //获取今年有多少周
             weekNumber() {
-                var d1 = new Date()
-                var Y = d1.getFullYear()
-                var S = Y + '-' + '01' + '-' + '01' //一年的开始时间
-                var E = Y + '-' + '12' + '-' + '31' //一年的开始时间
-                let currentYearDays = this.isLeapYear(Y) ? 366 : 365
-                let beforeDays = 7 - this.getDate(S)+1
-                let afterDays = this.getDate(E)
-                let vaildDays = currentYearDays - beforeDays - afterDays
-                let weeks = (vaildDays / 7) + 1
-                for (let i = 1; i <= weeks; i++) {
-                    this.weekList.push({
-                        value : i,
-                        // label : Y + '年' + '第' + (i+1) + '周',
-                        label : Y + '-' + (i),
-                    })
-                }
+                var yearWeek = this.commonJs.getYearWeeks(new Date().getFullYear())
+                var todayWeek = this.commonJs.getTodayWeek()
+                this.weekList = this.commonJs.getWeekly(todayWeek,yearWeek)     
             },
-            //判断是否是闰年
-           isLeapYear(year) {
-                if (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0) {
-                    // console.log(year + 'is leap year')
-                    return true
-
-                } else {
-                    // console.log(year + 'is not leap year')
-                    return false
-                }
-            },
-            //获取某年某月某日是星球几
-            getDate(date) {
-                let oDate = new Date(date)
-                let day = oDate.getDay()
-                switch (day) {
-                    case 0:
-                        // console.log('星期日')
-                        return 0
-                    case 1:
-                        // console.log('星期一')
-                        return 1
-                    case 2:
-                        // console.log('星期二')
-                        return 2
-                    case 3:
-                        // console.log('星期三')
-                        return 3
-                    case 4:
-                        // console.log('星期四')
-                        return 4
-                    case 5:
-                        // console.log('星期五')
-                        return 5
-                    case 6:
-                        // console.log('星期六')
-                        return 6
+            //改变周次
+            changeWeek(val){
+                for (let i = 0; i < this.weekList.length; i++) {
+                    if(this.weekList[i].yearWeek == val){
+                        this.ruleForm.week =  this.weekList[i].week
+                        this.ruleForm.year =  this.weekList[i].year
+                    }
+                    
                 }
             },
         },
         mounted() {
+            var d1 = new Date()
+            this.currentYear = d1.getFullYear()
             this.weekNumber()
             if(this.shipInforStatus  === '新增'){
                 this.addOrEdit = '新增';
             }else{
                 this.addOrEdit = '修改';
                 this.ruleForm = JSON.parse(JSON.stringify(this.shipRow))
-                console.log(this.ruleForm,'this.ruleForm')
+                if(this.isMatchType == 0){ //航线 用的当前年
+                    this.ruleForm.yearWeek = this.currentYear + '-' + this.ruleForm.week
+                }else{ //船舶 用的数据返回的年
+                    this.ruleForm.yearWeek = this.ruleForm.year + '-' + this.ruleForm.week
+                }
                 // if(this.ruleForm.standerVesselName){ //说明当前有标准船名 或者 当前是航线
                 //     //我这个时候就是 input框
                 //     this.isStanderVessel = '0'
@@ -465,12 +416,8 @@
         position: relative;
         overflow: hidden;
     }
-    .dialogshipInforAdd{
-        overflow: hidden !important;
-        padding-top: 50px;
-        /deep/.el-dialog{
-            height: auto;
-        }
+    .shipDetail{
+        overflow: hidden;
     }
     .lf{
         float: left;

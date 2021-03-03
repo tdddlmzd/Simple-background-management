@@ -201,6 +201,19 @@
                                 </el-select>
                             </el-form-item>   
                         </el-col>
+                        <el-col style="width:22%">
+                            <el-form-item label="类别">
+                                <el-select v-model="ruleForm.routeType" placeholder="请选择" style="width:100%" clearable>
+                                    <el-option
+                                        v-for="item in category"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>   
+                        </el-col>
                     </el-row>
                 </div>
                 <div class="contenRight">
@@ -214,8 +227,12 @@
             <el-button size="small" class="normal abnormal" @click="invalids">无效</el-button>
             <el-button size="small" class="normal normals" @click="routeConsolida">航线合并</el-button>
             <el-button size="small" class="normal normals" @click="routeReplication">航线复制</el-button>
+            <el-button size="small" class="guanlian" @click="routeCopyGuan">航线复制并关联船舶</el-button>
+            <el-button size="small" class="normal normals" @click="routeLine">LINE</el-button>
+            <el-button size="small" class="normal normals" @click="routeFeeder">内支线</el-button>
             <el-checkbox v-model="ruleForm.isShow" @change="checkChange" :disabled="checkDisable">显示共舱</el-checkbox>
             <el-button size="small" class="clickColor" @click="handleAddClick">新增</el-button>
+            <!-- <el-button size="small" class="pilang" @click="batchUpload">批量上传</el-button> -->
             <!-- <el-button size="small" class="clickColor abnormal" @click='delectRoute'>删除</el-button> -->
             <el-table
                 :data="tableData"
@@ -245,6 +262,13 @@
                     <template slot-scope="scope" class="identImage">
                         <span>
                             {{scope.row.flag === '0'?'系统':scope.row.flag === '1'?'动态生成':scope.row.flag === '2'?'人工':'手动添加'}}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="routeType" label="类别" align="left" :show-overflow-tooltip=true min-width="80" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>
+                            {{scope.row.routeType == 0 ? 'LINE' : scope.row.routeType == 1 ? '内支线' : '内支线'}}
                         </span>
                     </template>
                 </el-table-column>
@@ -328,11 +352,14 @@
                 <el-table-column prop="vesselCount" label="船舶数" align="left" :show-overflow-tooltip=true min-width="80px" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
+                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip=true min-width="80px" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip=true min-width="140px" :sortable="sortableState" :filters="[]">
                             
                 </el-table-column>
-                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip=true min-width="80px" :sortable="sortableState" :filters="[]">
-
+                <el-table-column prop="operateTime" label="操作时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="142">
+                
                 </el-table-column>
                 <template slot="empty">
                     <noData></noData>
@@ -438,6 +465,7 @@ import { uptime } from 'os';
                     yn: '',
                     // 是否显示共仓 0：不显示；1：显示 
                     isShow: 0,
+                    routeType: '',
                     staticId: '', //如果isShow传了1，这个字段必填
                     state: '',
                     newFlag: 0, //NEW
@@ -536,6 +564,20 @@ import { uptime } from 'os';
                         label: '船舶'
                     },
                 ],
+                category: [
+                    {
+                        value: '',
+                        label: '全部'
+                    },
+                    {
+                        value: 0,
+                        label: 'LINE'
+                    },
+                    {
+                        value: 1,
+                        label: '内支线'
+                    },
+                ],
                 companyNameList:[],
                 routeList:[],
                 pageNo:1,
@@ -596,6 +638,7 @@ import { uptime } from 'os';
                     this.ruleForm.sort = ''
                     this.ruleForm.isShow = 0, //是否显示共仓 0：不显示；1：显示 
                     this.ruleForm.id = ''
+                    this.ruleForm.routeType = ''
                     this.ruleForm.yn = ''//静态完善度
                 }
                 if(this.ruleForm.updateTimeStart == '' || this.ruleForm.updateTimeStart == null) {
@@ -618,6 +661,7 @@ import { uptime } from 'os';
                 }&routeCode=${this.ruleForm.routeCode
                 }&haveVessel=${this.ruleForm.haveVessel
                 }&docking=${this.ruleForm.docking
+                }&routeType=${this.ruleForm.routeType
                 }&yn=${this.ruleForm.yn == '全部' ? '' : this.ruleForm.yn
                 }&isShow=${this.ruleForm.isShow
                 }&id=${this.ruleForm.isShow == 1 ? this.ruleForm.id : ''
@@ -655,7 +699,9 @@ import { uptime } from 'os';
                                         item.docking.port = portArr
                                         for(var i = 0;i < item.docking.length;i++){
                                             if(item.docking[i].flag === '1'){
-                                                item.docking.flag = '1'
+                                                if(item.docking[i].isSnap==='0'){
+                                                    item.docking.flag = '1'
+                                                }
                                             }
                                         }
                                         if(portArr.length > 0){
@@ -899,6 +945,7 @@ import { uptime } from 'os';
                 this.ruleForm.haveVessel = '';
                 this.ruleForm.displayName = ''
                 this.ruleForm.docking = '';
+                this.ruleForm.routeType = '';
                 this.ruleForm.sort = ''
                 this.ruleForm.isShow = 1
                 this.ruleForm.id = this.handleSelection[0].id
@@ -931,8 +978,149 @@ import { uptime } from 'os';
                     return
                 };
                 this.dialogAddVisible = true;
-                this.dialogStatus = '复制';
+                this.dialogStatus = '航线复制';
                 this.rowId = val[0].id
+            },
+            //航线复制并关联船舶
+            routeCopyGuan(){
+                var val = this.handleSelection;
+                if(val.length !== 1){
+                    this.$message({
+                        type : 'error',
+                        message : '请选择一条航线复制并关联船舶',
+                    });
+                    return
+                };
+                if(val[0].matchType == 1){
+                    this.$message({
+                        type : 'error',
+                        message : '来源航线必须是航线属性',
+                    });
+                    return
+                }
+                this.dialogAddVisible = true
+                this.dialogStatus = '航线复制并关联船舶'
+                this.rowId = val[0].id
+            },
+            //Line
+            routeLine(){
+                var val = this.handleSelection
+                if(val.length <= 0){
+                    this.$message({
+                        type : 'error',
+                        message : '请选择一条或者多条进行设置',
+                    });
+                    return
+                };
+                var LilIST = [] //LINE
+                var neizhix = [] //内支线
+                for(let i = 0; i < val.length; i++) {
+                    if(val[i].routeType == 0){ //内支线
+                        LilIST.push(val[i])
+                    }else{
+                        neizhix.push(val[i])
+                    }
+                }
+                if(LilIST.length == val.length){ //说明选的都是内支线
+                    this.$message({
+                        type : 'error',
+                        message : '请选择内支线类别',
+                    });
+                    return
+                }
+                
+                this.$confirm("<div class='tesDiv'><div>是否将航线类别设置为LINE？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
+                    confirmButtonClass:"btnCustomSubmit",
+                    customClass:"customClass",
+                    dangerouslyUseHTMLString:true,
+                }).then(() => {
+                    this.isLoading = true
+                    var that = this
+                    var routeList = []
+                    for (let i = 0; i < neizhix.length; i++) {
+                        routeList.push(neizhix[i].id);
+                    }
+                    let query = {
+                        staticIds: routeList,
+                        state: 0,
+                    }
+                    this.$axios.post(this.commonJs.localUrl +`/schedules/route/updateRouteType`,
+                        query,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res => {
+                        if(res.data.status == 1){
+                            that.$message({ type:"success", message: '用户类别修改成功'})
+                            that.searchList()
+                        }else{
+                            that.$message({ type:"error", message: '用户类别修改失败'})
+                            that.isLoading = false
+                        }
+                    })
+                }).catch(_ => {});
+            },
+            //内支线
+            routeFeeder(){
+                var val = this.handleSelection
+                if(val.length <= 0){
+                    this.$message({
+                        type : 'error',
+                        message : '请选择一条或者多条进行设置',
+                    });
+                    return
+                };
+                var LilIST = [] //LINE
+                var neizhix = [] //内支线
+                for(let i = 0; i < val.length; i++) {
+                    if(val[i].routeType == 0){ //内支线
+                        LilIST.push(val[i])
+                    }else{
+                        neizhix.push(val[i])
+                    }
+                }
+                if(neizhix.length == val.length){ //说明选的都是内支线
+                    this.$message({
+                        type : 'error',
+                        message : '请选择LINE类别',
+                    });
+                    return
+                }
+
+                this.$confirm("<div class='tesDiv'><div>是否将航线类别设置为内支线？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
+                    confirmButtonClass:"btnCustomSubmit",
+                    customClass:"customClass",
+                    dangerouslyUseHTMLString:true,
+                }).then(() => {
+                    this.isLoading = true
+                    var that = this
+                    var routeList = []
+                    for (let i = 0; i < LilIST.length; i++) {
+                        routeList.push(LilIST[i].id);
+                    }
+                    let query = {
+                        staticIds: routeList,
+                        state: 1,
+                    }
+                    this.$axios.post(this.commonJs.localUrl +`/schedules/route/updateRouteType`,
+                        query,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res => {
+                        if(res.data.status == 1){
+                            that.$message({ type:"success", message: '用户类别修改成功'})
+                            that.searchList()
+                        }else{
+                            that.$message({ type:"error", message: '用户类别修改失败'})
+                            that.isLoading = false
+                        }
+                    })
+                }).catch(_ => {});
             },
             //有效
             effective() {
@@ -944,7 +1132,7 @@ import { uptime } from 'os';
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为有效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_effective, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -987,7 +1175,7 @@ import { uptime } from 'os';
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为无效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_invalid, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1020,6 +1208,10 @@ import { uptime } from 'os';
                     })
                 }).catch(_ => {});
             },
+            //批量上传
+            batchUpload(){
+                console.log('批量上传')
+            },
             //删除
             delectRoute() {
                 var val = this.handleSelection;
@@ -1039,7 +1231,7 @@ import { uptime } from 'os';
                 //         return
                 //     }
                 // }
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1285,29 +1477,6 @@ import { uptime } from 'os';
         height: 28px;
         line-height: 14px;
     }
-    .normal{
-        color:#3bafda;
-        border: 1px solid #3bafda;
-        // padding: 9px 15px;
-        width: 80px;
-        cursor: pointer;
-        background: #fff;
-        text-align: center;
-        margin-right: 20px;
-        // font-size: 12px;
-        // border-radius: 3px;
-        // display: inline-block;
-        // white-space: nowrap;
-        // -webkit-appearance: none;
-        // box-sizing: border-box;
-        // outline: 0;
-        // margin: 0;
-        // transition: .1s;
-        // font-weight: 500;
-        // border-spacing: 2px;
-        // height: 28px;
-        // line-height: 14px;
-    }
     .contentLeft{
         float: left;
         // position: absolute;
@@ -1363,14 +1532,42 @@ import { uptime } from 'os';
         float: right;
         margin-bottom: 10px;
     }
+    .normal{
+        color:#3bafda;
+        border: 1px solid #3bafda;
+        width: 80px;
+        cursor: pointer;
+        background: #fff;
+        text-align: center;
+        margin-right: 10px;
+    }
     .abnormal{
         border: 1px solid #FF0000;
         color: #FF0000;
         background-color: #fff;
-        margin-right:10px;
     }
     .normals{
         color:#3bafda;
+    }
+    .pilang{
+        background-color: #3bafda;
+        color: #fff;
+        border: 1px solid #3bafda;
+        width: 96px;
+        height: 30px;
+        float: right;
+        margin-bottom: 10px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    .guanlian{
+        background-color: #fff;
+        color:#3bafda;
+        border: 1px solid #3bafda;
+        width: 140px;
+        height: 32px;
+        text-align: center;
+        margin-right: 10px;
     }
     .dialogAddVisible{
         overflow: hidden !important;

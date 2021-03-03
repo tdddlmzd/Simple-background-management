@@ -57,9 +57,9 @@
                                 >
                                     <el-option
                                         v-for="item in companyNameList"
-                                        :key="item.companyName"
-                                        :label="item.companyName"
-                                        :value="item.companyName"
+                                        :key="item.code"
+                                        :label="item.code"
+                                        :value="item.code"
                                     >
                                     </el-option>
                                 </el-select>
@@ -138,6 +138,44 @@
                             </el-form-item> 
                         </el-col>
                     </el-row>
+                    <el-row>
+                        <el-col style="width:22%"  > 
+                            <el-form-item label="是否异常">
+                                <el-select 
+                                    v-model="ruleForm.isNormal" 
+                                    clearable
+                                    style="width:100%"  
+                                    placeholder="请选择"
+                                >
+                                    <el-option
+                                        v-for="item in normalList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item> 
+                        </el-col>
+                        <el-col style="width:22%">
+                            <el-form-item label="用户类别">
+                                <el-select 
+                                    v-model="ruleForm.userCategory" 
+                                    clearable
+                                    style="width:100%"  
+                                    placeholder="请选择"
+                                >
+                                    <el-option
+                                        v-for="item in userCateList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </div>
                 <div class="contenRight">
                     <el-button size="small" class="serachBtn" @click="serchBtn">搜索</el-button>
@@ -151,6 +189,7 @@
                 <!-- <el-button size="small" class="clickColor abnormal" @click="delectDate">删除</el-button>
                 <el-button size="small" class="clickColor normals" @click="effective">有效</el-button>
                 <el-button size="small" class="clickColor normals" @click="invalids">无效</el-button> -->
+                <el-button size="small" class="clickColor normals" @click="immediate">立即刷新</el-button>
             </div>
             <el-table
               :data="tableData"
@@ -160,14 +199,31 @@
               tooltip-effect="dark"
               ref="table"
               @row-dblclick="waytraDetail"
+              @selection-change="selectedCheck"
             >
-                <!-- @selection-change="selectedCheck" -->
-                <!-- <el-table-column type="selection" width="45" max="1">
+                <el-table-column type="selection" width="45" max="1">
 
-                </el-table-column> -->
+                </el-table-column>
+                <el-table-column prop="userType" label="用户类型" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.userType === '1' ?'API':scope.row.userType === '2' ?'平台' :''}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="status" label="状态" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.status === -1 ?'异常':scope.row.status === 0?'进行中':scope.row.status === 1 ?'完成' :''}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="isNormal" label="是否异常" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.isNormal === 1 ? '是' : scope.row.isNormal === 0? '否' : scope.row.isNormal}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="username" label="订阅人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>
+                            {{scope.row.username.toUpperCase()}}
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="referenceno" label="订阅号" align="left" :show-overflow-tooltip="true" min-width="120" :sortable="sortableState" :filters="[]">
@@ -176,31 +232,72 @@
                 <el-table-column prop="carrier" label="船公司" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="pol" label="起运港" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="dtp" label="目的港" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="rcveplace" label="交货地" align="left" :show-overflow-tooltip="true" min-width="200" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
                 <el-table-column prop="vlsname" label="船名" align="left" :show-overflow-tooltip="true" min-width="120" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="voy" label="航次" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="ctypesize" label="箱型/箱量" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="pol" label="起运港" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="currentstatus" label="最新状态" align="left" :show-overflow-tooltip="true" min-width="240" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="remark" label="备注" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="etdpol" label="起运港ETD" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.etdpol ? commonJs.getDateTime('YY-mm-dd HH:MM:SS', new Date(scope.row.etdpol)) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="etapld" label="目的港ETA" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.etapld ? commonJs.getDateTime('YY-mm-dd HH:MM:SS', new Date(scope.row.etapld)) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="stspStatus" label="提空" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
-                <el-table-column prop="terminalTrace" label="码头跟踪" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="gitmStatus" label="进港" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="passStatus" label="海放" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="lobdStatus" label="装船" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="dlptStatus" label="离港" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="dschStatus" label="卸船" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="stcsStatus" label="提货" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="rcveStatus" label="还空" align="left" :show-overflow-tooltip="true" min-width="68" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="vesselTrace" label="船舶计划" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.vesselTrace ? scope.row.vesselTrace + '/6' : '0/6' }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="ctypesize" label="箱型/箱量" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="dtp" label="目的港" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="stcsplace" label="交货地" align="left" :show-overflow-tooltip="true" min-width="200" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="userCategory" label="用户类别" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.userCategory === 0 ?'普通用户':scope.row.userCategory === 1 ?'付费用户':''}}</span>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column prop="terminalTrace" label="码头跟踪" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.terminalTrace ? scope.row.terminalTrace + '/4' : '0/4' }}</span>
                     </template>
@@ -215,29 +312,36 @@
                         <span>{{scope.row.vesselTrace ? scope.row.vesselTrace + '/6' : '0/6' }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="cutoff" label="CUTOFF" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>
+                            {{scope.row.operateUser ? scope.row.operateUser.toUpperCase() : ''}}
+                        </span>
+                    </template>
+                </el-table-column> -->
+                <el-table-column prop="bookTime" label="订阅时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.bookTime ? commonJs.getDateTime('YY-mm-dd HH:MM:SS', new Date(scope.row.bookTime)) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="updatetime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.updatetime ? commonJs.getDateTime('YY-mm-dd HH:MM:SS', new Date(scope.row.updatetime)) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="operateTime" label="操作时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.operateTime ? commonJs.getDateTime('YY-mm-dd HH:MM:SS', new Date(scope.row.operateTime)) : ''}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="remark" label="备注" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <!-- <el-table-column prop="cutoff" label="CUTOFF" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.cutoff || scope.row.cutoff == 0 ? scope.row.cutoff + '/6' : '0/6' }}</span>
                     </template>
-                </el-table-column>
-                <el-table-column prop="bookTime" label="订阅时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="updatetime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="userType" label="用户类型" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.userType === '1' ?'API':scope.row.userType === '2' ?'平台' :''}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="username" label="订阅人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
-                    <template slot-scope="scope">
-                        <span>
-                            {{scope.row.username.toUpperCase()}}
-                        </span>
-                    </template>
-                </el-table-column>
+                </el-table-column> -->
                 <template slot="empty">
                     <noData></noData>
                 </template>
@@ -311,6 +415,8 @@
                     userType: '', //用户类型,0 API,1平台
                     userName: '', //用户名称
                     status: '', //状态，传空为全部 ， -1 异常 0 进行中 1 结束
+                    isNormal: '',
+                    userCategory: '',
                 },
                 //用户类型
                 typeList: [
@@ -327,6 +433,21 @@
                         label: '平台'
                     },
                 ],
+                //用户类型
+                userCateList: [
+                    {
+                        value: '',
+                        label:'全部'
+                    },
+                    {
+                        value: 0,
+                        label: '普通用户'
+                    },
+                    {
+                        value: 1,
+                        label: '付费用户'
+                    },
+                ],
                 trackDetail: [ //状态
                     {
                         value: '',
@@ -340,9 +461,23 @@
                         value: 1,
                         label: '完成'
                     },
+                    // {
+                    //     value: -1,
+                    //     label: '异常'
+                    // },
+                ],
+                normalList: [ //是否异常
                     {
-                        value: -1,
-                        label: '异常'
+                        value: '',
+                        label:'全部'
+                    },
+                    {
+                        value: 0,
+                        label: '否'
+                    },
+                    {
+                        value: 1,
+                        label: '是'
                     },
                 ],
                 pageNo: 1,
@@ -384,6 +519,7 @@
                     this.ruleForm.userType = '', //用户类型,1API,2平台
                     this.ruleForm.userName =  '', //用户名称
                     this.ruleForm.status = '' //状态，传空为全部 ，-1 异常 0 进行中 1 结束
+                    this.ruleForm.isNormal = ''
                 }
                 if(this.ruleForm.startTime == '' || this.ruleForm.startTime == null) {
                     this.ruleForm.startTime = ''
@@ -479,11 +615,78 @@
             },
             //选择
             selectedCheck(val) {
-                this.multipleSelection = val;
+                this.multipleSelection = val
+            },
+            //立即刷新
+            immediate(){
+                var immediateList = []
+                for(let i=0; i<this.multipleSelection.length; i++){
+                    immediateList.push({
+                        carriercd: this.multipleSelection[i].carrier,
+                        referenceno: this.multipleSelection[i].referenceno,
+                        isYundang: this.multipleSelection[i].isYundang
+                    })
+                }
+                // 过滤出不能刷新的单子
+                let unImmediateList = immediateList.filter(item=>{
+                    if(item.isYundang){
+                        return true
+                    }
+                })
+                let referencenoList = []
+                if(unImmediateList.length > 0){
+                    for(let i=0;i<unImmediateList.length;i++){
+                        referencenoList.push(unImmediateList[i].referenceno)
+                    }
+                    var stri = ''
+                    referencenoList.filter((item,index) => {
+                        var s = (index !== 0? '、' : '') + item
+                        stri = stri + s
+                    })
+                    this.$message({
+                        type: "error",
+                        message: stri + "不支持立即更新"
+                    });
+                    return
+                }
+                if(immediateList.length == 0){
+                    this.$message({
+                        type: "error",
+                        message: "请选择一条或多条数据"
+                    });
+                }else if(immediateList.length <= 10){
+                    this.isLoading = true
+                    this.$axios.post(this.commonJs.localUrl +`/schedules/trace/spiderTraceUpdate`, immediateList,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res =>{
+                        if(res.data.status == 1){
+                            this.$message({
+                                type: "success",
+                                message: "已经触发爬虫，请耐心等待。五分钟内请不要重复更新同一提单！"
+                            });
+                            this.$refs.table.clearSelection();
+                        }else{
+                            this.$message({
+                                type: "error",
+                                message: "立即刷新加载失败"
+                            });
+                        }
+                        this.isLoading = false
+                    })
+                }else if(immediateList.length > 10){
+                    this.$message({
+                        type: "error",
+                        message: "批量立即更新限制最多十条"
+                    });
+                }
             },
             //船公司搜索      
             companyNameRemote(value){
-                this.$axios.get(this.commonJs.localUrl +`/schedules/behavior/queryCompany?companyName=${value}`,
+                this.$axios.get(this.commonJs.localUrl +`/trace/fore/getShipping?ref=&nameCn=${value}`,
                 {
                     headers: {
                         Authorization: `Bearer ${this.getAuthorization()}`,
@@ -503,7 +706,7 @@
             //船公司Focus事件
             companyNameFocus(){
                 let companyName = this.ruleForm.carrier;
-                this.$axios.get(this.commonJs.localUrl +`/schedules/behavior/queryCompany`,{
+                this.$axios.get(this.commonJs.localUrl +`/trace/fore/getShipping?ref=&nameCn=`,{
                     headers: {
                         Authorization: `Bearer ${this.getAuthorization()}`,
                         AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
@@ -512,7 +715,7 @@
                     if (res.data.status == 1) {
                         this.companyNameList = res.data.content; 
                         this.companyNameList.unshift({
-                            companyName:"全部"
+                            code:"全部"
                         })
                     }
                 })
@@ -523,7 +726,7 @@
                     this.ruleForm.scac = ''
                 }else{
                     for (let i = 0; i < this.companyNameList.length; i++) {
-                        if(this.companyNameList[i].companyName === value){
+                        if(this.companyNameList[i].code === value){
                             this.ruleForm.scac = this.companyNameList[i].scac
                         }
                     }

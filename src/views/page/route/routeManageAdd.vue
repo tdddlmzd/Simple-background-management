@@ -13,9 +13,9 @@
                 <label class="headeraddOrEdit">{{addOrEdit}}</label>
                 <i class="headeraddOrEditClose el-icon-close lr" @click="handleCloseClick"></i>
             </div>
-            <div :style="{height: heightInner}" class="scrollP">
+            <div :style="{maxHeight: heightInner}" class="scrollP">
                 <ul class="routeUl">
-                    <li class="routeLi" v-if="this.dialogStatus !== '复制'">
+                    <li class="routeLi" v-if="this.dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'">
                         <div class="title">
                             <span>基础信息</span>
                         </div>
@@ -160,14 +160,27 @@
                                     </div>
                                 </el-form-item>
                             </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item label="类别">
+                                    <el-select v-model="ruleForm.routeType" placeholder="请选择" style="width:100%">
+                                        <el-option
+                                            v-for="item in category"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>   
+                            </el-col>
                         </el-row>
                     </li>
-                    <li class="routeLi" v-if="this.dialogStatus === '复制'">
+                    <li class="routeLi" v-if="this.dialogStatus === '航线复制' || this.dialogStatus == '航线复制并关联船舶'">
                         <div class="title">
                             <span>基础信息</span>
                         </div>
                         <el-row>
-                            <el-col style="width:22%">
+                            <el-col style="width:30%">
                                 <el-form-item
                                     prop="companyName"
                                     label="船公司"
@@ -195,7 +208,7 @@
                                     </el-select>
                                 </el-form-item>
                             </el-col>
-                            <el-col style="width:22%">
+                            <el-col style="width:30%">
                                 <el-form-item
                                     prop="routeCode"
                                     label="航线代码(服务)" 
@@ -228,9 +241,9 @@
                         <div class="title lf">
                             <span>挂靠港口</span>
                         </div>
-                        <el-button size="small" class="clickColor" @click="handleAddClick">新增</el-button>
-                        <el-button size="small" class="clickColor abnormal" @click="delectClick">删除</el-button>
-                        <el-button size="small" class="clickColor tempocal" @click="tempocalClick">临时挂靠</el-button>
+                        <el-button size="small" class="clickColor" @click="handleAddClick" v-if="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶'">新增</el-button>
+                        <el-button size="small" class="clickColor abnormal" @click="delectClick" v-if="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶'">删除</el-button>
+                        <el-button size="small" class="clickColor tempocal" @click="tempocalClick" v-if="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶'">临时挂靠</el-button>
                         <el-table
                             :data="dockingArray"
                             style="width: 100%;"
@@ -245,6 +258,7 @@
                             <el-table-column
                                 type="selection"
                                 width="45"
+                                v-if="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶'"
                             >
                             </el-table-column>
                             <el-table-column
@@ -263,6 +277,7 @@
                                             @blur="inputBlur(scope.row.portNumber,scope.$index)" 
                                             @input="scope.row.portNumber = commonJs.handleInputNo(scope.row.portNumber)" 
                                             :class="(scope.$index+1) % 2 !== 0?'inputport':'inputportColor'"
+                                            :readonly="dialogStatus == '航线复制' || dialogStatus == '航线复制并关联船舶'"
                                             />
                                     </div>
                                 </template> 
@@ -398,96 +413,12 @@
                             </el-table-column>
                         </el-table>
                     </li>
-                    <!-- <li class="routeLi">
-                            <div class="title">
-                                <span>中转航线</span>
-                            </div>
-                            <el-table
-                                :data="tableTransitRouteData"
-                                style="width: 100%;"
-                                :header-cell-style="{background:'#3bafda',color:'#ffffff'}"
-                                :row-class-name="tabRowClassName"
-                                tooltip-effect="dark"
-                                ref="table"
-                            >
-                                <el-table-column prop="portCode" label="序号" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                                <el-table-column prop="portCode" label="中转港" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                                <el-table-column prop="portCode" label="中转航线" align="left" :show-overflow-tooltip=true>
-                                        
-                                </el-table-column>
-                            </el-table>
-                    </li> -->
-                    <!-- <li class="routeLi" v-if="this.dialogStatus !== '复制' && this.isDongT !== 'true'">
-                        <div class="title">
-                            <span>动态船舶</span>
-                        </div>
-                        <el-table
-                            :data="tableDynamicShipData"
-                            style="width: 100%;"
-                            :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
-                            :row-class-name="tabRowClassName"
-                            tooltip-effect="dark"
-                            ref="table"
-                        >
-                            <el-table-column
-                                prop="index"
-                                label="序号"
-                                align="left"
-                                width="50"
-                                :show-overflow-tooltip="true"
-                            >
-                                <template slot-scope="scope">
-                                    <span>{{scope.row.index+1}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                prop="vessel"
-                                label="船名"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="carrierName"
-                                label="运营方"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="imoNumber"
-                                label="IMO"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="100"
-                            >
-                            </el-table-column>
-                            <el-table-column prop="voyage" label="航次" align="left" width="300">
-                                <template slot-scope="scope">
-                                    <span
-                                        class="voyageClass"
-                                        v-for="item in (scope.row.voyage)"
-                                        :key="item"
-                                        @click="tableShipChange(item,scope.row.vessel)"
-                                    >
-                                        {{item}}
-                                    </span>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </li> -->
-                    <li class="routeLi" v-if="this.dialogStatus !== '复制' && this.isDongT !== 'true'">
+                    <li class="routeLi" v-if="this.dialogStatus !== '航线复制' && this.isDongT !== 'true'">
                         <div class="title">
                             <span>船舶信息</span>
                         </div>
                         <el-button size="small" class="clickColor" @click="addShip" v-if="ruleForm.matchType == 1">新增</el-button>
-                        <el-button size="small" class="clickColor abnormal" @click="delectShip">删除</el-button>
+                        <el-button size="small" class="clickColor abnormal" @click="delectShip" v-if="dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'">删除</el-button>
                         <el-table
                             :data="shipList"
                             style="width: 100%;"
@@ -501,11 +432,13 @@
                             <el-table-column
                                 type="selection"
                                 width="45"
+                                v-if="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶'"
                             >
                             </el-table-column>
                             <el-table-column prop="week" label="周次" align="left" :show-overflow-tooltip="true" min-width="100">
                                 <template slot-scope="scope">
-                                    <span>{{scope.row.week ? (currentYear + '-' + scope.row.week) : ''}}</span>
+                                    <span v-if="ruleForm.matchType == 1">{{scope.row.year ? scope.row.year + '-' : ''}}{{scope.row.week}}</span>
+                                    <span v-else>{{currentYear + '-' + scope.row.week}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="vessel" label="船名" align="left" :show-overflow-tooltip="true" min-width="100">
@@ -516,7 +449,7 @@
                             </el-table-column>
                             <el-table-column prop="standerVesselName" label="标准船名" align="left" :show-overflow-tooltip="true" min-width="100">
                                 <template slot-scope="scope">
-                                    <span class="standerVessel" @click="changeShip(scope.row)">{{scope.row.standerVesselName}}</span>
+                                    <span :class="dialogStatus !== '航线复制' && dialogStatus !== '航线复制并关联船舶' ? 'standerVessel' : ''" @click="changeShip(scope.row)">{{scope.row.standerVesselName}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="imo" label="IMO" align="left" :show-overflow-tooltip="true" min-width="100">
@@ -536,68 +469,6 @@
                             </el-table-column>
                         </el-table>
                     </li>
-                    <!-- <li class="routeLi" v-if="this.dialogStatus !== '复制' && this.isDongT !== 'true'">
-                        <div>
-                            <div class="title">
-                                <span>航线预警</span>
-                            </div>
-                            <span class="voyageOrVessel">{{"船名航次：" + voyageOrVessel}}</span>
-                        </div>
-
-                        <el-table
-                            :data="tableRouteWarningData"
-                            style="width: 100%;"
-                            :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
-                            :row-class-name="tabRowClassName"
-                            tooltip-effect="dark"
-                            ref="table"
-                        >
-                            <el-table-column
-                                prop="id"
-                                label="序号"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="50"
-                            >
-                                <template slot-scope="scope">{{scope.$index +1}}</template>
-                            </el-table-column>
-                            <el-table-column
-                                prop="port"
-                                label="挂靠港"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="static"
-                                label="固定ETD/ETA"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="dynamic"
-                                label="动态ETD/ETA"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                prop="warning"
-                                label="预警信息"
-                                align="left"
-                                :show-overflow-tooltip="true"
-                                min-width="120"
-                            >
-                                <template slot-scope="scope">
-                                    <span :class="scope.row.warning === '准点'?'':'redclass'">{{scope.row.warning}}</span>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </li> -->
                 </ul>
                 <div class="save">
                     <el-button class="saveBtn" @click="handleSaveClick('ruleForm')">保存</el-button>
@@ -650,7 +521,7 @@
             class="dialogshipInforAdd"
             :visible.sync="InforShipAdd"
             v-if="InforShipAdd"
-            width="80%"
+            width="1100px"
             top="50px"
             append-to-body
             :close-on-click-modal="false"
@@ -660,7 +531,7 @@
             <informateShip
                 ref="informateShip"
                 :vesselInforName="vesselInforName"
-                :vesselId="vesselId"
+                :shipId="shipId"
                 @closeShipInfor="closeShipInfor"
                 @UpdatShip="UpdatShip"
             >
@@ -697,7 +568,7 @@
                 isMatchType: '',
                 shipIndex: 0,
                 InforShipAdd:false,
-                vesselId: '',
+                shipId: '',
                 vesselInforName: '',
                 upselectDate: false,
                 arrowtip: false,
@@ -714,8 +585,10 @@
                     routeCode: "",
                     displayName: "",
                     matchType: 0,
+                    routeType: '',
                     // commonCabinRoute : '',
                 },
+                typeRoute: '',
                 attributeList:[
                     {
                         value: 0,
@@ -724,6 +597,16 @@
                     {
                         value: 1,
                         label: '船舶'
+                    },
+                ],
+                category: [
+                    {
+                        value: 0,
+                        label: 'LINE'
+                    },
+                    {
+                        value: 1,
+                        label: '内支线'
                     },
                 ],
                 staticId: '',
@@ -766,42 +649,21 @@
                         }
                     }).then(res => {
                         if (res.data.status == 1) {
-                            // this.dockingArray = res.data.content.dockingPort;
-                            // this.tableDynamicShipData = res.data.content.dynamicVessel;
-                            this.ruleForm.companyName = res.data.content.routeInfo.carrier;
-                            this.ruleForm.scac = res.data.content.routeInfo.scac;
-                            this.ruleForm.route = res.data.content.routeInfo.routeParent;
-                            this.ruleForm.service = res.data.content.routeInfo.routeNameEn;
-                            this.ruleForm.routeCode = res.data.content.routeInfo.routeCode;
-                            // if(this.dialogStatus === "复制"){
-                            //     this.ruleForm.routeCode = res.data.content.routeInfo.routeCode;
-                            // }else{
-                            //     this.ruleForm.routeCode = res.data.content.routeInfo.alias;
-                            // }
+                            this.ruleForm.companyName = res.data.content.routeInfo.carrier
+                            this.ruleForm.scac = res.data.content.routeInfo.scac
+                            this.ruleForm.route = res.data.content.routeInfo.routeParent
+                            this.ruleForm.service = res.data.content.routeInfo.routeNameEn
+                            this.ruleForm.routeCode = res.data.content.routeInfo.routeCode
                             this.ruleForm.displayName = res.data.content.routeInfo.displayName
                             this.ruleForm.matchType = res.data.content.routeInfo.matchType ? res.data.content.routeInfo.matchType : 0
+                            this.ruleForm.routeType = res.data.content.routeInfo.routeType ? res.data.content.routeInfo.routeType : 0
+
+                            //标注typeRoute 
+                            this.typeRoute = JSON.parse(JSON.stringify(this.ruleForm.routeType))
                             this.matchType = res.data.content.routeInfo.matchType == 0 ? '航线' : res.data.content.routeInfo.matchType == 1 ? '船舶' : '航线'
                             if(res.data.content.routeInfo.isMerge == 1 || res.data.content.schedulesCount > 1){
                                 this.isMerge = true
                             }
-                            // if (res.data.content.dynamicVessel.length > 0) {
-                            //     let vessel = res.data.content.dynamicVessel[0].vessel;
-                            //     let voyageArry = res.data.content.dynamicVessel[0].voyage;
-                            //     if(voyageArry.length > 0){
-                            //         let voyage = res.data.content.dynamicVessel[0].voyage;
-                            //         let obj = voyage.find(item => {
-                            //             return item.indexOf("当前") != -1;
-                            //         });
-                            //         let str = obj.substring(0, obj.indexOf("("));
-                            //         this.voyageOrVessel = vessel + "/" + str;
-                            //         this.tableShipChange(obj, vessel);
-                            //     }else{
-                            //         this.voyageOrVessel = vessel;
-                            //         this.isLoading = false;
-                            //     }
-                            // }else{
-                            //     this.isLoading = false;
-                            // }
                             if(this.isText == '航线共舱组'){
                                 this.getShippInfor(this.ruleForm.matchType)
                             }
@@ -825,7 +687,7 @@
             async handleSaveClick(ruleForm) {
                 this.routeLisd = []
                 for (let i = 0; i < this.dockingArray.length; i++) {
-                    if(this.dockingArray[i].isRedT == 1) { //isRedT 等于 1 是从路径详情带来的
+                    if(this.dockingArray[i].isRedT == 1 || this.dockingArray[i].isRedT == 2) { //isRedT 等于 1 是从路径详情带来的
                         if(this.dockingArray[i].portCode) {
                             this.routeLisd.push({
                                 portCode: this.dockingArray[i].portCode,
@@ -841,10 +703,24 @@
                         }
                     }
                 }
+
+                //港口判断 是否有挂靠顺序相同 并且 港口五子码相同
+                for (var p = 0; p < this.dockingArray.length - 1; p++) {
+                    for (var j = p + 1; j < this.dockingArray.length; j++) {
+                        //挂靠顺序相同 并且 港口五子码相同
+                        if (this.dockingArray[p].portNumber == this.dockingArray[j].portNumber && this.dockingArray[p].portCode == this.dockingArray[j].portCode) {
+                            this.$message({
+                                type: "error",
+                                message: "存在港口五字码相同并且挂靠顺序都为空的挂靠港口"
+                            });
+                            return
+                        }
+                    }
+                }                        
                 try {
                     let valid = await this.$refs[ruleForm].validate();
                     if (!valid) return;
-                    this.$confirm("<div class = 'line'></div></br><span>确认保存吗?</span>","提示",
+                    this.$confirm(this.commonJs.confirm_save,"",
                     {
                         cancelButtonClass: "btnCustomCencel",
                         confirmButtonClass: "btnCustomSubmit",
@@ -879,6 +755,7 @@
                             scac: this.ruleForm.scac,
                             displayName: this.ruleForm.displayName,
                             matchType: this.ruleForm.matchType,
+                            routeType: this.typeRoute === this.ruleForm.routeType ? '' : this.ruleForm.routeType,
                             dockingArray: dockingArray,
                             routecodeVesselVoy: routecodeVesselVoy,
                         };
@@ -958,7 +835,7 @@
                                     });
                                 }
                             });
-                        }else if(this.dialogStatus === "复制"){
+                        }else if(this.dialogStatus === "航线复制"){
                             let copydockingArray = JSON.parse(JSON.stringify(dockingArray))
                             for (let i = 0; i < copydockingArray.length; i++) {
                                 copydockingArray[i].flag = '4';
@@ -992,6 +869,52 @@
                                     });
                                 }
                             })
+                        }else if(this.dialogStatus === "航线复制并关联船舶"){
+                            this.$axios.get(this.commonJs.localUrl +`/schedules/route/copyRoute?oldId=${this.staticId}&newId=${this.rowId}`,{
+                                headers: {
+                                    Authorization: `Bearer ${this.getAuthorization()}`,
+                                    AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                                }
+                            }).then(res =>{
+                                if (res.data.status == 1) {
+                                    this.$emit("updatManage")
+                                    this.$message({
+                                        type: "success",
+                                        message: "保存成功"
+                                    });
+                                    this.handleCloseClick()
+                                }else if (res.data.status == 6) {
+                                    this.$message({
+                                        type: "error",
+                                        message: "来源/目的航线不能为空"
+                                    });
+                                    this.isLoading = false
+                                }else if (res.data.status == 7) {
+                                    this.$message({
+                                        type: "error",
+                                        message: "来源航线必须是航线属性"
+                                    });
+                                    this.isLoading = false
+                                }else if (res.data.status == 8) {
+                                    this.$message({
+                                        type: "error",
+                                        message: "目的航线必须是船舶属性"
+                                    });
+                                    this.isLoading = false
+                                }else if (res.data.status == 9) {
+                                    this.$message({
+                                        type: "error",
+                                        message: "两个航线必须是共舱"
+                                    })
+                                    this.isLoading = false
+                                }else{
+                                    this.$message({
+                                        type: "error",
+                                        message: "数据保存失败 请重新加载页面"
+                                    })
+                                    this.isLoading = false
+                                }
+                            })                 
                         }
                     })
                     .catch(_ => {});
@@ -1016,7 +939,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1025,7 +948,7 @@
                     this.dockingArray = this.dockingArray.filter(items => {
                         if (!val.includes(items)) return items;
                     })
-                    if(this.dialogStatus === "复制"){
+                    if(this.dialogStatus === "航线复制"){
                         // val.forEach((item,index)=>{
                         //     this.delectDocking.push(item)
                         // })
@@ -1069,7 +992,7 @@
                     }
                 }
                 if(temporary.length == val.length) { //说明都是isSnap == 1 现在要取消
-                    this.$confirm("<div class = 'line'></div></br><span>是否取消临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否取消临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -1084,7 +1007,7 @@
                         this.$refs.multipleTable.clearSelection();
                 }).catch(_ => {});
                 }else if(notempor.length == val.length){ // 说明都是isSnap == 0 现在也是要保存
-                    this.$confirm("<div class = 'line'></div></br><span>是否设置临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否设置临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -1099,7 +1022,7 @@
                         this.$refs.multipleTable.clearSelection();
                 }).catch(_ => {});
                 }else{ // 说明有的为isSnap == 0 有的为isSnap == 1  现在要取消
-                    this.$confirm("<div class = 'line'></div></br><span>是否取消临时挂靠？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                    this.$confirm("<div class='tesDiv'><div>是否取消临时挂靠？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                         confirmButtonClass:"btnCustomSubmit",
                         customClass:"customClass",
                         dangerouslyUseHTMLString:true,
@@ -1238,7 +1161,6 @@
             //新增数据 修改数据
             handleInnerValue(value, from) {
                 if (this.dialogInnerStatus === "新增") {
-                    console.log(value)
                     for (var i = 0; i < this.dockingArray.length; i++) {
                         if (parseInt(value.portNumber) === parseInt(this.dockingArray[i].portNumber)) {
                             this.$message({
@@ -1255,7 +1177,6 @@
                     this.$refs.routeManageInner.checkList = []
                     this.$refs.routeManageInner.ruleForm.direction = '';
                     this.$refs.routeManageInner.direction = []
-                    // this.$refs.routeManageInner.ruleForm.newIsPol = "POD";
                 } else {
                     for (var i = 0; i < this.dockingArray.length; i++) {
                         if (i === this.rowIndex) {
@@ -1288,10 +1209,12 @@
             },     
             //点击修改挂靠港口
             tabRowChange(row, column, event) {
-                this.rowIndex = row.index;
-                this.dialogAddInnerVisible = true;
-                this.dialogInnerStatus = "修改";
-                this.tablePortruleForm = row;
+                if(this.dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'){
+                    this.rowIndex = row.index;
+                    this.dialogAddInnerVisible = true;
+                    this.dialogInnerStatus = "修改";
+                    this.tablePortruleForm = row;
+                }
             },
             //单独修改挂靠顺序
             // cellDblclick(index){
@@ -1304,29 +1227,31 @@
             },
             //挂靠顺序 失去失去焦点时
             inputBlur(value,index){
-                if(value === ''){
-                    this.$message({
-                        type: "error",
-                        message: "挂靠数据不能为空"
-                    });
-                    this.dockingArray[index].portNumber = this.inputValue;
-                }else{
-                    if(this.dockingArray[index].portNumber == this.inputValue){
-                            this.dockingArray[index].portNumber = value;
+                if(this.dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'){
+                    if(value === ''){
+                        this.$message({
+                            type: "error",
+                            message: "挂靠数据不能为空"
+                        });
+                        this.dockingArray[index].portNumber = this.inputValue;
                     }else{
-                        for (var i = 0; i < this.dockingArray.length; i++) {
-                            if(index !== i){
-                                if (parseInt(value) === parseInt(this.dockingArray[i].portNumber)) {
-                                    this.$message({
-                                        type: "error",
-                                        message: "已有重复挂靠数据"
-                                    });
-                                    this.dockingArray[index].portNumber = this.inputValue
-                                    return;
+                        if(this.dockingArray[index].portNumber == this.inputValue){
+                                this.dockingArray[index].portNumber = value;
+                        }else{
+                            for (var i = 0; i < this.dockingArray.length; i++) {
+                                if(index !== i){
+                                    if (parseInt(value) === parseInt(this.dockingArray[i].portNumber)) {
+                                        this.$message({
+                                            type: "error",
+                                            message: "已有重复挂靠数据"
+                                        });
+                                        this.dockingArray[index].portNumber = this.inputValue
+                                        return;
+                                    }
                                 }
                             }
+                            this.dockingArray.sort(this.compare('portNumber'))
                         }
-                        this.dockingArray.sort(this.compare('portNumber'))
                     }
                 }
             },
@@ -1357,8 +1282,6 @@
             },
             //初次获取船舶信息
             getShippInfor(matchType){
-                // this.isLoading = true
-                console.log(matchType,'matchTypematchType')
                 this.$axios.get(this.commonJs.localUrl + `/schedules/vessel/searchVellesVoy?staticId=${this.rowId}&flag=${matchType}`,
                     {
                         headers: {
@@ -1398,20 +1321,22 @@
             },
             //修改船舶信息
             getShipVesse(row){
-                if(this.ruleForm.scac){
-                    this.dialogshipInforAdd = true
-                    this.shipInforStatus = '修改'
-                    this.shipRow = row
-                    this.shipScac = this.ruleForm.scac
-                    this.isMatchType = this.ruleForm.matchType
-                    this.shipRow.week = row.week ? parseInt(row.week) : ''
-                    this.shipIndex = row.index
-                }else{
-                    this.$message({
-                        type: "error",
-                        message: "请先选择船公司, 才能修改船舶信息"
-                    });
-                    return
+                if(this.dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'){
+                    if(this.ruleForm.scac){
+                        this.dialogshipInforAdd = true
+                        this.shipInforStatus = '修改'
+                        this.shipRow = row
+                        this.shipScac = this.ruleForm.scac
+                        this.isMatchType = this.ruleForm.matchType
+                        this.shipRow.week = row.week ? parseInt(row.week) : ''
+                        this.shipIndex = row.index
+                    }else{
+                        this.$message({
+                            type: "error",
+                            message: "请先选择船公司, 才能修改船舶信息"
+                        });
+                        return
+                    }
                 }
             },
             //删除船舶信息
@@ -1424,7 +1349,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1446,7 +1371,7 @@
                 var newVal = JSON.parse(JSON.stringify(value))
                 if (this.shipInforStatus === "新增") {
                     for (var i = 0; i < this.shipList.length; i++) {
-                        if (newVal.vessel.toUpperCase() == this.shipList[i].vessel.toUpperCase() && newVal.voyage.toUpperCase() == this.shipList[i].voyage.toUpperCase()) {
+                        if (newVal.vessel.toUpperCase() == this.shipList[i].vessel.toUpperCase() && newVal.voyage.toUpperCase() == this.shipList[i].voyage.toUpperCase() && newVal.year == this.shipList[i].year) {
                             this.$message({
                                 type: "error",
                                 message: "该船名航次已存在"
@@ -1461,7 +1386,7 @@
                         if (i === this.shipIndex) {
                             continue
                         }
-                        if (newVal.vessel.toUpperCase() == this.shipList[i].vessel.toUpperCase() && newVal.voyage.toUpperCase() == this.shipList[i].voyage.toUpperCase() ) {
+                        if (newVal.vessel.toUpperCase() == this.shipList[i].vessel.toUpperCase() && newVal.voyage.toUpperCase() == this.shipList[i].voyage.toUpperCase() && newVal.year == this.shipList[i].year) {
                             this.$message({
                                 type: "error",
                                 message: "该船名航次已存在"
@@ -1472,7 +1397,6 @@
                     this.shipList.splice(this.shipIndex,1,newVal)
                     this.dialogshipInforAdd = false
                 }
-                console.log(this.shipList)
             },
             //关闭船舶信息弹框
             closeShipClick(){
@@ -1480,16 +1404,18 @@
             },
             //点击标准船名
             changeShip(row){
-                this.InforShipAdd = true
-                this.vesselId = row.vesselId
-                this.vesselInforName = '修改'
+                if(this.dialogStatus !== '航线复制' && this.dialogStatus !== '航线复制并关联船舶'){
+                    this.InforShipAdd = true
+                    this.shipId = row.shipId
+                    this.vesselInforName = '修改'
+                }
             },
             UpdatShip(query){
                 for (let i = 0; i < this.shipList.length; i++) { //循环数组
-                    if((this.shipList[i].vesselId).toUpperCase() == (query.id).toUpperCase()){ //看当前vesselId是否等于传过来值的id 一样说明是修改的这一条
+                    if((this.shipList[i].shipId).toUpperCase() == (query.id).toUpperCase()){ //看当前shipId是否等于传过来值的id 一样说明是修改的这一条
                         // this.shipList[i].vessel = query.vesselName //船名
-                        this.shipList[i].standerVesselName = query.vesselName //标准船名
-                        this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/searchStanderVessel?flag=0&officeVessel=${query.vesselName}`, //调接口 根据船名取标准船名
+                        this.shipList[i].standerVesselName = query.nameEn //标准船名
+                        this.$axios.get(this.commonJs.localUrl +`/schedules/vessel/searchStanderVessel?flag=0&officeVessel=${query.nameEn}`, //调接口 根据船名取标准船名
                         {
                             headers: {
                                 Authorization: `Bearer ${this.getAuthorization()}`,
@@ -1497,18 +1423,17 @@
                             }
                         }).then(res => {
                             if (res.data.status == 1) {
-                                console.log(res.data.content)
                                 if(res.data.content.length > 0){ //有数据
                                     var stand = res.data.content[0]
                                     this.shipList[i].mmsi = stand.mmsi // 新的mmsi
                                     this.shipList[i].imo = stand.imo //新的imo
                                     this.shipList[i].carrier = stand.carrier //新的船公司
-                                    this.shipList[i].vesselId = stand.id //新的vesselId
+                                    this.shipList[i].shipId = stand.id //新的shipId
                                 }else{ //如果没有数据 也就是船名没有匹配到标准船名 ////一般不会出现这种情况
                                     this.shipList[i].mmsi = ''
                                     this.shipList[i].imo = ''
                                     this.shipList[i].carrier = ''
-                                    this.shipList[i].vesselId = ''
+                                    this.shipList[i].shipId = ''
                                 }
                             }
                         })
@@ -1568,7 +1493,7 @@
                     this.upselectDate = false
                 }
             },
-            //复制 请求挂靠港
+            //航线复制 请求挂靠港
             copySearchList() {
                 this.isLoading = true
                 this.$axios.get(this.commonJs.localUrl + `/schedules/route/queryPortByRouteId?id=${this.rowId}`,
@@ -1580,12 +1505,31 @@
                 }).then(res => {
                     if(res.data.status == 1){
                         this.dockingArray = res.data.content
-                        console.log(this.withArry,'withArry')
                         if(this.withArry && this.withArry.length > 0) { //判断从 路径管理--路径详情--航线代码里过来的数组
+                            for (let i = 0; i < this.dockingArray.length; i++) {
+                                for (let j = 0; j < this.withArry.length; j++) {
+                                    if(this.dockingArray[i].port === this.withArry[j].port){
+                                        //说明有同名的 这个时候就push进要传出的数组里routeLisd
+                                        this.withArry[j].portCode = this.dockingArray[i].portCode
+                                        this.withArry[j].isShow = true //代表这条数据不应该显示
+                                        // this.routeLisd.push({
+                                        //     portCode: this.dockingArray[i].portCode,
+                                        //     isRoute: this.withArry[j].isRoute,
+                                        //     index: this.withArry[j].indexPo
+                                        // })
+                                        this.dockingArray[i].isRedT = 2
+                                        this.dockingArray[i].isRoute = this.withArry[j].isRoute
+                                        this.dockingArray[i].indexPo = this.withArry[j].indexPo
+                                    }                                
+                                }
+                            }
                             this.dockingArray = this.dockingArray.concat(this.withArry)
+                            this.dockingArray = this.dockingArray.filter(items => { //过滤出最后的数组
+                                if (!items.isShow) return items
+                            })
                         }
                         this.copyDock = JSON.parse(JSON.stringify(this.dockingArray))
-                        this.isLoading = false;
+                        this.isLoading = false                        
                     }else if (res.data.status == 0) {
                         this.$message({
                             type: "error",
@@ -1608,40 +1552,37 @@
             },
         },
         mounted() {
-            // var windowInnerHeight = document.body.clientHeight
-            console.log(this.withArry,'withArrywithArrywithArry')
             var d1 = new Date()
             this.currentYear = d1.getFullYear()
             if (this.dialogStatus === "新增") {
-                this.addOrEdit = "新增";
-                this.isLoading = false;
-                this.companyDisabled = false;
+                this.addOrEdit = "新增"
+                this.isLoading = false
+                this.companyDisabled = false
+                this.ruleForm.routeType = 0
             } else if (this.dialogStatus === "修改") {
-                this.addOrEdit = "修改";
-                this.getCommonCabinRoute();
-                this.searchList();
-                this.copySearchList();
-                this.companyDisabled = true;
-            }else if (this.dialogStatus === "复制") {
-                this.addOrEdit = "复制";
-                this.copySearchList();
+                this.addOrEdit = "修改"
+                this.getCommonCabinRoute()
+                this.searchList()
+                this.copySearchList()
+                this.companyDisabled = true
+            }else if (this.dialogStatus === "航线复制") {
+                this.addOrEdit = "航线复制"
+                this.copySearchList()
+            }else if (this.dialogStatus === "航线复制并关联船舶") {
+                this.addOrEdit = "航线复制并关联船舶"
+                this.copySearchList()
+                this.getShippInfor(0)
             }
             this.winResize()
-        },
-        updated() {
-            var height = document.body.clientHeight - 80
-            if(document.querySelector('.scrollP').offsetHeight > height){
-                this.heightInner = height  + 'px'
-            }
-        },
-        destroyed() {
-            window.removeEventListener("resize", this.getWidth);
         },
         watch:{
             heightScreen (val) {
                var height = val - 80
                this.heightInner = height  + 'px'
             }    
+        },
+        destroyed() {
+            window.removeEventListener("resize", this.getWidth);
         },
     };
 </script>
@@ -1719,6 +1660,7 @@
     // }
     .scrollP{
         overflow-y: auto;
+        height:'400px'
     }
     .routeUl {
         padding-right: 10px;

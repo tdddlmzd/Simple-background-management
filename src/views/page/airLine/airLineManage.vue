@@ -3,11 +3,12 @@
         <loading v-show="isLoading"></loading>
         <el-form
         label-position="right"
-        label-width="150px"
+        label-width="110px"
         :model="ruleForm"
         ref="ruleForm"
         size="mini"
         class="ruleForm"
+        top="60px"
         >
         <div class="headerContent">
             <label class="headeraddOrEdit">{{addOrEdit}}</label>
@@ -20,6 +21,27 @@
                 </el-form-item>
                 <el-form-item prop="routeEn" label="航线英文名">
                     <el-input v-model="ruleForm.routeEn" placeholder="请输入" clearable></el-input>
+                </el-form-item>
+                <el-form-item prop="areaCn" label="所属大航线">
+                    <el-select
+                        v-model="ruleForm.areaCn"
+                        style="width:100%;"
+                        placeholder="请输入并选择"
+                        filterable
+                        remote
+                        clearable
+                        :remote-method="remoteRouteCnMethod"
+                        @change="handleRouteCnChange"
+                        @focus="handleRouteCnFounc"
+                    >
+                        <el-option
+                            v-for="item in routeCnList"
+                            :key="item.id"
+                            :label="item.areaCn"
+                            :value="item.id"
+                        >
+                        </el-option>
+                    </el-select>
                 </el-form-item>
             </li>
             <li style="clear:both"></li>
@@ -46,18 +68,66 @@
                 ruleForm: {
                     //ID
                     id: '',
+                    //大航线id
+                    areaId: '',
                     //航线英文
                     routeEn: '',
                     //航线中文
                     routeCn: '',
+                    // 所属大航线
+                    areaCn: ''
                 },
-                portList: []
+                portList: [],
+                routeCnList: [],
             };
         },
         components: {
             loading
         },
         methods: {
+            //所属大航线change
+            handleRouteCnChange(value) {
+                if (value === null) {
+                    return;
+                }
+                let obj = this.routeCnList.find(item => {
+                    return item.id == value;
+                });
+                if (obj) {
+                    this.ruleForm.areaCn = obj.areaCn;
+                    this.ruleForm.areaId = obj.id;
+                }else{
+                    this.ruleForm.areaCn = "";
+                    this.ruleForm.areaId = "";
+                }
+            },
+            //所属大航线搜索
+            remoteRouteCnMethod(value) {
+                if (!value) {
+                    value = "";
+                }
+                this.$axios.get(this.commonJs.localUrl +  `/schedules/area/details?search=${value}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token")
+                        }
+                    }
+                ).then(res => {
+                this.routeCnList = res.data.content;
+                });
+            },
+            //所属大航线聚焦
+            handleRouteCnFounc() {
+                this.$axios.get(this.commonJs.localUrl + `/schedules/area/details?search=`, {
+                    headers: {
+                        Authorization: `Bearer ${this.getAuthorization()}`,
+                        AccessToken: this.getCookie("token")
+                    }
+                }).then(res => {
+                    this.routeCnList = res.data.content;
+                });
+            },
             //保存数据
             async handleSaveClick(ruleForm) {
                 try{
@@ -190,7 +260,6 @@
             margin-top: 20px;
             .el-form-item {
                 display: inline-block;
-                width: 350px;
                 margin-right: 20px;
             }
         }

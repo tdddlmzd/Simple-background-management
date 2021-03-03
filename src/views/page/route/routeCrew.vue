@@ -170,13 +170,16 @@
                         <span v-else style="cursor: pointer;"></span>
                     </template>
                 </el-table-column>
+                <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="100">
+                
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="142">
                 
                 </el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="142">
                 
                 </el-table-column>
-                <el-table-column prop="updateUser" label="操作人" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="100">
+                <el-table-column prop="operateTime" label="操作时间" align="left" :show-overflow-tooltip="true" :sortable="sortableState" :filters="[]" width="142">
                 
                 </el-table-column>
                 <template slot="empty">
@@ -447,7 +450,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为常用？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_comused, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -489,7 +492,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为临时？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm("<div class='tesDiv'><div>是否将状态变为临时？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -536,7 +539,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -588,6 +591,13 @@
                 this.$refs.refPagination.handleCurrentChange(1);
                 // this.handleClick();
             },
+            shouHandle(){
+                this.isLoading = false
+                if(this.$refs.refPagination){
+                    this.$refs.refPagination.page.total = 0
+                    this.$refs.refPagination.changeValue()
+                }           
+            }
         },
         components: {
             ThePagination,
@@ -599,7 +609,8 @@
         mounted() {
             this.matched = this.$route.matched;
             this.isLoading = true
-            this.handleClick();
+            this.shouHandle()
+            // this.handleClick();
             this.$bus.on('clickMenu', content => {
                 this.$refs.table.clearSort()
 
@@ -615,7 +626,7 @@
                     this.page.pageNo = 1;
                     this.pageNumber = 1;
                 };
-                this.handleClick();
+                this.handleClick()
             });
         },
         destroyed(){

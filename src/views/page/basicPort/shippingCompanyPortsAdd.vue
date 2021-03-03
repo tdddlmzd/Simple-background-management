@@ -133,7 +133,7 @@
                     let valid = await this.$refs[ruleForm].validate();
                     if (!valid) return;
                     if(this.dialogStatus === '新增'){
-                        this.$confirm("<div class = 'line'></div></br><span>确认保存?</span>", "提示", {
+                        this.$confirm(this.commonJs.confirm_save, "", {
                                 cancelButtonClass: "btnCustomCencel", 
                                 confirmButtonClass:"btnCustomSubmit",
                                 customClass:"customClass",
@@ -170,7 +170,7 @@
                             })
                         }).catch(_ => {});
                     }else if(this.dialogStatus === '编辑'){
-                        this.$confirm("<div class = 'line'></div></br><span>确认保存吗?</span>", "提示", {
+                        this.$confirm(this.commonJs.confirm_save, "", {
                                 cancelButtonClass: "btnCustomCencel", 
                                 confirmButtonClass:"btnCustomSubmit",
                                 customClass:"customClass",

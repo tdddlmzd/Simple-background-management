@@ -9,7 +9,7 @@
                 label-position="right"
                 :model="ruleForm"
                 ref="ruleForm"
-                label-width="90px"
+                label-width="80px"
             >
                 <div class="contentLeft">
                     <el-row>
@@ -194,6 +194,68 @@
                                 </el-select>
                             </el-form-item>
                         </el-col>
+                        <el-col style="width:22%">
+                            <el-form-item label="进/出口">
+                                <el-select
+                                    v-model="ruleForm.area"
+                                    clearable
+                                    style="width:100%;"
+                                    placeholder="请选择"
+                                    default-first-option
+                                >
+                                    <el-option
+                                        v-for="item in areaList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col style="width:22%"> 
+                            <el-form-item label="航线">
+                                <el-select 
+                                    remote  
+                                    clearable 
+                                    filterable  
+                                    v-model="ruleForm.routeName"
+                                    placeholder="请输入并选择"
+                                    :remote-method="routeRemote"
+                                    @focus="routeFocus"
+                                    @change="routeChange"
+                                    style="width:100%"
+                                >
+                                    <el-option
+                                        v-for="item in routeList"
+                                        :key="item.routeId"
+                                        :label="item.routeCn"
+                                        :value="item.routeCn"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col style="width:22%">
+                            <el-form-item label="LINE程">
+                                <el-select
+                                    v-model="ruleForm.lineCount"
+                                    clearable
+                                    style="width:100%"
+                                    placeholder="请选择"
+                                >
+                                    <el-option
+                                        v-for="item in lineList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
                     </el-row>
                 </div>
                 <div class="contenRight">
@@ -231,7 +293,7 @@
                 <el-table-column prop="state" label="状态" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <img src="@/assets/images/route/ident.png" class="newIdent" v-if="scope.row.isNew === 1">
-                        <span style='padding-left:10px'>{{scope.row.state === 0 ?'常用':scope.row.state === 1?'加班' : scope.row.state === 2?'屏蔽中':'无'}}</span>
+                        <span style='padding-left:10px'>{{scope.row.state === 0 ?'常用':scope.row.state === 1?'加班' : scope.row.state === 2?'屏蔽中' : scope.row.state === 3 ? '待定':'无'}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="type" label="类型" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
@@ -240,6 +302,9 @@
                             {{scope.row.type === 0 ? '爬虫' : scope.row.type === 1 ? '人工' : scope.row.type }}
                         </span>
                     </template>
+                </el-table-column>
+                <el-table-column prop="routeName" label="航线" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+
                 </el-table-column>
                 <el-table-column prop="pol" label="起运港" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope" class="identImage">
@@ -275,6 +340,11 @@
                 <el-table-column prop="transitTime" label="航程" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
                     <template slot-scope="scope">
                         <span>{{scope.row.transitTime ? scope.row.transitTime === 0 ? '' : scope.row.transitTime : ''}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="lineCount" label="LINE程" align="left" :show-overflow-tooltip="true" min-width="90" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.lineCount}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="pathStr" label="路径" align="left" :show-overflow-tooltip="true" min-width="150" :sortable="sortableState" :filters="[]">
@@ -326,6 +396,9 @@
                 <el-table-column prop="totalCount" label="总船期" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
+                <el-table-column prop="username" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
@@ -333,9 +406,6 @@
 
                 </el-table-column>
                 <el-table-column prop="spiderUpdateTime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="username" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <template slot="empty">
@@ -368,7 +438,9 @@
                 @handleCloseDetail="handleCloseDetail"
                 @updatInfor="updatInfor"
                 :rowId = rowId
+                :async = async
                 :gcId = gcId
+                :isAripty="isAripty"
                 ref="trendsaileDetail"
             >
             </trendsaileDetail>
@@ -390,7 +462,9 @@
                 @closePath="closePath"
                 @updatRoute="updatRoute"
                 @updatInfor="updatInfor"
+                :isAripty="isAripty"
                 :rowId = rowId
+                :async = async
                 :gcId = gcId
                 ref="artifiPath"
             >
@@ -415,9 +489,11 @@
                 dialogDetailVisible: false, //详情页显示隐藏
                 dialogInnerDetail: "", //详情页需要传的值
                 rowId: '', //往详情页传的id
+                async: '',
                 gcId: '', //往详情页传的共舱id
                 airpath: false,
                 pathTitle: '',
+                isAripty: true, //是否显示动态船舶
                 sortableState: true, //排序
                 checkDisable: true, //控制共舱是否可点击
                 companyNameList: [], //船公司
@@ -433,6 +509,9 @@
                     podCode: '', //目的港五字码
                     etd: "", //etd（周英文三字简写）
                     pathStr: '', //路径
+                    area: '', //进出口
+                    routeName: '', //航线
+                    lineCount: '',
                     transitCount: '', //中转次数，0：直达；1： 2程；2：3程 ；3：4程
                     state: '', //路径状态0常用，1加班
                     type: '',// 类型 0 爬虫 1 人工
@@ -462,6 +541,10 @@
                         value: 2,
                         label: "屏蔽中"
                     },
+                    {
+                        value: 3,
+                        label: "待定"
+                    },
                 ],
                 //是否中转
                 isTransitList: [
@@ -484,6 +567,33 @@
                     {
                         value: 4,
                         label: "4程"
+                    },
+                ],
+                //Line程
+                lineList: [
+                    {
+                        value: "",
+                        label: "全部"
+                    },
+                    {
+                        value: 0,
+                        label: "0"
+                    },
+                    {
+                        value: 1,
+                        label: "1"
+                    },
+                    {
+                        value: 2,
+                        label: "2"
+                    },
+                    {
+                        value: 3,
+                        label: "3"
+                    },
+                    {
+                        value: 4,
+                        label: "4"
                     },
                 ],
                 ETDList : [
@@ -519,6 +629,10 @@
                         value : 'SUN',
                         label : 'SUN',
                     },
+                    {
+                        value : '未知',
+                        label : '未知',
+                    }
                 ],
                 typeList : [
                     {
@@ -532,6 +646,20 @@
                     {
                         value : 1,
                         label : '人工',
+                    },
+                ],
+                areaList : [
+                    {
+                        value : '',
+                        label : '全部',
+                    },
+                    {
+                        value : 0,
+                        label : '出口',
+                    },
+                    {
+                        value : 1,
+                        label : '进口',
                     },
                 ],
                 pageNo: 1,
@@ -552,6 +680,7 @@
                     // 总条数
                     total: 0
                 },
+                routeList: [], //航线
                 multipleSelection: [], //选择
                 getVesselList: [], //共舱列表
                 getVesseTitle: [], //共舱标题
@@ -571,6 +700,8 @@
                     this.ruleForm.podCode = '', //目的港五字码
                     this.ruleForm.etd = '', //etd（周英文三字简写）
                     this.ruleForm.pathStr = '', //路径
+                    this.ruleForm.area = '', //进出口
+                    this.ruleForm.routeName = '', //航线
                     this.ruleForm.transitCount = '', //中转次数，0：直达；1： 2程；2：3程 ；3：4程
                     this.ruleForm.state = '', //路径状态0常用，1加班
                     this.ruleForm.type = '',// 类型 0 爬虫 1 人工
@@ -582,6 +713,7 @@
                     this.ruleForm.scacList = ''
                     this.ruleForm.polCodeList = ''
                     this.ruleForm.podCodeList = ''
+                    this.ruleForm.lineCount = ''
                 }
                 if(this.ruleForm.startTime == '' || this.ruleForm.startTime == null) {
                     this.ruleForm.startTime = ''
@@ -596,9 +728,12 @@
                 }&podCode=${this.ruleForm.podCode
                 }&etd=${this.ruleForm.etd == '全部' ? '' : this.ruleForm.etd
                 }&pathStr=${this.ruleForm.pathStr
+                }&area=${this.ruleForm.area
+                }&routeName=${this.ruleForm.routeName
                 }&transitCount=${this.ruleForm.transitCount
                 }&state=${this.ruleForm.state
                 }&type=${this.ruleForm.type
+                }&lineCount=${this.ruleForm.lineCount
                 }&startTime=${this.ruleForm.startTime
                 }&endTime=${this.ruleForm.endTime
                 }&isGc=${this.ruleForm.isGc
@@ -693,7 +828,7 @@
             //搜索
             serchBtn() {
                 //如果所有搜索条件为空 查询会慢
-                if(this.ruleForm.scac == '' && this.ruleForm.polCode == '' && this.ruleForm.podCode == '' && (this.ruleForm.etd == '全部' || this.ruleForm.etd == '') && this.ruleForm.pathStr == '' && this.ruleForm.transitCount == '' && this.ruleForm.state == '' && this.ruleForm.type == '' && (this.ruleForm.startTime == '' || this.ruleForm.startTime == null) && (this.ruleForm.endTime == '' || this.ruleForm.endTime == null)){
+                if(this.ruleForm.scac == '' && this.ruleForm.polCode == '' && this.ruleForm.podCode == '' && (this.ruleForm.etd == '全部' || this.ruleForm.etd == '') && this.ruleForm.pathStr == '' && this.ruleForm.area === '' && this.ruleForm.routeName == '' && this.ruleForm.transitCount == '' && this.ruleForm.state == '' && this.ruleForm.type === '' && (this.ruleForm.startTime == '' || this.ruleForm.startTime == null) && (this.ruleForm.endTime == '' || this.ruleForm.endTime == null)){
                     this.$message({ type:"error", message: '请至少选择一个搜索条件进行查询'})
                     return
                 }
@@ -711,7 +846,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为常用？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_comused, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -763,7 +898,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为加班？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_workover, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -815,7 +950,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认屏蔽？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_shield, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -906,7 +1041,7 @@
                     });
                     return
                 }
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1089,6 +1224,33 @@
                     this.ruleForm.podCode = ''
                 }
             },
+            //航线搜索
+            routeRemote(value){
+                this.$axios.get(this.commonJs.localUrl +`/schedules/route/getAllRoute?routeCn=${value}`,{
+                    headers: {
+                        Authorization: `Bearer ${this.getAuthorization()}`,
+                        AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                    }
+                }).then(res => {
+                    if (res.data.status == 1) {
+                        this.routeList = res.data.content; 
+                    }
+                })
+            },
+            //航线focus
+            routeFocus(){
+                this.$axios.get(this.commonJs.localUrl +`/schedules/route/getAllRoute`,{
+                    headers: {
+                        Authorization: `Bearer ${this.getAuthorization()}`,
+                        AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                    }
+                }).then(res => {
+                    if (res.data.status == 1) {
+                        this.routeList = res.data.content; 
+                    }
+                })
+            },
+            routeChange(){},
             //显示共仓
             getVessel(val) {
                 this.getVesselList = []
@@ -1114,11 +1276,14 @@
                 this.ruleForm.podCode = '', //目的港五字码
                 this.ruleForm.etd = '', //etd（周英文三字简写）
                 this.ruleForm.pathStr = '', //路径
+                this.ruleForm.area = '', //进出口
+                this.ruleForm.routeName = '', //航线
                 this.ruleForm.transitCount = '', //中转次数，0：直达；1： 2程；2：3程 ；3：4程
                 this.ruleForm.state = '', //路径状态0常用，1加班
                 this.ruleForm.type = '',// 类型 0 爬虫 1 人工
                 this.ruleForm.startTime = '',  //更新时间（开始）
                 this.ruleForm.endTime = '',  //更新时间（结束）
+                this.ruleForm.lineCount = '',
                 this.ruleForm.isGc = 1 //是否共仓，0否，1是
                 this.ruleForm.id = this.multipleSelection[0].id
                 this.ruleForm.gcId = this.multipleSelection[0].gcId
@@ -1211,6 +1376,8 @@
 
                     this.ruleForm.etd = '', //etd（周英文三字简写）
                     this.ruleForm.pathStr = '', //路径
+                    this.ruleForm.area = '', //进出口
+                    this.ruleForm.routeName = '', //航线
                     this.ruleForm.transitCount = '', //中转次数，0：直达；1： 2程；2：3程 ；3：4程
                     this.ruleForm.state = '', //路径状态0常用，1加班
                     this.ruleForm.type = '',// 类型 0 爬虫 1 人工
@@ -1218,6 +1385,7 @@
                     this.ruleForm.endTime = '',  //更新时间（结束）
                     this.ruleForm.isGc = 0 //是否共仓，0否，1是
                     this.ruleForm.id = ''
+                    this.ruleForm.lineCount = ''
                     this.ruleForm.gcId = ''
                     this.ruleForm.scacList = ''
                     this.ruleForm.polCodeList = ''
@@ -1318,7 +1486,6 @@
     .portContent {
         position: relative;
         overflow: hidden;
-        // padding: 20px 20px 20px 20px;
         .serachBack {
             background-color: #fff;
             padding: 0px 20px 0px 20px;

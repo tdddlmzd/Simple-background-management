@@ -8,6 +8,7 @@ const common = {
         nowCrawl : false,
         coverage : {},
         sidebar : false,
+        numberCount: 0,
     },
     actions: {
       
@@ -30,6 +31,9 @@ const common = {
         },
         handCrawl(state,payload){
             state.nowTab = payload
+        },
+        handeCount(state,payload){
+            state.numberCount = payload
         }
     }
 };

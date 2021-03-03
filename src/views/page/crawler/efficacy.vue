@@ -145,13 +145,13 @@
                 <el-table-column prop="availableDataComposeCount" label="有数据组合数" align="left" :show-overflow-tooltip="true" min-width="120" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
+                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
                 <el-table-column prop="groupUpdateTime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="scacStateUpdateTime" label="操作时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
-
-                </el-table-column>
-                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="sss" label="操作" align="left" :show-overflow-tooltip="true" min-width="80">
@@ -339,7 +339,7 @@
                     this.$message({ type:"error", message: '请选择其他状态进行操作'})
                     return
                 }
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为正常？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_normal, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -385,7 +385,7 @@
                     this.$message({ type:"error", message: '请选择其他状态进行操作'})
                     return
                 }
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为异常？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_abnormal, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,

@@ -5,19 +5,19 @@
             class="el-menu-vertical-demo"
             :default-active="$route.path"
             :collapse="isCollapse"
-            text-color="#ccc"
             background-color="#fff"
+            text-color="#666"
             active-text-color="#3bafda"
             @select="selectMenu"
             :unique-opened="true"
+            :style="menHeight"
         >
             <template v-for="item in permission_routers" v-if="item.name === 'Home'">
                 <div class="homeMeta el-submenu__title is-active is-opened" @mouseover="handleOnClick" @mouseleave="handleLeClick">
                     <router-link
                         slot="title"
-                        :to="isCollapse === false ? item.path : ''"
+                        :to="item.path"
                         :key="item.name"
-                        active-class="homeMetas"
                         class="homeMeta"
                     >
                         <span ref="homeMeta"  id="homeMeta" class=" homeMetasa el-icon-s-home" style="margin-right: 5px;"></span>
@@ -48,10 +48,13 @@
     export default {
         data() {
             return {
-                oldPath:"",
                 count:0,
                 newPath: true,
-                isActiveMenu:false
+                isActiveMenu:false,
+                screenHeight:'',
+                menHeight:{
+                    height:'100%'
+                }
             };
         },
         computed: {
@@ -70,8 +73,24 @@
 
         },
         methods: {
-            getRoutePath(){
-                this.oldPath = this.$route.path;
+            //鼠标在首页上目录
+            handleOnClick(){
+                this.isActiveMenu = true
+            },
+            //鼠标离开首页目录
+            handleLeClick(){
+                this.isActiveMenu = false
+            },
+            //切换路由
+            selectMenu(param){
+                if(this.$route.path !=="/Home"){
+                    setTimeout(() => {
+                        this.$bus.emit('clickMenu',this.newPath);
+                    },300)
+                }
+            },
+            //初始化当前路由样式
+            getRoutePath(){ //此处只只针对首页的点击样式
                 if(this.$route.path !=="/Home"){
                     let element = document.getElementById('homeTitle');
                     document.getElementById('homeMeta').style.color = '#666';
@@ -81,38 +100,38 @@
                     document.getElementById('homeTitle').setAttribute("style","color:#3bafda !important")
                 }
             },
-            selectMenu(param){
-                console.log(param)
-                setTimeout(() => {
-                    this.$bus.emit('clickMenu',this.newPath);
-                },300)
-            },
-            handleOnClick(){
-                this.isActiveMenu = true
-            },
-            handleLeClick(){
-                this.isActiveMenu = false
-            },
-
         },
         mounted(){
             this.getRoutePath()
+            var that = this
+            that.screenHeight = document.body.clientHeight
+            this.menHeight = {
+                height: that.screenHeight - 50 + 'px'
+            }
+            window.onresize = () => {
+                return (() => {
+                    that.screenHeight = document.body.clientHeight
+                    this.menHeight = {
+                        height: that.screenHeight - 50 + 'px'
+                    }
+                })()
+            }
         },
         watch : {
-            // 'route':{
-            //     immediate:true,
-            //     handler(newVal,oldVal){
-            //         if (oldVal){
-            //             if(newVal !== "/Home"){
-            //                 document.getElementById('homeMeta').style.color = '#666';
-            //                 document.getElementById('homeTitle').setAttribute("style","color:#666 !important")
-            //             }else{
-            //                 document.getElementById('homeMeta').style.color = '#3bafda';
-            //                 document.getElementById('homeTitle').setAttribute("style","color:#3bafda !important")
-            //             }
-            //         }
-            //     }
-            // },
+            'route':{
+                immediate:true,
+                handler(newVal,oldVal){ //此处只只针对首页的点击样式
+                    if (oldVal){
+                        if(newVal !== "/Home"){
+                            document.getElementById('homeMeta').style.color = '#666';
+                            document.getElementById('homeTitle').setAttribute("style","color:#666 !important")
+                        }else{
+                            document.getElementById('homeMeta').style.color = '#3bafda';
+                            document.getElementById('homeTitle').setAttribute("style","color:#3bafda !important")
+                        }
+                    }
+                }
+            },
             'isCollapse':{
                 immediate:true,
                 handler(newVal,oldVal){
@@ -141,6 +160,11 @@
                     //         },500)
                     //     }
                     // }
+                }
+            },
+            screenHeight(val){
+                this.menHeight = {
+                    height: val - 50 + 'px'
                 }
             },
         },
@@ -176,6 +200,10 @@
     .homeMeta{
         color:  #666 ;
         position: relative;
+        display: inline-block;
+        width: 100%;
+        font-weight: 600;
+
     }
     .el-icon-s-home{
         font-size: 18px;
@@ -184,11 +212,6 @@
         position: absolute;
         top: 0px;
         left:64px;
-    }
-    .homeMeta{
-        display: inline-block;
-        width: 100%;
-        font-weight: 600;
     }
     .fade-enter-active, .fade-leave-active {
         transition: opacity .2s

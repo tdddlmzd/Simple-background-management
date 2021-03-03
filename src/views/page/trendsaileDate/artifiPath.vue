@@ -3,7 +3,7 @@
         <loading v-show="isLoading"></loading>
         <el-form
         label-position="right"
-        label-width="100px"
+        label-width="120px"
         :model="ruleForm"
         ref="ruleForm"
         size="mini"
@@ -13,7 +13,7 @@
             <label class="headeraddOrEdit">{{addOrEdit}}</label>
             <i class="headeraddOrEditClose el-icon-close lr" @click="closePath"></i>
         </div>
-            <div :style="{height: innerHeight}"  class="scrollDiv">
+            <div :style="{maxHeight: innerHeight}"  class="scrollDiv">
                 <ul class="routeUl">
                     <li class="routeLi">
                         <div class="title">
@@ -95,8 +95,8 @@
                                 </el-form-item>
                             </el-col>
                             <el-col style="width:22%">
-                                <el-form-item prop="transitTime" label="航程:" class="el_formContent">
-                                    <span class='colSpan' :title="this.ruleForm.transitTime ? this.ruleForm.transitTime + '天' : ''">{{this.ruleForm.transitTime ? this.ruleForm.transitTime + '天' : '-'}}</span>
+                                <el-form-item prop="transitTime" label="动态总航程:" class="el_formContent">
+                                    <span class='colSpan'>{{ruleForm.transitTime ? ruleForm.transitTime : '-'}}</span>
                                 </el-form-item>
                             </el-col>
                             <el-col style="width:22%">
@@ -127,6 +127,16 @@
                             <el-col style="width:22%">
                                 <el-form-item prop="type" label="类型:" class="el_formContent">
                                     <span class='colSpan'>人工</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item prop="editTransitTime" label="人工总航程:" class="el_formContent">
+                                    <el-input v-model="ruleForm.editTransitTime" placeholder="请输入" clearable @input="ruleForm.editTransitTime = ruleForm.editTransitTime.replace(/[^\d]/g,'')"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col style="width:22%">
+                                <el-form-item prop="lineCount" label="LINE程:" class="el_formContent">
+                                    <span class='colSpan'>{{this.ruleForm.lineCount}}</span>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -197,7 +207,7 @@
                             </template>
                         </el-table>
                     </li>
-                    <li class="routeLi">
+                    <li class="routeLi" v-if="isAripty">
                         <div class="title lf">
                             <span>航线共舱信息</span>
                         </div>
@@ -210,7 +220,10 @@
                             ref="table"
                         >
                             <el-table-column prop="type" label="类型" align="left" :show-overflow-tooltip="true" width="200">
-
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.type}}</span>
+                                    <span v-if="scope.row.type == '该路径常规共舱'" class="pathRecover" @click="pathRecover()">恢复</span>
+                                </template>
                             </el-table-column>
                             <el-table-column prop="companyInfor" label="共舱船公司（航线）信息" align="left" min-width="700">
                                 <template slot-scope="scope">
@@ -239,7 +252,7 @@
                             </template>
                         </el-table>
                     </li>
-                    <li class="routeLi">
+                    <li class="routeLi" v-if="isAripty">
                         <div class="title">
                             <span>动态船舶</span>
                         </div>
@@ -252,30 +265,37 @@
                             :header-cell-style="{background:'#3bafda',color:'#ffffff',fontSize:'12px'}"
                             :row-class-name="tabColClassName"
                             tooltip-effect="dark"
-                            ref="table"
+                            ref="tableDynamic"
                             @selection-change="selectShip"
                             @row-dblclick="dnyamicChange"
-                            :default-expand-all=true
+                            :default-expand-all=false
                         >
                             <el-table-column
                                 type="selection"
                                 width="45"
                             >
                             </el-table-column>
-                            <el-table-column prop="weekNo" label="周序号" align="left" :show-overflow-tooltip="true" width="80">
+                            <el-table-column prop="weekNo" label="周序号" align="left" :show-overflow-tooltip="true" width="80" fixed>
                                 <template slot-scope="scope">
-                                    <span>{{currentYear + '-' + scope.row.weekNo}}</span>
+                                    <!-- <span>{{currentYear + '-' + scope.row.weekNo}}</span> -->
+                                    <span>{{scope.row.weekNo}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="pathTitle" label="路段" align="left" :show-overflow-tooltip="true" width="80">
+                            <el-table-column prop="pathTitle" label="路段" align="left" :show-overflow-tooltip="true" width="50" fixed>
                                 <template>
                                     <span>头程</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="vessel" label="船名" align="left" :show-overflow-tooltip="true" width="140">
+                            <el-table-column prop="expandChange" label="" align="left" :show-overflow-tooltip="true" width="50" fixed>
+                                <template slot-scope="scope">
+                                    <span style="color:#3bafda;cursor: pointer;user-select: none" @click.stop="toogleExpand(scope.row)" v-if="pathDetails.length > 1">{{scope.row.expandChange ? '收起' : '展开'}}</span>
+                                    <span v-else></span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="vessel" label="船名" align="left" :show-overflow-tooltip="true" width="140" fixed>
                                 
                             </el-table-column>
-                            <el-table-column prop="voyage" label="航次" align="left" :show-overflow-tooltip="true" width="120">
+                            <el-table-column prop="voyage" label="航次" align="left" :show-overflow-tooltip="true" width="120" fixed>
                                 
                             </el-table-column>
                             <el-table-column prop="sameRoute" label="共舱" align="left" :show-overflow-tooltip="true" width="80">
@@ -335,7 +355,7 @@
                                     <span>{{scope.row.ata ? getDateTime(scope.row.ata) : ''}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="vgmCutoff" label="截VGM" align="left" width="130">
+                            <!-- <el-table-column prop="vgmCutoff" label="截VGM" align="left" width="130">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.vgmCutoff ? getDateTime(scope.row.vgmCutoff) : ''}}</span>
                                 </template>
@@ -354,33 +374,32 @@
                                 <template slot-scope="scope">
                                     <span>{{scope.row.siCutOff ? getDateTime(scope.row.siCutOff) : ''}}</span>
                                 </template>
-                            </el-table-column>
+                            </el-table-column> -->
                             <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" width="142">
                                 
                             </el-table-column>
-                            <el-table-column prop="warning" label="ETD预警" align="left" :show-overflow-tooltip="true" width="80">
+                            <el-table-column prop="warning" label="ETD预警" align="left" :show-overflow-tooltip="true" width="70">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.warning}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column type="expand" align="left" v-if="pathDetails.length > 1">
+                            <el-table-column type="expand" align="left" v-if="pathDetails.length > 1" width="1">
                                 <template slot-scope="scope">
                                     <div v-if="scope.row.additLeg.length > 0">
                                         <el-table :data="scope.row.additLeg" :show-header=false class="tes_table" @row-dblclick="dnyChilder(scope.row)">
                                             <el-table-column type="selection" width="45">
-                                                <template>
-                                                    <span></span>
-                                                </template>
                                             </el-table-column>
                                             <el-table-column prop="weekNo" label="周序号" align="left" :show-overflow-tooltip="true" width="80">
                                                 <template>
                                                     <span></span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column prop="f" label="路段" align="left" :show-overflow-tooltip="true" width="80">
+                                            <el-table-column prop="f" label="路段" align="left" :show-overflow-tooltip="true" width="50">
                                                 <template slot-scope="scope">
                                                     <span>{{(scope.$index + 1) == 1 ? '2程' : (scope.$index + 1) == 2 ? '3程' : (scope.$index + 1) == 3 ? '4程' : ''}}</span>
                                                 </template>                                           
+                                            </el-table-column>
+                                            <el-table-column prop="" label="" align="left" :show-overflow-tooltip="true" width="50">
                                             </el-table-column>
                                             <el-table-column prop="vessel" label="船名" align="left" :show-overflow-tooltip="true" width="140">
                                                 
@@ -445,7 +464,7 @@
                                                     <span>{{scope.row.ata ? getDateTime(scope.row.ata) : ''}}</span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column prop="vgmCutoff" label="截VGM" align="left" width="130">
+                                            <!-- <el-table-column prop="vgmCutoff" label="截VGM" align="left" width="130">
                                                 <template slot-scope="scope">
                                                     <span>{{scope.row.vgmCutoff ? getDateTime(scope.row.vgmCutoff) : ''}}</span>
                                                 </template>
@@ -464,11 +483,11 @@
                                                 <template slot-scope="scope">
                                                     <span>{{scope.row.siCutOff ? getDateTime(scope.row.siCutOff) : ''}}</span>
                                                 </template>
-                                            </el-table-column>
+                                            </el-table-column> -->
                                             <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" width="142">
                                                 
                                             </el-table-column>
-                                            <el-table-column prop="warning" label="ETD预警" align="left" :show-overflow-tooltip="true" width="80">
+                                            <el-table-column prop="warning" label="ETD预警" align="left" :show-overflow-tooltip="true" width="70">
                                                 
                                             </el-table-column>
                                         </el-table>
@@ -484,7 +503,9 @@
                     </li>
                 </ul>
                 <div class="save">
-                    <el-button class="saveBtn" @click="handleSaveClick()">保存</el-button>
+                    <!-- <el-button class="saveBtn" @click="handleSaveClick()">{{missionCount > 0 ? "保存并同步" : '保存'}}</el-button> -->
+                    <el-button class="saveBtn" @click="handleSaveClick('保存并同步')" v-if="isTong">保存并同步</el-button>
+                    <el-button class="saveBtn" @click="handleSaveClick('保存')" v-else>保存</el-button>
                 </div>
             </div>
         </el-form>
@@ -570,7 +591,9 @@
         props: [
             "pathTitle",
             "rowId",
-            "gcId"
+            "gcId",
+            "isAripty",
+            "async"
             ],
         data() {
             return {
@@ -580,6 +603,7 @@
                 screenWidth: document.body.clientWidth, // 设置默认值
                 addOrEdit: "", // 新增 修改
                 isLoading: true, //Loading
+                isTong: true, //是否同步
                 ruleForm:{
                     id:"", // 路径id（跟取详情的id一样）
                     gcId: "", // 头程第一段共舱id
@@ -599,7 +623,8 @@
                     podTerminal: '',//目的港码头ID
                     podTerminalId: '',//目的港码头
                     transitCount:'',//路径数
-                    transitTime:'',//航程
+                    transitTime:'',
+                    editTransitTime: '',
                     gcCount:'', //共舱数量
                     state: 0, //状态
                     type: 1, //类型
@@ -628,6 +653,8 @@
                         label: "屏蔽中"
                     },
                 ],
+                typeL: '',
+                missionCount: 0,
                 currentYear: '',
                 isTrue: false,
                 //路径详情
@@ -666,6 +693,7 @@
                 getVesseTitle: [], //共舱标题
                 samePathList: [], //航线共舱信息
                 commonIdsInner: [],//常规共舱
+                isLine : false, //头程是否海运
                 ovtIdsInner: [],//临时共舱
             };
         },
@@ -694,6 +722,29 @@
                         this.ruleForm.carrier = res.data.content.carrier // 船公司
                         this.ruleForm.scac = res.data.content.scac // 船公司五子码
                         this.ruleForm.state = res.data.content.state //状态
+                        if(res.data.content.state == 3){
+                            this.stateList = [
+                                {
+                                    value: 0,
+                                    label: "常用"
+                                },
+                                {
+                                    value: 1,
+                                    label: "加班"
+                                },
+                                {
+                                    value: 2,
+                                    label: "屏蔽中"
+                                },
+                                {
+                                    value: 3,
+                                    label: "待定"
+                                },
+                            ]
+                        }
+                        this.ruleForm.lineCount = res.data.content.lineCount
+                        this.typeL = res.data.content.type //
+                        this.missionCount = res.data.content.missionCount //
 
                         setTimeout(()=>{
                             this.ruleForm.etd = res.data.content.etd // 头程第一段ETD
@@ -704,7 +755,8 @@
                             this.ruleForm.polCityId = res.data.content.polCityId //起始港Id
                             this.ruleForm.podCityId = res.data.content.podCityId //目的港Id
                             this.ruleForm.transitCount = res.data.content.transitCount //路径数
-                            this.ruleForm.transitTime = res.data.content.transitTime //航程
+                            this.ruleForm.transitTime = res.data.content.transitTime
+                            this.ruleForm.editTransitTime = res.data.content.editTransitTime
                             this.ruleForm.gcId = res.data.content.gcId // 头程第一段共舱id
                             this.ruleForm.gcCount = res.data.content.gcCount //共舱数量
                             this.ruleForm.polTerminal = res.data.content.polTerminal //起始港码头
@@ -712,6 +764,7 @@
                         },500)
                         //动态船舶的数据 全局监听
                         this.shipArry = res.data.content.dynamicList
+                        
                     }else{
                         this.$message({
                             type: "error",
@@ -861,7 +914,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -991,7 +1044,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -1033,6 +1086,19 @@
                     }
                     this.shipArry = newList
                 }).catch(_ => {});
+            },
+            //点击展开
+            toogleExpand(row){
+                let $table = this.$refs.tableDynamic;
+                this.dynamicList.map((item,index) => {
+                    if (row.index != index) {
+                        item.expandChange = false
+                        $table.toggleRowExpansion(item, false)
+                    }else{
+                        item.expandChange = !item.expandChange
+                    }
+                })
+                $table.toggleRowExpansion(row)            
             },
             //双击动态船舶
             dnyamicChange(row){
@@ -1187,17 +1253,73 @@
                     },
                 ]
             },
+            //恢复共舱
+            pathRecover(){
+                if(this.pathDetails.length > 0){
+                    var polCode = this.pathDetails[0].polCode
+                    var podCode = this.pathDetails[0].podCode
+                    var staticId = this.pathDetails[0].staticId
+                    this.$axios.get(this.commonJs.localUrl + `/schedules/path/recoverCabin?gcId=${this.ruleForm.gcId}&polCode=${polCode}&podCode=${podCode}&staticId=${staticId}`
+                    ,{
+                        headers: {
+                            Authorization: `Bearer ${this.getAuthorization()}`,
+                            AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                        }
+                    }).then(res =>{
+                        if(res.data.status == 1){
+                            if(res.data.content.length > 0){
+                                //常规共舱恢复  this.samePathList数组  第一个 和 第二个 参数 companyInfor
+                                // res.data.content.commonIds = res.data.content.commonIds.filter(item => item.staticId !== this.firstStaticId)
+                                var companyInfor = []
+                                for (let i = 0; i < res.data.content.length; i++) {
+                                    var commonIds = res.data.content[i]
+                                    companyInfor.push({
+                                        routeCode: commonIds.routeCode ? commonIds.routeCode : '-',
+                                        displayName: commonIds.displayName ? commonIds.displayName : '-',
+                                        staticId: commonIds.staticId,
+                                        carrier: commonIds.carrier,
+                                        id:commonIds.id,
+                                        affectWeek: commonIds.affectWeek ? (' ' + this.currentYear + '-' + commonIds.affectWeek) : '',// 开始应用周数
+                                        isNew:commonIds.isNew,
+                                    })                        
+                                }
+        
+                                // //该路径常规共舱
+                                this.samePathList[0].companyInfor = companyInfor
+                                // //该路径常规共舱（标准）
+                                this.samePathList[1].companyInfor = companyInfor
+        
+                                // //之前放删除常规共舱的数组 放 接口返回的数据
+                                this.commonIdsInner = res.data.content
+                            }else{
+                                this.$message({
+                                    type: "error",
+                                    message: "该路径没有共舱"
+                                });
+                            }
+                        }else{
+                            this.$message({
+                                type: "error",
+                                message: "数据加载失败 请重新加载页面"
+                            });
+                        }
+                    })
+                }
+            },
             //删除共舱
             delRout(companyInfor,val,type){
                 if(type == '该路径常规共舱'){
-                    this.commonIdsInner.push({
-                        // id: val.id,// id删除必填如果不填就是添加
-                        // delFlag: '1', // 是否删除，1是删除，如果不填就是添加，
-                        staticId: val.staticId,// 航线id
-                        // week: val.week,// 开始应用周数
-                        polCode: val.polCode,
-                        podCode: val.podCode,
-                    })
+                    //找出删除的这条
+                    if(this.commonIdsInner.length > 0){ //代表用户有删除操作
+                        //循环数组 找出删除的那条共舱
+                        for (let j = 0; j < this.commonIdsInner.length; j++) {
+                            if(val.staticId == this.commonIdsInner[j].staticId){
+                                this.commonIdsInner.splice(j,1)
+                            }
+                        }
+                    }
+                    val.delFlag = '1'
+                    this.commonIdsInner.push(val)
                     for (let i = 0; i < companyInfor.length; i++) {
                         if(val.staticId == companyInfor[i].staticId){
                             companyInfor.splice(i,1)
@@ -1284,7 +1406,8 @@
                 }
             },
             //此页面点击保存 修改路径
-            handleSaveClick() {
+            handleSaveClick(valText) {
+                var valText = valText
                 this.isLoading = true
 
                 //保存要传的数据  ruleForm     pathDetails: [],//路径详情 页面显示的   delecPathList: [], //删除的路径详情   
@@ -1341,6 +1464,7 @@
                     return
                 }
                 for (let i = 0; i < this.pathDetails.length; i++) {
+                    this.pathDetails[i].id = (this.addOrEdit == "新增" && !this.isAripty) ? '' : this.pathDetails[i].id, //如果当前新增 并且是从专家船期过来的  默认 id为空
                     this.pathDetails[i].sortOrder = i+1 
                     this.pathDetails[i].transitSort = i+1 
                 }
@@ -1388,7 +1512,9 @@
                 query['commonIds'] = this.commonIdsInner  //常用共舱
                 query['ovtIds'] = this.ovtIdsInner //临时共舱
                 query['pathList'] = pathList
-                query['dynamicList'] = dynamicList
+                if(this.isAripty){ //需要传动态船舶
+                    query['dynamicList'] = dynamicList
+                }
                 if(this.pathTitle === "修改"){
                     query["id"] = this.rowId;
                 }
@@ -1401,12 +1527,14 @@
                     }
                 ).then(res => {
                     if (res.data.status == 1) {
-                        this.$emit("updatRoute")
-                        this.$message({
-                            type: "success",
-                            message: "保存成功"
-                        });
-                        this.closePath()
+                        if(valText == '保存'){
+                            this.$emit("updatRoute")
+                            this.$message({
+                                type: "success",
+                                message: "保存成功"
+                            });
+                            this.closePath()
+                        }
                     }else if (res.data.status == 5) {
                         this.$message({
                             type: "error",
@@ -1443,13 +1571,61 @@
                     return '空班'
                 }
             },
+            //从专家船期传过来的新增
+            expertSchedule(){
+                this.$axios.get(this.commonJs.localUrl + `/expert/path/details?id=${this.rowId}`
+                ,{
+                    headers: {
+                        Authorization: `Bearer ${this.getAuthorization()}`,
+                        AccessToken: this.getCookie("token").replace("Bearer","Jwt"),
+                    }
+                }).then(res => {
+                        if(res.data.status == 1){
+                            this.isLoading = false
+                            this.pathDetails = res.data.content.pathList
+                            this.ruleForm.carrier = res.data.content.carrier // 船公司
+                            this.ruleForm.scac = res.data.content.scac // 船公司五子码
+                            this.ruleForm.state = res.data.content.state //状态
+                            this.typeL = res.data.content.type // 类型
+                            setTimeout(()=>{
+                                this.ruleForm.id = this.async == 1 ? res.data.content.id : '' // 路径id（跟取详情的id一样）
+                                this.ruleForm.etd = res.data.content.etd // 头程第一段ETD
+                                this.ruleForm.pol = res.data.content.pol // 起始港
+                                this.ruleForm.pod = res.data.content.pod // 目的港
+                                this.ruleForm.polCode = res.data.content.polCode // 起始港五字码
+                                this.ruleForm.podCode = res.data.content.podCode // 目的港五字码
+                                this.ruleForm.polCityId = res.data.content.polCityId //起始港Id
+                                this.ruleForm.podCityId = res.data.content.podCityId //目的港Id
+                                this.ruleForm.transitCount = res.data.content.transitCount //路径数
+                                this.ruleForm.transitTime = res.data.content.transitTime
+                                this.ruleForm.editTransitTime = res.data.content.editTransitTime
+                                this.ruleForm.gcId = res.data.content.gcId // 头程第一段共舱id
+                                this.ruleForm.gcCount = res.data.content.gcCount //共舱数量
+                                this.ruleForm.polTerminal = res.data.content.polTerminal //起始港码头
+                                this.ruleForm.podTerminal = res.data.content.podTerminal //目的港码头
+                            },500)
+                        } else{
+                            this.$message({
+                                type: "error",
+                                message: "数据加载失败 请重新加载页面"
+                            });
+                        }
+                    });
+            },
         },
         mounted() {
             var d1 = new Date()
             this.currentYear = d1.getFullYear()
             if(this.pathTitle == "新增"){
-                this.addOrEdit = "新增"
-                this.isLoading = false
+                if(this.isAripty){ //说明本身就是路径管理的新增
+                    this.addOrEdit = "新增"
+                    this.typeL = 1
+                    this.isLoading = false
+                }else{ //从专家船期传过来的新增
+                    this.addOrEdit = "新增"
+                    this.isTong = false
+                    this.expertSchedule()
+                }
             }else if(this.pathTitle == "修改"){
                 this.addOrEdit = "修改"
                 this.pathDetail() //取路径详情
@@ -1528,8 +1704,11 @@
                     for (let i = 0; i < val.length; i++) {
                         transitTime = transitTime + (val[i].transitTime ? Number(val[i].transitTime) : 0)
                     }
-                    this.ruleForm.transitTime = transitTime
                     this.isAddShip = true
+
+                    //判断头程是否是非海运
+                    this.isLine = this.pathDetails[0].transitType && this.pathDetails[0].transitType.toUpperCase() == 'LINE' ? true : false
+
                 }else{
                     this.isTrue = false //路径详情为空 船公司可修改
                     this.shipArry = []
@@ -1547,7 +1726,6 @@
                     this.ruleForm.podTerminal = '' //最后一段的目的港码头
                     this.ruleForm.podTerminalId = '' //最后一段的目的港码头
                     this.ruleForm.transitCount ='' //路径数
-                    this.ruleForm.transitTime ='' //航程
                     this.isAddShip = false
 
                     this.ruleForm.gcId = "" // 头程第一段共舱id
@@ -1561,6 +1739,7 @@
 
                     this.commonIdsInner = []
                     this.ovtIdsInner = []
+                    this.isLine = false
                 }
             },
             //动态船舶
@@ -1569,13 +1748,12 @@
                     var val = JSON.parse(JSON.stringify(value))
                     this.dynamicList = []
                     for (let i = 0; i < val.length; i++) {
-    
                         //  // 这里处理预警信息 //  //  //  //  //  //  //  //  // 
                         for (let p = 0; p < val[i].length; p++) {
                             var element = val[i][p];
                             element.warning = this.getWaring(element)
+                            element.expandChange = false
                         }
-                         //  //  //  //  //  //  //  // 
                         var item = val[i]
                         var firstObject = item[0] //头程的数据
                         var additLeg = [] //放 2 3 4程数据
@@ -1612,18 +1790,22 @@
                 }
             },
         },
-        updated() {
-            var height = document.body.clientHeight - 80
-            if(document.querySelector('.scrollDiv').offsetHeight > height){
-                this.innerHeight = height  + 'px'
-            }
-        },
     };
 </script>
 
 <style lang="scss" scoped>
+
+    /*这个地方处理的是 table expand 展开隐藏的样式*/
     /deep/.el-table__expand-icon>.el-icon{
         display: none;
+    }
+    /deep/.el-table__expand-column{
+        width: 1px !important;
+    }
+    /deep/.el-table__expand-column div.cell{
+        width: 1px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
     /deep/.tes_table  .el-table__body-wrapper::-webkit-scrollbar{
         /*width: 0;宽度为0隐藏*/
@@ -1631,6 +1813,8 @@
         height: 0px;
         border: 0px;
     }
+    /*截止地方*/
+
     /deep/ .el-table .warning-row {
         background: rgba(241, 245, 247, 1) !important;
     }
@@ -1678,22 +1862,9 @@
         font-size: 16px;
         cursor: pointer;
     }
-    // .tableFormUl {
-    //     padding-top: 20px;
-    //     li:nth-of-type(1) {
-    //         margin-top: 0px;
-    //     }
-    //     li {
-    //         margin-top: 20px;
-    //         .el-form-item {
-    //             display: inline-block;
-    //             width: 300px;
-    //             margin-right: 20px;
-    //         }
-    //     }
-    // }
     .scrollDiv{
         overflow-y: auto;
+        height:'400px'
     }
     .routeUl {
         padding-right: 10px;
@@ -1713,6 +1884,13 @@
     }
     .voyageOrVessel {
         font-size: 12px;
+    }
+    .pathRecover{
+        display: inline-block;
+        margin-left: 10px;
+        vertical-align: top;
+        color: red;
+        cursor: pointer;
     }
     .redclass {
         color: red;
@@ -1877,9 +2055,6 @@
             background: #e4e4e4;
             padding: 2px 5px;
             margin-bottom: 2px;
-            // overflow: hidden;
-            // white-space: nowrap;
-            // text-overflow: ellipsis;
             border-radius: 10px;
             span {
                 display: inline-block;
@@ -1903,13 +2078,6 @@
         left: -26px;
         top: -2px;    
     }
-    .huan{
-        position: absolute;
-        width: 17px;
-        height: 15px;
-        left: -8px;
-        top: 12px;    
-    }
     .clickColor {
         background-color: #ff9000;
         color: #fff;
@@ -1922,12 +2090,5 @@
         color: #FF0000;
         background-color: #fff;
         margin-right:10px;
-    }
-    .tempocal{
-        border: 1px solid #3bafda;
-        color: #3bafda;
-        background-color: #fff;
-        margin-right:10px;
-        padding: 9px 23px;
     }
 </style>

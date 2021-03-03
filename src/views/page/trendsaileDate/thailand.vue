@@ -314,10 +314,18 @@
                 <!-- <el-table-column prop="weeksOutUpdate" label="更新周数" align="left" :show-overflow-tooltip="true" min-width="100" :sortable="sortableState" :filters="[]">
 
                 </el-table-column> -->
+                <el-table-column prop="operateUser" label="操作人" align="left" :show-overflow-tooltip="true" min-width="80" :sortable="sortableState" :filters="[]">
+                    <template slot-scope="scope">
+                        {{scope.row.operateUser ? scope.row.operateUser.toUpperCase() : ''}}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="left" :show-overflow-tooltip="true" min-width="142" :sortable="sortableState" :filters="[]">
+
+                </el-table-column>
+                <el-table-column prop="operateTime" label="操作时间" align="left" :show-overflow-tooltip="true" min-width="140" :sortable="sortableState" :filters="[]">
 
                 </el-table-column>
                 <el-table-column prop="sss" label="操作" align="left" :show-overflow-tooltip="true" min-width="80">
@@ -536,7 +544,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为有效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_effective, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -594,7 +602,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为无效？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_invalid, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -650,7 +658,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否将状态变为暂停？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm("<div class='tesDiv'><div>是否将状态变为暂停？</div></div>", "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
@@ -708,7 +716,7 @@
                     });
                     return
                 };
-                this.$confirm("<div class = 'line'></div></br><span>是否确认删除？</span> ", "提示", {cancelButtonClass: "btnCustomCencel", 
+                this.$confirm(this.commonJs.confirm_delete, "", {cancelButtonClass: "btnCustomCencel", 
                     confirmButtonClass:"btnCustomSubmit",
                     customClass:"customClass",
                     dangerouslyUseHTMLString:true,
